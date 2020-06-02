@@ -3,6 +3,7 @@ package me.cube.engine.test;
 import me.cube.engine.Game;
 import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
+import me.cube.engine.file.VoxFile;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -10,6 +11,7 @@ import org.lwjgl.assimp.AIMatrix4x4;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MathUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,32 +25,25 @@ public class TestGame implements Game {
     private float time;
 
     private List<Voxel> voxels;
-    private Voxel testVoxel;
 
     public TestGame(){
 
+        voxels = new ArrayList<>();
         camera = new Matrix4f().identity();
 
-        int[][][] cube = new int[4][4][4];
+        try {
+            VoxFile voxFile = new VoxFile("chr_old.vox");
+            voxels.add(new Voxel(new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length())));
 
-        Random random = new Random();
+            voxFile = new VoxFile("chr_knight.vox");
+            voxels.add(new Voxel(new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length())));
 
-        for(int i = 0; i < 4;i++){
-            for(int j = 0; j < 4;j++){
-                for(int k = 0; k < 4;k++){
-                    if(random.nextBoolean()){
-                        continue;
-                    }
-                    cube[i][j][k] = random.nextInt(0xFFFFFF);
-                }
-            }
+            voxFile = new VoxFile("chr_rain.vox");
+            voxels.add(new Voxel(new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length())));
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        VoxelModel voxelModel = new VoxelModel(cube, 4, 4, 4);
-
-        voxels = new ArrayList<>();
-
-        voxels.add(testVoxel = new Voxel(voxelModel));
 
     }
 
@@ -56,8 +51,16 @@ public class TestGame implements Game {
     public void update(float delta) {
         time += delta;
         camera.identity().translate(0f, 0f, -2f);
-        VoxelModel model = testVoxel.model;
-        testVoxel.transform.identity().rotate(time, 1f, 0f, 0f).rotate(time, 0f, 1f, 0f).scale(0.2f);
+
+        int i = -1;
+
+        for(Voxel voxel : voxels){
+            voxel.transform.identity().scale(0.1f)
+                    .translate(i * 20, 0f, -5f)
+                    .rotate(time, 0f, 1f, 0f);
+            i++;
+        }
+
     }
 
     @Override

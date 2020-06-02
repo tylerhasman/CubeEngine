@@ -32,7 +32,8 @@ public class Window implements Runnable {
     public void run() {
         GL.createCapabilities();
 
-        glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
+        //glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
+        glClearColor(0f, 0f, 0f, 0.0f);
 
         long lastFrame = System.currentTimeMillis();
 
