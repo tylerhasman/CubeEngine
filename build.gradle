@@ -8,19 +8,20 @@ version '1.0'
 sourceCompatibility = 1.8
 project.ext.lwjglVersion = "3.2.0"
 project.ext.lwjglNatives = "natives-windows"
+project.ext.jomlVersion = "1.9.25"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "org.mini2Dx:gdx-math:1.9.10"
     implementation "org.lwjgl:lwjgl:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-assimp:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+    implementation "org.joml:joml:$jomlVersion"
     runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives"
