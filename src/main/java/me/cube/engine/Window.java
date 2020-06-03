@@ -1,6 +1,8 @@
 package me.cube.engine;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -21,10 +23,16 @@ public class Window implements Runnable {
     private Game game;
 
     private String title;
+    private int width, height;
+
+    private boolean mouseLocked;
 
     public Window(Game game, String title, int width, int height){
         this.game = game;
         this.title = title;
+        this.width = width;
+        this.height = height;
+        mouseLocked = false;
         init(title, width, height);
     }
 
@@ -32,8 +40,7 @@ public class Window implements Runnable {
     public void run() {
         GL.createCapabilities();
 
-        //glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
-        glClearColor(0f, 0f, 0f, 0.0f);
+        glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
 
         long lastFrame = System.currentTimeMillis();
 
@@ -48,6 +55,17 @@ public class Window implements Runnable {
 
             fpsResetTimer += timeSinceLast;
 
+            double[] x = new double[1];
+            double[] y = new double[1];
+
+            if(mouseLocked){
+                glfwGetCursorPos(handle, x, y);
+
+                game.onCursorMove(x[0] - width / 2f, height / 2f - y[0]);
+
+                glfwSetCursorPos(handle, width / 2f, height / 2f);
+            }
+
             game.update(timeSinceLast / 1000F);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -57,6 +75,7 @@ public class Window implements Runnable {
             glfwSwapBuffers(handle);
 
             glfwPollEvents();
+
 
             fpsCounter++;
             if(fpsResetTimer >= 1000){
@@ -92,6 +111,32 @@ public class Window implements Runnable {
 
         if(handle == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
+
+        glfwSetKeyCallback(handle, new GLFWKeyCallback() {
+            @Override
+            public void invoke (long window, int key, int scancode, int action, int mods) {
+                game.onKeyPress(key, action);
+
+                if(key == GLFW_KEY_ESCAPE){
+                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                    mouseLocked = false;
+                }
+            }
+        });
+
+        glfwSetMouseButtonCallback(handle, new GLFWMouseButtonCallback() {
+            @Override
+            public void invoke(long window, int button, int action, int mods) {
+                if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
+                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                    mouseLocked = true;
+                }
+            }
+        });
+
+        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+        mouseLocked = true;
 
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1); // int*

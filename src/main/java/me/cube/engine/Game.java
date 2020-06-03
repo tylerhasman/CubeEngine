@@ -6,4 +6,7 @@ public interface Game {
 
     void render();
 
+    void onKeyPress(int key, int action);
+
+    void onCursorMove(double v, double v1);
 }
