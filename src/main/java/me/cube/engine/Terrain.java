@@ -20,6 +20,14 @@ public class Terrain extends Voxel {
         }
 
         model = new VoxelModel(blocks, width, height, length);
+        scale.mul(10f);
+    }
+
+    public boolean isSolid(int x, int y, int z){
+        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+            return true;
+        }
+        return blocks[x][y][z] != 0;
     }
 
 }

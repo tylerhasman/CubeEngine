@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -39,6 +40,7 @@ public class Window implements Runnable {
     @Override
     public void run() {
         GL.createCapabilities();
+        GLUtil.setupDebugMessageCallback(System.err);
 
         glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
 
@@ -47,6 +49,8 @@ public class Window implements Runnable {
         int fps = 0;
         int fpsCounter = 0;
         long fpsResetTimer = 0;
+
+        game.init();
 
         while(!glfwWindowShouldClose(handle)){
 
@@ -106,6 +110,7 @@ public class Window implements Runnable {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         handle = glfwCreateWindow(width, height, title, NULL, NULL);
 

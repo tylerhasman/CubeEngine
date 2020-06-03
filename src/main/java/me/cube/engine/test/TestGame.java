@@ -5,6 +5,7 @@ import me.cube.engine.Terrain;
 import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.file.VoxFile;
+import me.cube.engine.shader.ShaderProgram;
 import org.joml.*;
 import org.joml.Math;
 import org.lwjgl.opengl.GL11;
@@ -16,6 +17,7 @@ import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 public class TestGame implements Game {
 
@@ -25,47 +27,20 @@ public class TestGame implements Game {
 
     private float time;
 
-    private List<Voxel> voxels;
-
-    private Terrain terrain;
-
-    private Voxel player;
-
-    private boolean[] keys;
+    public static boolean[] keys;
 
     public TestGame(){
 
         keys = new boolean[1024];
 
-        voxels = new ArrayList<>();
         camera = new Matrix4f().identity();
-        terrain = new Terrain();
 
         cameraDistance = 50f;
 
-        try {
-            VoxFile voxFile = new VoxFile("chr_rain.vox");
-            voxels.add(player = new Voxel(new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length())));
+    }
 
-            voxFile = new VoxFile("tree.vox");
-
-            VoxelModel treeModel = new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
-
-            Random random = new Random();
-
-            for(int i = 0; i < 6;i++){
-                Voxel tree = new Voxel(treeModel);
-                tree.position.set((random.nextFloat() - 0.5f) * 50 * 5, 30, (random.nextFloat() - 0.5f) * 50 * 5);
-                tree.scale.set(2.5f);
-                voxels.add(tree);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        voxels.add(terrain);
-
+    @Override
+    public void init() {
 
     }
 
@@ -93,8 +68,7 @@ public class TestGame implements Game {
     @Override
     public void update(float delta) {
         time += delta;
-
-        terrain.scale.set(10, 10, 10);
+/*
 
         player.scale.set(new Vector3f(1f, 1f, 1f));
         player.position.y = 8f;
@@ -103,9 +77,10 @@ public class TestGame implements Game {
 
         cameraPosition.add(player.position);
 
-        camera.identity().lookAt(cameraPosition, player.position, new Vector3f(0, 1, 0));
+        camera.identity().perspective(Math.toRadians(90f), 600f / 480f, 1f, 1000f).lookAt(cameraPosition, player.position, new Vector3f(0, 1, 0));
+*/
 
-        player.velocity.set(0);
+/*        player.velocity.set(0);
 
         if(keys[GLFW_KEY_W]){
             player.rotation.set(new AxisAngle4f((float) (-angleAroundCharacter + java.lang.Math.PI / 2f), 0, 1, 0));
@@ -121,27 +96,44 @@ public class TestGame implements Game {
         }else if(keys[GLFW_KEY_D]){
             player.rotation.set(new AxisAngle4f((float) (-angleAroundCharacter), 0, 1, 0));
             player.velocity.add((float) Math.cos(angleAroundCharacter - Math.PI / 2f) * 75, 0f, (float) (Math.sin(angleAroundCharacter - Math.PI / 2f) * 75));
-        }
+        }*/
 
+/*
         for(Voxel voxel : voxels){
             voxel.update(delta);
         }
+*/
 
     }
 
     @Override
     public void render() {
+/*
+
 
         glMatrixMode(GL11.GL_PROJECTION);
+
         glLoadIdentity();
-        glFrustum(-1, 1, -1, 1, 1f, 5000f);
+        glLoadMatrixf(camera.get(new float[16]));
+
+        glMatrixMode(GL_MODELVIEW);
+
+        glEnable(GL_MULTISAMPLE);
+
+        glEnable(GL_LIGHTING);
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+        glEnable(GL_LIGHT0);
+
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.5f, 0.5f, 0.5f, 1f});
+        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 5, player.position.z, 1});
 
         glEnable(GL_DEPTH_TEST);
-
-        glBegin(GL_LIGHTING);
-
         glBegin(GL_QUADS);
         {
+
+            Vector3f position = new Vector3f();
 
             for(Voxel voxel : voxels){
                 VoxelModel voxelModel = voxel.model;
@@ -150,10 +142,10 @@ public class TestGame implements Game {
 
                 float[] verts = voxelModel.vertices;
                 float[] colors = voxelModel.colors;
-
-                Vector3f pos = new Vector3f();
+                float[] normals = voxelModel.normals;
 
                 int colorIndex = 0;
+                int normalIndex = 0;
 
                 for(int i = 0; i < verts.length;i += 12){
 
@@ -161,24 +153,38 @@ public class TestGame implements Game {
                     float green = colors[colorIndex++];
                     float blue = colors[colorIndex++];
 
+                    float norX = normals[normalIndex++];
+                    float norY = normals[normalIndex++];
+                    float norZ = normals[normalIndex++];
+
                     glColor3f(red, green, blue);
+                    glNormal3f(norX, norY, norZ);
 
                     for(int j = 0; j < 12;j += 3){
-                        pos.set(verts[i + j], verts[i + j + 1], verts[i + j + 2]);
-                        pos = transform.transformPosition(pos);
-                        pos = camera.transformPosition(pos);
 
-                        glVertex3f(pos.x, pos.y, pos.z);
+                        transform.transformPosition(verts[i + j], verts[i + j + 1], verts[i + j + 2], position);
+
+                        glVertex3f(position.x, position.y, position.z);
                     }
 
                 }
+
+
             }
 
 
         }
         glEnd();
-
         glDisable(GL_DEPTH_TEST);
+
+        glDisable(GL_LIGHT0);
+        glDisable(GL_COLOR_MATERIAL);
+        glDisable(GL_LIGHTING);
+
+        glDisable(GL_MULTISAMPLE);
+
+*/
+
 
     }
 

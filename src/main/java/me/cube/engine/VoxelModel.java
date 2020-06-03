@@ -8,6 +8,7 @@ public class VoxelModel {
 
     public float[] vertices;//To be passed to glQuad
     public float[] colors;
+    public float[] normals;
 
     public final int width, height, length;
 
@@ -21,8 +22,7 @@ public class VoxelModel {
     private void generateVertices(int[][][] cubes){
         List<Float> vertices = new ArrayList<Float>();
         List<Float> colors = new ArrayList<>();
-
-        Random random = new Random();
+        List<Float> normals = new ArrayList<>();
 
         for(int i = 0; i < width;i++){
             for(int j = 0; j < height;j++){
@@ -36,10 +36,6 @@ public class VoxelModel {
                         float green = ((color >> 8) & 255) / 255F;
                         float blue = (color & 255) / 255F;
 
-                        red += (random.nextFloat() - 0.5f) * 0.03f;
-                        green += (random.nextFloat() - 0.5f) * 0.03f;
-                        blue += (random.nextFloat() - 0.5f) * 0.03f;
-
                         float x = i - width / 2f;
                         float y = j - height / 2f;
                         float z = k - length / 2f;
@@ -51,7 +47,7 @@ public class VoxelModel {
                         boolean east = getOrZero(cubes, width, height, length, i-1, j, k) == 0;
                         boolean west = getOrZero(cubes, width, height, length, i+1, j, k) == 0;
 
-                        int verts = generateCube(vertices, x, y, z, top, bottom, north, south, east, west);
+                        int verts = generateCube(vertices, normals, x, y, z, top, bottom, north, south, east, west);
 
                         for(int vertColor = 0; vertColor < verts / 12;vertColor++){
                             colors.add(red);
@@ -67,6 +63,7 @@ public class VoxelModel {
 
         this.vertices = toArray(vertices);
         this.colors = toArray(colors);
+        this.normals = toArray(normals);
     }
 
     private static int getOrZero(int[][][] cube, int w, int h, int l, int x, int y, int z){
@@ -76,118 +73,142 @@ public class VoxelModel {
         return cube[x][y][z];
     }
 
-    private static int generateCube(List<Float> out, float x, float y, float z, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
-        int start = out.size();
+    private static int generateCube(List<Float> vertOut, List<Float> norOut, float x, float y, float z, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
+        int start = vertOut.size();
 
         if(north){
-            out.add(x);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
 
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
+
+            norOut.add(0f);
+            norOut.add(0f);
+            norOut.add(-1f);
         }
 
         if(south){
-            out.add(x);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
 
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
+
+            norOut.add(0f);
+            norOut.add(0f);
+            norOut.add(1f);
         }
 
         if(top){
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
 
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
+
+            norOut.add(0f);
+            norOut.add(1f);
+            norOut.add(0f);
         }
 
         if(bottom){
-            out.add(x);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
-            out.add(x);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
+
+            norOut.add(0f);
+            norOut.add(-1f);
+            norOut.add(0f);
         }
 
         if(east){
-            out.add(x);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
 
-            out.add(x);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
+
+            norOut.add(-1f);
+            norOut.add(0f);
+            norOut.add(0f);
         }
 
         if(west){
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z);
 
-            out.add(x + 1f);
-            out.add(y);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z + 1f);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
 
-            out.add(x + 1f);
-            out.add(y + 1f);
-            out.add(z);
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z);
+
+            norOut.add(0f);
+            norOut.add(0f);
+            norOut.add(1f);
         }
 
-        return out.size() - start;
+        return vertOut.size() - start;
     }
 
     private static float[] toArray(List<Float> vertices){
