@@ -103,16 +103,16 @@ public class VoxelModel {
             vertOut.add(y);
             vertOut.add(z + 1f);
 
-            vertOut.add(x + 1f);
-            vertOut.add(y);
-            vertOut.add(z + 1f);
-
-            vertOut.add(x + 1f);
-            vertOut.add(y + 1f);
-            vertOut.add(z + 1f);
-
             vertOut.add(x);
             vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
+
+            vertOut.add(x + 1f);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
+
+            vertOut.add(x + 1f);
+            vertOut.add(y);
             vertOut.add(z + 1f);
 
             norOut.add(0f);
@@ -143,21 +143,22 @@ public class VoxelModel {
         }
 
         if(bottom){
+
             vertOut.add(x);
             vertOut.add(y);
             vertOut.add(z);
 
-            vertOut.add(x + 1f);
+            vertOut.add(x);
             vertOut.add(y);
-            vertOut.add(z);
+            vertOut.add(z + 1f);
 
             vertOut.add(x + 1f);
             vertOut.add(y);
             vertOut.add(z + 1f);
 
-            vertOut.add(x);
+            vertOut.add(x + 1f);
             vertOut.add(y);
-            vertOut.add(z + 1f);
+            vertOut.add(z);
 
             norOut.add(0f);
             norOut.add(-1f);
@@ -170,16 +171,16 @@ public class VoxelModel {
             vertOut.add(z);
 
             vertOut.add(x);
-            vertOut.add(y);
-            vertOut.add(z + 1f);
-
-            vertOut.add(x);
-            vertOut.add(y + 1f);
-            vertOut.add(z + 1f);
-
-            vertOut.add(x);
             vertOut.add(y + 1f);
             vertOut.add(z);
+
+            vertOut.add(x);
+            vertOut.add(y + 1f);
+            vertOut.add(z + 1f);
+
+            vertOut.add(x);
+            vertOut.add(y);
+            vertOut.add(z + 1f);
 
             norOut.add(-1f);
             norOut.add(0f);
