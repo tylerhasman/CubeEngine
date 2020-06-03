@@ -2,6 +2,7 @@ package me.cube.engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class VoxelModel {
 
@@ -21,6 +22,8 @@ public class VoxelModel {
         List<Float> vertices = new ArrayList<Float>();
         List<Float> colors = new ArrayList<>();
 
+        Random random = new Random();
+
         for(int i = 0; i < width;i++){
             for(int j = 0; j < height;j++){
                 for(int k = 0; k < length;k++){
@@ -32,6 +35,10 @@ public class VoxelModel {
                         float red = ((color >> 16) & 255) / 255F;
                         float green = ((color >> 8) & 255) / 255F;
                         float blue = (color & 255) / 255F;
+
+                        red += (random.nextFloat() - 0.5f) * 0.03f;
+                        green += (random.nextFloat() - 0.5f) * 0.03f;
+                        blue += (random.nextFloat() - 0.5f) * 0.03f;
 
                         float x = i - width / 2f;
                         float y = j - height / 2f;
