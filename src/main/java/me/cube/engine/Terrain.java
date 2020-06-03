@@ -1,6 +1,7 @@
 package me.cube.engine;
 
 import javafx.scene.paint.Color;
+import org.joml.Vector3f;
 
 import java.util.Random;
 
@@ -19,11 +20,20 @@ public class Terrain extends Voxel {
             }
         }
 
-        model = new VoxelModel(blocks, width, height, length);
+        model = new VoxelModel(blocks, width, height, length, false);
         scale.mul(10f);
     }
 
-    public boolean isSolid(int x, int y, int z){
+    public boolean isSolid(Vector3f position){
+        Vector3f inverseScale = new Vector3f(1f / scale.x, 1f / scale.y, 1f / scale.z);
+        Vector3f pos = new Vector3f();
+
+        position.mul(inverseScale, pos);
+
+        return isSolid((int) pos.x, (int) pos.y, (int) pos.z);
+    }
+
+    private boolean isSolid(int x, int y, int z){
         if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
             return true;
         }

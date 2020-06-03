@@ -15,15 +15,15 @@ public abstract class Entity {
 
     public float life;
 
+    public float gravity;
+
     public Entity(World world){
         this.world = world;
-/*        this.position = new Vector3f();
-        this.scale = new Vector3f(1, 1, 1);
-        this.rotation = new Quaternionf();*/
         root = new Voxel(null);
         position = root.position;
         scale = root.scale;
         rotation = root.rotation;
+        gravity = -0.2f;
     }
 
     public World getWorld() {
@@ -32,6 +32,11 @@ public abstract class Entity {
 
     public void update(float delta){
         life += delta;
+
+        if(!getWorld().getTerrain().isSolid(position)){
+           position.y += gravity;
+        }
+
     }
 
 }

@@ -13,13 +13,17 @@ public class VoxelModel {
     public final int width, height, length;
 
     public VoxelModel(int[][][] cubes, int width, int height, int length){
+        this(cubes, width, height, length, true);
+    }
+
+    public VoxelModel(int[][][] cubes, int width, int height, int length, boolean center){
         this.width = width;
         this.height = height;
         this.length = length;
-        generateVertices(cubes);
+        generateVertices(cubes, center);
     }
 
-    private void generateVertices(int[][][] cubes){
+    private void generateVertices(int[][][] cubes, boolean center){
         List<Float> vertices = new ArrayList<Float>();
         List<Float> colors = new ArrayList<>();
         List<Float> normals = new ArrayList<>();
@@ -36,9 +40,15 @@ public class VoxelModel {
                         float green = ((color >> 8) & 255) / 255F;
                         float blue = (color & 255) / 255F;
 
-                        float x = i - width / 2f;
-                        float y = j - height / 2f;
-                        float z = k - length / 2f;
+                        float x = i;
+                        float y = j;
+                        float z = k;
+
+                        if(center){
+                            x -= width / 2f;
+                            y -= height / 2f;
+                            z -= length / 2f;
+                        }
 
                         boolean top = getOrZero(cubes, width, height, length, i, j + 1, k) == 0;
                         boolean bottom = getOrZero(cubes, width, height, length, i, j - 1, k) == 0;

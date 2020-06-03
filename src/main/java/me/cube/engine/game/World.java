@@ -25,6 +25,10 @@ public class World {
         terrain = new Terrain(20, 10, 20);
     }
 
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
     public Player getPlayer() {
         return player;
     }
@@ -44,7 +48,6 @@ public class World {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
         glLightfv(GL_LIGHT0, GL_AMBIENT, new float[] {0.3f, 0.3f, 0.3f, 1f});
-
 
         glBegin(GL_QUADS);
 
