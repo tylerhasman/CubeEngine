@@ -1,5 +1,6 @@
 package me.cube.engine;
 
+import org.joml.AABBf;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -47,14 +48,6 @@ public class Voxel {
         for(Voxel child : children){
             child.calculateTransforms(transform);
         }
-
-        /*
-
-        if(children.size() == 0){
-            System.out.println(position);
-        }else{
-            System.out.println(children.size());
-        }*/
 
     }
 

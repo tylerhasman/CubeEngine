@@ -4,10 +4,14 @@ import me.cube.engine.Game;
 import org.joml.*;
 import org.joml.Math;
 
+import static me.cube.engine.game.Input.*;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 public class CubeGame implements Game {
+
+    public static CubeGame game;
 
     private World world;
 
@@ -20,6 +24,7 @@ public class CubeGame implements Game {
 
     @Override
     public void init() {
+        game = this;
         world = new World();
         projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1f, 0.01f, 500);
@@ -32,13 +37,7 @@ public class CubeGame implements Game {
         pitch = 45;
     }
 
-    @Override
-    public void update(float delta) {
-
-        projectionMatrix.mul(cameraMatrix, combined);
-
-        Entity player = world.getPlayer();
-
+    public Vector3f getCameraForward(){
         float rYaw = Math.toRadians(yaw);
         float rPitch = Math.toRadians(pitch);
 
@@ -48,11 +47,31 @@ public class CubeGame implements Game {
 
         forward.mul(m);
 
-        Vector4f p = new Vector4f();
+        return new Vector3f(forward.x, forward.y, forward.z);
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    @Override
+    public void update(float delta) {
+
+        projectionMatrix.mul(cameraMatrix, combined);
+
+        Entity player = world.getPlayer();
+
+        Vector3f forward = getCameraForward();
+
+        Vector3f p = new Vector3f();
 
         for(float f = 0f; f < distanceFromTarget;f += 0.25f){
             forward.mul(f, p);
-            p.add(player.position.x, player.position.y + 10, player.position.z, 0f);
+            p.add(player.position.x, player.position.y + 10, player.position.z);
             if(world.getTerrain().isSolid(new Vector3f(p.x, p.y, p.z))){
                 break;
             }
@@ -95,7 +114,21 @@ public class CubeGame implements Game {
 
     @Override
     public void onKeyPress(int key, int action) {
+        if(key == GLFW_KEY_W){
+            Input.setActionState(ACTION_FORWARD, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
 
+        if(key == GLFW_KEY_S){
+            Input.setActionState(ACTION_BACK, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
+
+        if(key == GLFW_KEY_A){
+            Input.setActionState(ACTION_LEFT, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
+
+        if(key == GLFW_KEY_D){
+            Input.setActionState(ACTION_RIGHT, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
     }
 
     @Override

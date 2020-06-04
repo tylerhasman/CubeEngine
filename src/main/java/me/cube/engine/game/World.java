@@ -1,6 +1,7 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Terrain;
+import org.joml.AABBf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class World {
 
         player = new Player(this);
 
-        player.position.set(100, 50, 100);
+        player.position.set(100, 100, 100);
 
         entities.add(player);
 
@@ -36,6 +37,9 @@ public class World {
     }
 
     public void update(float delta){
+        for(Entity entity : entities){
+            entity.updatePhysics(delta);
+        }
         for(Entity entity : entities){
             entity.update(delta);
         }
@@ -72,10 +76,30 @@ public class World {
 
         glDisable(GL_CULL_FACE);
 
-
         glDisable(GL_LIGHT0);
         glDisable(GL_LIGHTING);
         glDisable(GL_COLOR_MATERIAL);
+
+
+        glBegin(GL_LINES);
+
+        glColor3f(1f, 0f, 0f);
+        for(Entity entity : entities){
+            AABBf boundingBox = entity.boundingBox;
+
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+            glVertex3f(boundingBox.minX + (boundingBox.maxX - boundingBox.minX), boundingBox.minY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+            glVertex3f(boundingBox.minX, boundingBox.minY + (boundingBox.maxY - boundingBox.minY), boundingBox.minZ);
+
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ));
+
+
+        }
+
+        glEnd();
     }
 
 }
