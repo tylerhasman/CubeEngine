@@ -2,7 +2,6 @@ package me.cube.engine.game;
 
 import me.cube.engine.Voxel;
 import org.joml.AABBf;
-import org.joml.Intersectionf;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -26,7 +25,7 @@ public abstract class Entity {
 
     public Entity(World world){
         this.world = world;
-        root = new Voxel(null);
+        root = new Voxel("root", null);
         position = root.position;
         scale = root.scale;
         rotation = root.rotation;

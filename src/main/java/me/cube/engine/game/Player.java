@@ -5,11 +5,10 @@ import me.cube.engine.VoxelModel;
 import me.cube.engine.file.Assets;
 import org.joml.Math;
 import org.joml.Vector3f;
-import org.lwjgl.system.CallbackI;
 
 import static me.cube.engine.game.Input.*;
 
-public class Player extends Entity {
+public class Player extends LivingEntity {
 
     private Voxel leftFoot, rightFoot, sword, rightHand, leftHand;
 
@@ -22,18 +21,18 @@ public class Player extends Entity {
         VoxelModel headModel = Assets.loadModel("head.vox");
         VoxelModel swordModel = Assets.loadModel("BowTest.vxm");
 
-        Voxel torso = new Voxel(torsoModel);
+        Voxel torso = new Voxel("torso", torsoModel);
 
-        Voxel head = new Voxel(headModel);
+        Voxel head = new Voxel("head", headModel);
         head.position.y = 10;
 
-        leftHand = new Voxel(handModel);
+        leftHand = new Voxel("left-hand", handModel);
         leftHand.position.x = -8;
 
-        rightHand = new Voxel(handModel);
+        rightHand = new Voxel("right-hand", handModel);
         rightHand.position.x = 8;
 
-        sword = new Voxel(swordModel);
+        sword = new Voxel("weapon", swordModel);
         sword.position.y = 10;
         sword.position.z = -2.5f;
         sword.origin.y = 10;
@@ -41,12 +40,12 @@ public class Player extends Entity {
 
         rightHand.addChild(sword);
 
-        leftFoot = new Voxel(footModel);
+        leftFoot = new Voxel("left-foot", footModel);
         leftFoot.position.y = -6;
         leftFoot.position.x = -4;
         leftFoot.position.z = 1;
 
-        rightFoot = new Voxel(footModel);
+        rightFoot = new Voxel("right-foot", footModel);
         rightFoot.position.y = -6;
         rightFoot.position.x = 4;
         rightFoot.position.z = 1;

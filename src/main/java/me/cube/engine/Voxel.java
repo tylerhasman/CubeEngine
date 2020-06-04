@@ -1,6 +1,5 @@
 package me.cube.engine;
 
-import org.joml.AABBf;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -12,6 +11,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Voxel {
 
+    public final String name;
     public final Vector3f position, scale;
     public final Quaternionf rotation;
     public final Vector3f origin;
@@ -21,10 +21,11 @@ public class Voxel {
     private final Matrix4f transform;
 
     public Voxel(){
-        this(null);
+        this("unnamed", null);
     }
 
-    public Voxel(VoxelModel model){
+    public Voxel(String name, VoxelModel model){
+        this.name = name;
         transform = new Matrix4f();
         position = new Vector3f();
         scale = new Vector3f(1f, 1f, 1f);
@@ -34,10 +35,34 @@ public class Voxel {
         origin = new Vector3f();
     }
 
+    /**
+     * Adds a child to this voxel, it will be rendered by this one's render
+     */
     public void addChild(Voxel voxel){
         children.add(voxel);
     }
 
+    /**
+     * Recursively finds a child of this voxel. If two child voxels share the same name the behaviour is undefined.
+     */
+    public Voxel getChild(String name){
+        for(Voxel child : children){
+            if(child.name.equalsIgnoreCase(name)){
+                return child;
+            }
+        }
+        for(Voxel child : children){
+            Voxel found = child.getChild(name);
+            if(found != null){
+                return found;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Calculates this voxel and all its childrens transforms relative to some parent voxel
+     */
     private void calculateTransforms(Matrix4f parent){
 
         transform.identity();
@@ -57,6 +82,10 @@ public class Voxel {
 
     }
 
+    /**
+     * Actually renders this voxel and children ones.
+     * Does not update transformations
+     */
     private void render0(){
         if(model != null){
 
@@ -96,6 +125,9 @@ public class Voxel {
         }
     }
 
+    /**
+     * Updates this voxels transformations and renders it.
+     */
     public void render(){
         calculateTransforms(null);
 
