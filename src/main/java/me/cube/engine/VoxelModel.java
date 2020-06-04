@@ -1,5 +1,7 @@
 package me.cube.engine;
 
+import org.joml.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,6 +14,8 @@ public class VoxelModel {
 
     public final int width, height, length;
 
+    public final Vector3f pivot = new Vector3f();
+
     public VoxelModel(int[][][] cubes, int width, int height, int length){
         this(cubes, width, height, length, true);
     }
@@ -20,6 +24,9 @@ public class VoxelModel {
         this.width = width;
         this.height = height;
         this.length = length;
+        if(!center){
+            pivot.set(width / 2f, height / 2f, length / 2f);
+        }
         generateVertices(cubes, center);
     }
 

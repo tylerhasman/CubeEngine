@@ -1,5 +1,7 @@
 package me.cube.engine.file;
 
+import org.joml.Vector3f;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +14,8 @@ public class VxmFile {
     private int version;
 
     private int width, height, length;
+
+    private float pivX, pivY, pivZ;
 
     private int[][][] voxels;
     private int[] colorPallete;
@@ -45,6 +49,10 @@ public class VxmFile {
         }
 
         return v;
+    }
+
+    public Vector3f getPivot(){
+        return new Vector3f(pivX, pivY, pivZ).mul(width, height, length).sub(width / 2f, height / 2f, length / 2f);
     }
 
     public int width(){
@@ -85,9 +93,9 @@ public class VxmFile {
             }
         }
 
-        wrap.getFloat();
-        wrap.getFloat();
-        wrap.getFloat();
+        pivX = wrap.getFloat();
+        pivY = wrap.getFloat();
+        pivZ = wrap.getFloat();
 
         if(wrap.get() != 0){
             throw new IllegalArgumentException("Screen data!");

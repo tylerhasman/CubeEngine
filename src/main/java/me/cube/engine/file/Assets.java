@@ -2,6 +2,7 @@ package me.cube.engine.file;
 
 import me.cube.engine.VoxelModel;
 import me.cube.engine.file.VoxFile;
+import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class Assets {
                 VxmFile voxFile = new VxmFile(path);
 
                 model = new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
+                model.pivot.set(voxFile.getPivot());
             }else{
                 model = new VoxelModel(new int[0][0][0], 0, 0, 0);
                 System.err.println("Unknown file format "+path);

@@ -80,7 +80,9 @@ public class World {
         glDisable(GL_LIGHTING);
         glDisable(GL_COLOR_MATERIAL);
 
+    }
 
+    private void renderHitboxes(){
         glBegin(GL_LINES);
 
         glColor3f(1f, 0f, 0f);
@@ -96,6 +98,35 @@ public class World {
             glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
             glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ));
 
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
+
+            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
+            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+
+            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
+            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+
+            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
 
         }
 

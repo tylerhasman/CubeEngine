@@ -33,6 +33,9 @@ public class Voxel {
         this.model = model;
         children = new ArrayList<>();
         origin = new Vector3f();
+        if(model != null){
+           origin.set(model.pivot);
+        }
     }
 
     /**
@@ -47,7 +50,7 @@ public class Voxel {
      */
     public Voxel getChild(String name){
         for(Voxel child : children){
-            if(child.name.equalsIgnoreCase(name)){
+            if(child.name.equals(name)){
                 return child;
             }
         }
@@ -57,6 +60,7 @@ public class Voxel {
                 return found;
             }
         }
+        System.err.println("[ERROR] Couldnt find child "+name);
         return null;
     }
 
@@ -71,10 +75,7 @@ public class Voxel {
             transform.mul(parent);
         }
 
-        Vector3f oppositeOrigin = new Vector3f();
-        origin.mul(-1f, oppositeOrigin);
-
-        transform.scale(scale).translate(position).translate(oppositeOrigin).rotate(rotation).translate(origin);
+        transform.scale(scale).translate(position).rotate(rotation).translate(origin.mul(-1f, new Vector3f()));
 
         for(Voxel child : children){
             child.calculateTransforms(transform);

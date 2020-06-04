@@ -1,6 +1,7 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Voxel;
+import me.cube.engine.game.animation.AnimationController;
 import org.joml.AABBf;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -23,6 +24,8 @@ public abstract class Entity {
     public final AABBf boundingBox;
     private final Vector3f bbMin, bbMax;
 
+    private boolean onGround;
+
     public Entity(World world){
         this.world = world;
         root = new Voxel("root", null);
@@ -36,11 +39,17 @@ public abstract class Entity {
         bbMax = new Vector3f();
     }
 
+    public boolean isOnGround() {
+        return onGround;
+    }
+
     public World getWorld() {
         return world;
     }
 
     public void updatePhysics(float delta){
+
+        onGround = false;
 
         velocity.y += gravity * delta;
 
@@ -63,6 +72,7 @@ public abstract class Entity {
             if(getWorld().getTerrain().isColliding(boundingBox)){
                 position.y = beforePosition.y;
                 velocity.y = 0;
+                onGround = true;
             }
 
             position.add(0, 0, velocity.z * delta);

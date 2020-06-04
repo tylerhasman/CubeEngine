@@ -50,9 +50,9 @@ public class Terrain extends Voxel {
     }
 
     public boolean isColliding(AABBf boundingBox) {
-        for(float x = boundingBox.minX;x < boundingBox.maxX; x += scale.x){
-            for(float y = boundingBox.minY;y < boundingBox.maxY; y += scale.y){
-                for(float z = boundingBox.minZ;z < boundingBox.maxZ; z += scale.z){
+        for(float x = boundingBox.minX;x <= boundingBox.maxX; x += scale.x / 2f){
+            for(float y = boundingBox.minY;y <= boundingBox.maxY; y += scale.y / 2f){
+                for(float z = boundingBox.minZ;z <= boundingBox.maxZ; z += scale.z / 2f){
                     if(isSolid(x, y, z)){
                         return true;
                     }
