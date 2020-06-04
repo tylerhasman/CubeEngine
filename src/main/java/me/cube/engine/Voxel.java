@@ -44,7 +44,6 @@ public class Voxel {
         }
         transform.scale(scale).translate(position).rotate(rotation);
 
-
         for(Voxel child : children){
             child.calculateTransforms(transform);
         }

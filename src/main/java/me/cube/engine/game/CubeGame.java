@@ -1,10 +1,8 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Game;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -50,11 +48,23 @@ public class CubeGame implements Game {
 
         forward.mul(m);
 
-        Vector4f p = forward.mul(distanceFromTarget);
+        Vector4f p = new Vector4f();
 
-        cameraMatrix.identity().lookAt(p.x + player.position.x, p.y + player.position.y, p.z + player.position.z,
-                        player.position.x, player.position.y + 3, player.position.z,
+        for(float f = 0f; f < distanceFromTarget;f += 0.25f){
+            forward.mul(f, p);
+            p.add(player.position.x, player.position.y + 10, player.position.z, 0f);
+            if(world.getTerrain().isSolid(new Vector3f(p.x, p.y, p.z))){
+                break;
+            }
+        }
+
+        p.sub(forward);
+
+
+        cameraMatrix.identity().lookAt(p.x, p.y, p.z,
+                        player.position.x, player.position.y + 10, player.position.z,
                         0, 1, 0);
+
 
         world.update(delta);
     }

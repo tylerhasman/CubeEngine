@@ -35,7 +35,7 @@ public class Player extends Entity {
         rightFoot.position.x = 4;
         rightFoot.position.z = -2;
 
-        torso.position.y += 6;
+        torso.position.y += 9.5f;
 
         root.addChild(torso);
 
