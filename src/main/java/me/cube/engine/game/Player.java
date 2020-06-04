@@ -11,7 +11,7 @@ import static me.cube.engine.game.Input.*;
 
 public class Player extends Entity {
 
-    private Voxel leftFoot, rightFoot;
+    private Voxel leftFoot, rightFoot, sword, rightHand, leftHand;
 
     public Player(World world) {
         super(world);
@@ -20,27 +20,36 @@ public class Player extends Entity {
         VoxelModel handModel = Assets.loadModel("hand.vox");
         VoxelModel footModel = Assets.loadModel("foot.vox");
         VoxelModel headModel = Assets.loadModel("head.vox");
+        VoxelModel swordModel = Assets.loadModel("BowTest.vxm");
 
         Voxel torso = new Voxel(torsoModel);
 
         Voxel head = new Voxel(headModel);
         head.position.y = 10;
 
-        Voxel leftHand = new Voxel(handModel);
+        leftHand = new Voxel(handModel);
         leftHand.position.x = -8;
 
-        Voxel rightHand = new Voxel(handModel);
+        rightHand = new Voxel(handModel);
         rightHand.position.x = 8;
+
+        sword = new Voxel(swordModel);
+        sword.position.y = 10;
+        sword.position.z = -2.5f;
+        sword.origin.y = 10;
+        sword.scale.set(0.4f);
+
+        rightHand.addChild(sword);
 
         leftFoot = new Voxel(footModel);
         leftFoot.position.y = -6;
         leftFoot.position.x = -4;
-        leftFoot.position.z = -2;
+        leftFoot.position.z = 1;
 
         rightFoot = new Voxel(footModel);
         rightFoot.position.y = -6;
         rightFoot.position.x = 4;
-        rightFoot.position.z = -2;
+        rightFoot.position.z = 1;
 
         torso.position.y += 9.5f;
 
@@ -102,7 +111,9 @@ public class Player extends Entity {
         if(walking){
             leftFoot.rotation.identity().rotateAxis(Math.sin(life * 10) * (float) Math.PI * 0.5f, 1, 0, 0);
             rightFoot.rotation.identity().rotateAxis(Math.sin(-life * 10) * (float) Math.PI * 0.5f, 1, 0, 0);
+            sword.rotation.identity().rotateAxis(Math.toRadians(180), 0, 1, 0).rotateAxis(Math.sin(-life * 10) * (float) Math.PI * 0.1f, 1, 0, 0);
         }
+        sword.origin.y = 10;
 
     }
 }

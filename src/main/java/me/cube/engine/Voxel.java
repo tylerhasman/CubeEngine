@@ -14,6 +14,7 @@ public class Voxel {
 
     public final Vector3f position, scale;
     public final Quaternionf rotation;
+    public final Vector3f origin;
     public VoxelModel model;
     private final List<Voxel> children;
 
@@ -30,6 +31,7 @@ public class Voxel {
         rotation = new Quaternionf();
         this.model = model;
         children = new ArrayList<>();
+        origin = new Vector3f();
     }
 
     public void addChild(Voxel voxel){
@@ -43,7 +45,11 @@ public class Voxel {
         if(parent != null){
             transform.mul(parent);
         }
-        transform.scale(scale).translate(position).rotate(rotation);
+
+        Vector3f oppositeOrigin = new Vector3f();
+        origin.mul(-1f, oppositeOrigin);
+
+        transform.scale(scale).translate(position).translate(oppositeOrigin).rotate(rotation).translate(origin);
 
         for(Voxel child : children){
             child.calculateTransforms(transform);

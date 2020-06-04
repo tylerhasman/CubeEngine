@@ -18,9 +18,18 @@ public class Assets {
 
         VoxelModel model;
         try {
-            VoxFile voxFile = new VoxFile(path);
+            if(path.endsWith("vox")){
+                VoxFile voxFile = new VoxFile(path);
 
-            model = new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
+                model = new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
+            }else if(path.endsWith("vxm")){
+                VxmFile voxFile = new VxmFile(path);
+
+                model = new VoxelModel(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
+            }else{
+                model = new VoxelModel(new int[0][0][0], 0, 0, 0);
+                System.err.println("Unknown file format "+path);
+            }
 
             System.out.println("[ASSET] Loaded "+path);
         } catch (IOException e) {
