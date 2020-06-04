@@ -42,12 +42,21 @@ public class AnimationLayer {
         animations.put(id, animation);
     }
 
-    protected void setActiveAnimation(String activeAnimation) {
+    protected void transitionAnimation(String activeAnimation) {
         if(!this.activeAnimation.equalsIgnoreCase(activeAnimation)){
             prevTime = time;
             time = 0f;
             this.previousAnimation = this.activeAnimation;
         }
+        this.activeAnimation = activeAnimation;
+    }
+
+    protected void setActiveAnimation(String activeAnimation) {
+        if(!this.activeAnimation.equalsIgnoreCase(activeAnimation)){
+            prevTime = 0f;
+            time = 0f;
+        }
+        this.previousAnimation = activeAnimation;
         this.activeAnimation = activeAnimation;
     }
 

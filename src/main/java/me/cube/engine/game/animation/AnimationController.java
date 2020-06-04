@@ -47,6 +47,15 @@ public class AnimationController {
         }
     }
 
+    public void transitionAnimation(int layer, String nextAnimationId){
+        if(layers.containsKey(layer)){
+            AnimationLayer l = layers.get(layer);
+            l.transitionAnimation(nextAnimationId);
+        }else{
+            System.err.println("Unknown animation layer "+layer+" ("+nextAnimationId+")");
+        }
+    }
+
     public void update(float delta){
         avatar.resetAllParts();
         for(AnimationLayer layer : layers.values()){

@@ -50,14 +50,6 @@ public class CubeGame implements Game {
         return new Vector3f(forward.x, forward.y, forward.z);
     }
 
-    public float getPitch() {
-        return pitch;
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
-
     @Override
     public void update(float delta) {
 
@@ -128,6 +120,10 @@ public class CubeGame implements Game {
 
         if(key == GLFW_KEY_D){
             Input.setActionState(ACTION_RIGHT, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
+
+        if(key == GLFW_KEY_SPACE){
+            Input.setActionState(ACTION_JUMP, action == GLFW_PRESS);
         }
     }
 

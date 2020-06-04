@@ -3,12 +3,10 @@ package me.cube.engine.game;
 import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.file.Assets;
-import me.cube.engine.game.animation.AnimationController;
-import me.cube.engine.game.animation.Avatar;
-import me.cube.engine.game.animation.IdleAnimation;
-import me.cube.engine.game.animation.WalkingAnimation;
+import me.cube.engine.game.animation.*;
+import me.cube.engine.util.MathUtil;
 import org.joml.Math;
-import org.joml.Vector3f;
+import org.joml.Vector2f;
 
 public class LivingEntity extends Entity {
 
@@ -27,27 +25,30 @@ public class LivingEntity extends Entity {
         yaw = 0f;
     }
 
-    public void walk(float dirX, float dirZ){
-        velocity.x = dirX * moveSpeed;
-        velocity.z = dirZ * moveSpeed;
+    public void walk(float dirX, float dirZ, float acceleration){
+        velocity.x = MathUtil.moveValueTo(velocity.x, dirX * moveSpeed, acceleration);
+        velocity.z = MathUtil.moveValueTo(velocity.z, dirZ * moveSpeed, acceleration);
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
 
-        if(isOnGround() && (Math.abs(velocity.x) > 0 || Math.abs(velocity.z) > 0)){
-            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "walking");
+        if(isOnGround()){
+            if((Math.abs(velocity.x) > 0 || Math.abs(velocity.z) > 0)){
+                animationController.transitionAnimation(ANIMATION_LAYER_BASE, "walking");
+            }else{
+                animationController.transitionAnimation(ANIMATION_LAYER_BASE, "idle");
+            }
         }else{
-            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "idle");
+            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "falling");
         }
 
         if(!velocity.equals(0, 0, 0)){
             float targetYaw = (float) (Math.atan2(velocity.x, velocity.z) + Math.PI);
 
-            yaw = targetYaw;
+            yaw = MathUtil.moveAngleTowards(yaw, targetYaw, delta * 20);
         }
-
 
         rotation.identity().rotateAxis(yaw, 0, 1, 0);
         animationController.update(delta);
@@ -67,6 +68,7 @@ public class LivingEntity extends Entity {
 
         animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation());
         animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation());
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation());
 
     }
 
@@ -75,6 +77,7 @@ public class LivingEntity extends Entity {
         VoxelModel handModel = Assets.loadModel("hand.vox");
         VoxelModel footModel = Assets.loadModel("foot.vox");
         VoxelModel headModel = Assets.loadModel("head.vox");
+        VoxelModel swordModel = Assets.loadModel("sword.vxm");
 
         Voxel torso = new Voxel("torso", torsoModel);
 
@@ -86,6 +89,8 @@ public class LivingEntity extends Entity {
 
         Voxel rightHand = new Voxel("right-hand", handModel);
         rightHand.position.x = 8;
+
+        rightHand.addChild(new Voxel("weapon", swordModel));
 
         Voxel leftFoot = new Voxel("left-foot", footModel);
         leftFoot.position.y = -6;

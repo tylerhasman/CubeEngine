@@ -19,13 +19,11 @@ public class Player extends LivingEntity {
     public void update(float delta) {
         super.update(delta);
 
-        Vector3f forward = CubeGame.game.getCameraForward().normalize();//TODO: When you aim the camera more downwards you move slower, fix this
+        Vector3f forward = CubeGame.game.getCameraForward().mul(1, 0, 1).normalize();//TODO: When you aim the camera more downwards you move slower, fix this
 
         Vector3f right = new Vector3f();
 
         forward.rotateAxis(Math.toRadians(90f), 0, 1, 0, right);
-
-        walk(0, 0);
 
         Vector2f desiredDirection = new Vector2f();
 
@@ -45,7 +43,18 @@ public class Player extends LivingEntity {
             desiredDirection.add(-right.x, -right.z);
         }
 
-        walk(desiredDirection.x, desiredDirection.y);
+        if(Input.isActionActive(ACTION_JUMP)){
+            if(isOnGround()){
+                velocity.y = 100;
+            }
+        }
+
+        if(desiredDirection.x == 0 && desiredDirection.y == 0){
+            walk(0, 0, 300 * delta);
+        }else{
+            walk(desiredDirection.x, desiredDirection.y, 400 * delta);
+        }
+
 
     }
 }

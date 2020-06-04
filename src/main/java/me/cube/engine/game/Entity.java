@@ -33,7 +33,7 @@ public abstract class Entity {
         scale = root.scale;
         rotation = root.rotation;
         velocity = new Vector3f();
-        gravity = -64f;
+        gravity = -128f;
         boundingBox = new AABBf();
         bbMin = new Vector3f();
         bbMax = new Vector3f();

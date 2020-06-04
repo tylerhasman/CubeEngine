@@ -2,6 +2,8 @@ package me.cube.engine.game.animation;
 
 import org.joml.Math;
 
+import static me.cube.engine.util.MathUtil.PI;
+
 public class WalkingAnimation extends Animation {
 
     @Override
