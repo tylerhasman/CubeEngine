@@ -1,10 +1,12 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Terrain;
+import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -25,7 +27,17 @@ public class World {
 
         entities.add(player);
 
-        terrain = new Terrain(20, 10, 20);
+        terrain = new Terrain(40, 10, 40);
+
+        Random random = new Random();
+
+        for(int i = 0; i < 6;i++){
+            Flora flora = new Flora(this);
+            flora.rotation.rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0);
+            flora.position.add(random.nextFloat() * 40 * 10, 15, random.nextFloat() * 40 * 10);
+            entities.add(flora);
+        }
+
     }
 
     public Terrain getTerrain() {
