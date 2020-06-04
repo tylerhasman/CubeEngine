@@ -9,7 +9,7 @@ public class AnimationLayer {
     private String activeAnimation;
     private String previousAnimation;
     private final Avatar avatar;
-    private float time;
+    private float time, prevTime;
 
 
     protected AnimationLayer(Avatar avatar) {
@@ -26,7 +26,7 @@ public class AnimationLayer {
         float interpolated = Math.min(1f, time * 5f);
         if(previous != null){
             avatar.globalWeight = 1f - interpolated;
-            previous.update(avatar, time);
+            previous.update(avatar, prevTime);
         }
         if(active != null){
             avatar.globalWeight = interpolated;
@@ -44,6 +44,7 @@ public class AnimationLayer {
 
     protected void setActiveAnimation(String activeAnimation) {
         if(!this.activeAnimation.equalsIgnoreCase(activeAnimation)){
+            prevTime = time;
             time = 0f;
             this.previousAnimation = this.activeAnimation;
         }
