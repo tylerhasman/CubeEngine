@@ -1,6 +1,5 @@
 package me.cube.engine;
 
-import javafx.scene.paint.Color;
 import me.cube.engine.file.VxmFile;
 import org.joml.AABBf;
 import org.joml.Vector3f;
