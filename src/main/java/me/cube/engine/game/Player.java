@@ -49,6 +49,10 @@ public class Player extends LivingEntity {
             }
         }
 
+        if(Input.isActionActive(ACTION_ROLL)){
+            roll();
+        }
+
         if(Input.isActionActive(ACTION_ATTACK_PRIMARY)){
             takeOutWeapon();
             attack();

@@ -114,8 +114,10 @@ public class CubeGame implements Game {
 
     @Override
     public void onMousePress(int button, int action) {
-        if(button == GLFW_MOUSE_BUTTON_1){
+        if(button == GLFW_MOUSE_BUTTON_LEFT){
             Input.setActionState(ACTION_ATTACK_PRIMARY, action == GLFW_PRESS);
+        }else if(button == GLFW_MOUSE_BUTTON_MIDDLE){
+            Input.setActionState(ACTION_ROLL, action == GLFW_PRESS);
         }
     }
 

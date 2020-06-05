@@ -18,8 +18,12 @@ public class LivingEntity extends Entity {
     private float moveSpeed;
     private float yaw;
 
+    private float attackTime;
+
     private boolean weaponOut;
     private float weaponPutAwayTime;
+    private float rollTime;
+
 
     public LivingEntity(World world) {
         super(world);
@@ -28,7 +32,15 @@ public class LivingEntity extends Entity {
         initAnimations();
         yaw = 0f;
         weaponOut = false;
+        attackTime = 0f;
     }
+
+    public void roll(){
+        if(attackTime <= 0f && rollTime <= 0f){
+            rollTime = 0.4f;
+        }
+    }
+
 
     public void walk(float dirX, float dirZ, float acceleration){
         velocity.x = MathUtil.moveValueTo(velocity.x, dirX * moveSpeed, acceleration);
@@ -71,11 +83,25 @@ public class LivingEntity extends Entity {
             animationController.transitionAnimation(ANIMATION_LAYER_HAND, "idle");
         }
 
+        if(rollTime > 0){
+            rollTime -= delta;
+            Voxel torso = root.getChild("torso");
+            torso.rotation.rotateAxis(MathUtil.PI2 * rollTime * (1f / 0.4f), 1, 0, -0.2f);
+        }else{
+            rollTime = 0;
+        }
+
+        attackTime -= delta;
+
+
     }
 
     public void attack(){
-        animationController.transitionAnimation(ANIMATION_LAYER_HAND, "swing");
-        weaponPutAwayTime = 10f;
+        if(attackTime <= 0f && rollTime <= 0f){
+            animationController.transitionAnimation(ANIMATION_LAYER_HAND, "swing");
+            weaponPutAwayTime = 10f;
+            attackTime = 1f;
+        }
     }
 
     public void putAwayWeapon(){
