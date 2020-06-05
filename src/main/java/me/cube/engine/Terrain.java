@@ -27,7 +27,7 @@ public class Terrain extends Voxel {
         }
 
         try {
-            VxmFile tree = new VxmFile("tree.vxm");
+            VxmFile tree = new VxmFile("assets/models/tree.vxm");
 
             int[][][] pixels = tree.toVoxelColorArray();
 

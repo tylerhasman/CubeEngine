@@ -13,9 +13,11 @@ public class Assets {
     private static Map<String, VoxelModel> models = new HashMap<>();
 
     public static VoxelModel loadModel(String path){
+        path = "assets/models/"+path;
         if(models.containsKey(path)){
             return models.get(path);
         }
+
 
         VoxelModel model;
         try {
