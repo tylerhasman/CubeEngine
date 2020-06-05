@@ -38,4 +38,8 @@ public class MathUtil {
         return from;
     }
 
+    public static float swingIn(float a, float scale){
+        return a = a * a * ((scale + 1) * a - scale);
+    }
+
 }

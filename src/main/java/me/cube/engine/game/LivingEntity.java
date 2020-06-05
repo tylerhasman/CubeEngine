@@ -63,15 +63,19 @@ public class LivingEntity extends Entity {
             if(weaponPutAwayTime <= 0){
                 putAwayWeapon();
             }
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 0);
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0);
-            animationController.transitionAnimation(ANIMATION_LAYER_HAND, "prone");
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, -0.25f);
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0.25f);
         }else{
             animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 1);
             animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 1);
             animationController.transitionAnimation(ANIMATION_LAYER_HAND, "idle");
         }
 
+    }
+
+    public void attack(){
+        animationController.transitionAnimation(ANIMATION_LAYER_HAND, "swing");
+        weaponPutAwayTime = 10f;
     }
 
     public void putAwayWeapon(){
@@ -126,6 +130,7 @@ public class LivingEntity extends Entity {
         animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation());
 
         animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation());
+        animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(6f).setFadeOnFinish("prone"));
 
     }
 

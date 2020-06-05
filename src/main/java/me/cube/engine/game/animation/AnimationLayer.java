@@ -1,5 +1,7 @@
 package me.cube.engine.game.animation;
 
+import me.cube.engine.util.MathUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,9 +22,15 @@ public class AnimationLayer {
     }
 
     protected void update(float delta){
-        time += delta;
         Animation active = getActiveAnimation();
         Animation previous = getPreviousAnimation();
+
+        if(active != null){
+            time += delta * active.speed;
+        }else{
+            time += delta;
+        }
+
         float interpolated = Math.min(1f, time * 6f);
         if(previous != null){
             avatar.globalWeight = 1f - interpolated;
@@ -31,7 +39,14 @@ public class AnimationLayer {
         if(active != null){
             avatar.globalWeight = interpolated;
             active.update(avatar, time);
+
+            if(time >= active.getDuration()){
+                if(!active.fadeOnFinish.isEmpty()){
+                    transitionAnimation(active.fadeOnFinish);
+                }
+            }
         }
+
     }
 
     public void setWeight(Avatar.BodyPart bodyPart, float weight){

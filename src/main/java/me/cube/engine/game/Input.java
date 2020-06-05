@@ -2,7 +2,8 @@ package me.cube.engine.game;
 
 public class Input {
 
-    public static int ACTION_FORWARD = 0, ACTION_BACK = 1, ACTION_LEFT = 2, ACTION_RIGHT = 3, ACTION_JUMP = 4, ACTION_ATTACK_PRIMARY = 5;
+    public static int ACTION_FORWARD = 0,
+            ACTION_BACK = 1, ACTION_LEFT = 2, ACTION_RIGHT = 3, ACTION_JUMP = 4, ACTION_ATTACK_PRIMARY = 5;
 
     private static final boolean[] actions = new boolean[20];
 

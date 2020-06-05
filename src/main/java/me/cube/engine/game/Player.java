@@ -51,6 +51,7 @@ public class Player extends LivingEntity {
 
         if(Input.isActionActive(ACTION_ATTACK_PRIMARY)){
             takeOutWeapon();
+            attack();
         }
 
         if(desiredDirection.x == 0 && desiredDirection.y == 0){
