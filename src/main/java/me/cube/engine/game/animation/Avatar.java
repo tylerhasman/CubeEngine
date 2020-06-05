@@ -2,6 +2,10 @@ package me.cube.engine.game.animation;
 
 import me.cube.engine.Voxel;
 import me.cube.engine.game.LivingEntity;
+import org.joml.Vector3f;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Avatar {
 
@@ -9,6 +13,7 @@ public class Avatar {
     private float torsoWeight, leftLegWeight, rightLegWeight, leftHandWeight, rightHandWeight, headWeight;
 
     public float globalWeight;
+    private Map<BodyPart, Vector3f> defaultTranslations;
 
     private Avatar(Voxel torso, Voxel leftLeg, Voxel rightLeg, Voxel leftHand, Voxel rightHand, Voxel head,
                    float torsoWeight, float leftLegWeight, float rightLegWeight, float leftHandWeight,
@@ -26,7 +31,15 @@ public class Avatar {
         this.leftHandWeight = leftHandWeight;
         this.rightHandWeight = rightHandWeight;
         this.headWeight = headWeight;
+        defaultTranslations = new HashMap<>();
         globalWeight = 1;
+
+        for(BodyPart bodyPart : BodyPart.values()){
+            Voxel part = getBodyPart(bodyPart);
+            if(part != null){
+                defaultTranslations.put(bodyPart, new Vector3f(part.position));
+            }
+        }
     }
 
     Avatar(Avatar other){
@@ -43,6 +56,7 @@ public class Avatar {
         this.leftHandWeight = other.leftHandWeight;
         this.rightHandWeight = other.rightHandWeight;
         this.headWeight = other.headWeight;
+        this.defaultTranslations = other.defaultTranslations;
         globalWeight = 1;
     }
 
@@ -86,6 +100,7 @@ public class Avatar {
         for(BodyPart bodyPart : BodyPart.values()){
             Voxel part = getBodyPart(bodyPart);
             if(part != null){
+                part.position.set(defaultTranslations.get(bodyPart));
                 part.rotation.identity();
             }
         }

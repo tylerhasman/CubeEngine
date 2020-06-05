@@ -11,18 +11,23 @@ import org.joml.Vector2f;
 public class LivingEntity extends Entity {
 
     private static final int ANIMATION_LAYER_BASE = 0;
+    private static final int ANIMATION_LAYER_HAND = 1;
 
     private AnimationController animationController;
 
     private float moveSpeed;
     private float yaw;
 
+    private boolean weaponOut;
+    private float weaponPutAwayTime;
+
     public LivingEntity(World world) {
         super(world);
-        moveSpeed = 60f;
+        moveSpeed = 90f;
         initAppearance();
         initAnimations();
         yaw = 0f;
+        weaponOut = false;
     }
 
     public void walk(float dirX, float dirZ, float acceleration){
@@ -44,7 +49,7 @@ public class LivingEntity extends Entity {
             animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "falling");
         }
 
-        if(!velocity.equals(0, 0, 0)){
+        if(velocity.x != 0 || velocity.z != 0){
             float targetYaw = (float) (Math.atan2(velocity.x, velocity.z) + Math.PI);
 
             yaw = MathUtil.moveAngleTowards(yaw, targetYaw, delta * 20);
@@ -52,6 +57,56 @@ public class LivingEntity extends Entity {
 
         rotation.identity().rotateAxis(yaw, 0, 1, 0);
         animationController.update(delta);
+
+        if(weaponOut){
+            weaponPutAwayTime -= delta;
+            if(weaponPutAwayTime <= 0){
+                putAwayWeapon();
+            }
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 0);
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0);
+            animationController.transitionAnimation(ANIMATION_LAYER_HAND, "prone");
+        }else{
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 1);
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 1);
+            animationController.transitionAnimation(ANIMATION_LAYER_HAND, "idle");
+        }
+
+    }
+
+    public void putAwayWeapon(){
+        if(weaponOut){
+            Voxel weapon = root.getChild("weapon");
+            Voxel torso = root.getChild("torso");
+            if(weapon != null){
+                root.removeChild("weapon");
+                torso.addChild(weapon);
+                weapon.position.z = 6;
+                weapon.position.x = 6;
+                weapon.position.y = 10;
+                weapon.rotation.identity();
+                weapon.rotation.rotateAxis(Math.toRadians(90f), 0, 1, 0);
+                weapon.rotation.rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);
+            }
+            weaponOut = false;
+        }
+    }
+
+    public void takeOutWeapon(){
+        if(!weaponOut){
+            Voxel weapon = root.getChild("weapon");
+            Voxel rightHand = root.getChild("right-hand");
+            if(weapon != null){
+                root.removeChild("weapon");
+                rightHand.addChild(weapon);
+                weapon.position.z = 0;
+                weapon.position.x = 0;
+                weapon.position.y = 0;
+                weapon.rotation.identity();
+            }
+            weaponPutAwayTime = 10f;
+            weaponOut = true;
+        }
     }
 
     private void initAnimations(){
@@ -69,6 +124,8 @@ public class LivingEntity extends Entity {
         animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation());
         animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation());
         animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation());
+
+        animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation());
 
     }
 
@@ -90,7 +147,10 @@ public class LivingEntity extends Entity {
         Voxel rightHand = new Voxel("right-hand", handModel);
         rightHand.position.x = 8;
 
-        rightHand.addChild(new Voxel("weapon", swordModel));
+        Voxel weapon = new Voxel("weapon", swordModel);
+        weapon.scale.set(0.8f);
+
+        rightHand.addChild(weapon);
 
         Voxel leftFoot = new Voxel("left-foot", footModel);
         leftFoot.position.y = -6;

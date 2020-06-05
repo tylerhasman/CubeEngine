@@ -5,7 +5,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -16,7 +18,7 @@ public class Voxel {
     public final Quaternionf rotation;
     public final Vector3f origin;
     public VoxelModel model;
-    private final List<Voxel> children;
+    private final Map<String, Voxel> children;
 
     private final Matrix4f transform;
 
@@ -31,7 +33,7 @@ public class Voxel {
         scale = new Vector3f(1f, 1f, 1f);
         rotation = new Quaternionf();
         this.model = model;
-        children = new ArrayList<>();
+        children = new HashMap<>();
         origin = new Vector3f();
         if(model != null){
            origin.set(model.pivot);
@@ -42,26 +44,34 @@ public class Voxel {
      * Adds a child to this voxel, it will be rendered by this one's render
      */
     public void addChild(Voxel voxel){
-        children.add(voxel);
+        children.put(voxel.name, voxel);
     }
 
     /**
      * Recursively finds a child of this voxel. If two child voxels share the same name the behaviour is undefined.
      */
     public Voxel getChild(String name){
-        for(Voxel child : children){
-            if(child.name.equals(name)){
-                return child;
-            }
+        if(children.containsKey(name)){
+            return children.get(name);
         }
-        for(Voxel child : children){
+        for(Voxel child : children.values()){
             Voxel found = child.getChild(name);
             if(found != null){
                 return found;
             }
         }
-        System.err.println("[ERROR] Couldnt find child "+name);
         return null;
+    }
+
+    /**
+     * Recursively removes all children with this name
+     * @param name
+     */
+    public void removeChild(String name){
+        children.remove(name);
+        for(Voxel child : children.values()){
+           child.removeChild(name);
+        }
     }
 
     /**
@@ -77,7 +87,7 @@ public class Voxel {
 
         transform.scale(scale).translate(position).rotate(rotation).translate(origin.mul(-1f, new Vector3f()));
 
-        for(Voxel child : children){
+        for(Voxel child : children.values()){
             child.calculateTransforms(transform);
         }
 
@@ -121,7 +131,7 @@ public class Voxel {
             }
         }
 
-        for(Voxel child : children){
+        for(Voxel child : children.values()){
             child.render0();
         }
     }

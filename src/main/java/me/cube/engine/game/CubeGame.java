@@ -1,6 +1,7 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Game;
+import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
 
@@ -21,18 +22,20 @@ public class CubeGame implements Game {
 
     private float yaw, pitch;
     private float distanceFromTarget;
+    private float visualDistanceFromTarget;
 
     @Override
     public void init() {
         game = this;
         world = new World();
         projectionMatrix = new Matrix4f()
-                .perspective(Math.toRadians(90f), 1f, 0.01f, 500);
+                .perspective(Math.toRadians(90f), 1280f / 720f, 0.01f, 2000);
 
         cameraMatrix = new Matrix4f();
         combined = new Matrix4f();
 
         distanceFromTarget = 60;
+        visualDistanceFromTarget = distanceFromTarget;
         yaw = 0f;
         pitch = 45;
     }
@@ -53,6 +56,11 @@ public class CubeGame implements Game {
     @Override
     public void update(float delta) {
 
+        float distance = Math.abs(distanceFromTarget - visualDistanceFromTarget);
+        float speed = distance / 10f;
+
+        visualDistanceFromTarget = MathUtil.moveValueTo(visualDistanceFromTarget, distanceFromTarget, speed);
+
         projectionMatrix.mul(cameraMatrix, combined);
 
         Entity player = world.getPlayer();
@@ -61,7 +69,7 @@ public class CubeGame implements Game {
 
         Vector3f p = new Vector3f();
 
-        for(float f = 0f; f < distanceFromTarget;f += 0.25f){
+        for(float f = 0f; f < visualDistanceFromTarget;f += 0.25f){
             forward.mul(f, p);
             p.add(player.position.x, player.position.y + 10, player.position.z);
             if(world.getTerrain().isSolid(new Vector3f(p.x, p.y, p.z))){
@@ -102,6 +110,23 @@ public class CubeGame implements Game {
         }
 
 
+    }
+
+    @Override
+    public void onMousePress(int button, int action) {
+        if(button == GLFW_MOUSE_BUTTON_1){
+            Input.setActionState(ACTION_ATTACK_PRIMARY, action == GLFW_PRESS);
+        }
+    }
+
+    @Override
+    public void onMouseScroll(double delta) {
+        distanceFromTarget += -delta * 10;
+        if(distanceFromTarget < 20){
+            distanceFromTarget = 20;
+        }else if(distanceFromTarget > 150){
+            distanceFromTarget = 150;
+        }
     }
 
     @Override

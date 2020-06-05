@@ -63,7 +63,7 @@ public abstract class Entity {
 
             if(getWorld().getTerrain().isColliding(boundingBox)){
                 position.x = beforePosition.x;
-                velocity.x = 0;
+                //velocity.x = 0;
             }
 
             position.add(0, velocity.y * delta, 0);
@@ -80,7 +80,7 @@ public abstract class Entity {
 
             if(getWorld().getTerrain().isColliding(boundingBox)){
                 position.z = beforePosition.z;
-                velocity.z = 0;
+                //velocity.z = 0;
             }
 
 

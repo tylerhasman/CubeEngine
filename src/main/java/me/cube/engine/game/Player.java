@@ -49,6 +49,10 @@ public class Player extends LivingEntity {
             }
         }
 
+        if(Input.isActionActive(ACTION_ATTACK_PRIMARY)){
+            takeOutWeapon();
+        }
+
         if(desiredDirection.x == 0 && desiredDirection.y == 0){
             walk(0, 0, 300 * delta);
         }else{

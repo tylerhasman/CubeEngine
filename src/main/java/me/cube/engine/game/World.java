@@ -1,6 +1,8 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Terrain;
+import me.cube.engine.Voxel;
+import me.cube.engine.file.Assets;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 
@@ -27,7 +29,7 @@ public class World {
 
         entities.add(player);
 
-        terrain = new Terrain(40, 10, 40);
+        terrain = new Terrain(100, 100, 100);
 
         Random random = new Random();
 
@@ -37,6 +39,7 @@ public class World {
             flora.position.add(random.nextFloat() * 40 * 10, 15, random.nextFloat() * 40 * 10);
             entities.add(flora);
         }
+
 
     }
 
@@ -65,8 +68,8 @@ public class World {
         glEnable(GL_LIGHT0);
 
         glLightfv(GL_LIGHT0, GL_AMBIENT, new float[] {0.3f, 0.3f, 0.3f, 1f});
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0, 0, 0, 0});
-        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {0, 100, 0, 1});
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.3f, 0.3f, 0.3f, 0});
+        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});
 
         glBegin(GL_QUADS);
 

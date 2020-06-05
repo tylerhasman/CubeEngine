@@ -1,9 +1,6 @@
 package me.cube.engine;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.MemoryStack;
@@ -70,7 +67,7 @@ public class Window implements Runnable {
                 glfwSetCursorPos(handle, width / 2f, height / 2f);
             }
 
-            game.update(timeSinceLast / 1000F);
+            game.update(Math.min(timeSinceLast / 1000F, 1F / 60F));
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -132,10 +129,20 @@ public class Window implements Runnable {
         glfwSetMouseButtonCallback(handle, new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long window, int button, int action, int mods) {
+
+                game.onMousePress(button, action);
+
                 if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
                     glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
                     mouseLocked = true;
                 }
+            }
+        });
+
+        glfwSetScrollCallback(handle, new GLFWScrollCallback() {
+            @Override
+            public void invoke(long window, double xoffset, double yoffset) {
+                game.onMouseScroll(yoffset);
             }
         });
 

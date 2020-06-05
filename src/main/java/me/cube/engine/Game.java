@@ -11,4 +11,8 @@ public interface Game {
     void onKeyPress(int key, int action);
 
     void onCursorMove(double dx, double dy);
+
+    void onMouseScroll(double delta);
+
+    void onMousePress(int button, int action);
 }

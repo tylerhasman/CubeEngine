@@ -1,9 +1,11 @@
 package me.cube.engine;
 
 import javafx.scene.paint.Color;
+import me.cube.engine.file.VxmFile;
 import org.joml.AABBf;
 import org.joml.Vector3f;
 
+import java.io.IOException;
 import java.util.Random;
 
 public class Terrain extends Voxel {
@@ -22,6 +24,23 @@ public class Terrain extends Voxel {
                 }
                 blocks[i][0][j] = 0x0AAA00 + (random.nextInt(50) << 8);
             }
+        }
+
+        try {
+            VxmFile tree = new VxmFile("tree.vxm");
+
+            int[][][] pixels = tree.toVoxelColorArray();
+
+            for(int i = 0; i < tree.width();i++){
+                for(int j = 0; j < tree.height();j++){
+                    for(int k = 0; k < tree.length();k++){
+                        blocks[i + 30][j + 1][k + 30] = pixels[i][j][k];
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         model = new VoxelModel(blocks, width, height, length, false);

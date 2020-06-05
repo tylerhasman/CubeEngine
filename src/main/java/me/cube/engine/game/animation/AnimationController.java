@@ -21,7 +21,7 @@ public class AnimationController {
     }
 
     public void setLayerWeight(int layer, Avatar.BodyPart bodyPart, float weight){
-        if(layers.containsKey(layer)){
+        if(!layers.containsKey(layer)){
             layers.put(layer, new AnimationLayer(avatar));
         }
 

@@ -23,7 +23,7 @@ public class AnimationLayer {
         time += delta;
         Animation active = getActiveAnimation();
         Animation previous = getPreviousAnimation();
-        float interpolated = Math.min(1f, time * 5f);
+        float interpolated = Math.min(1f, time * 6f);
         if(previous != null){
             avatar.globalWeight = 1f - interpolated;
             previous.update(avatar, prevTime);
@@ -43,7 +43,7 @@ public class AnimationLayer {
     }
 
     protected void transitionAnimation(String activeAnimation) {
-        if(!this.activeAnimation.equalsIgnoreCase(activeAnimation)){
+        if(!this.activeAnimation.equals(activeAnimation)){
             prevTime = time;
             time = 0f;
             this.previousAnimation = this.activeAnimation;
