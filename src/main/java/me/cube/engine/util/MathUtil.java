@@ -1,5 +1,7 @@
 package me.cube.engine.util;
 
+import org.joml.Vector3f;
+
 public class MathUtil {
 
     public static final float PI = (float) Math.PI;
@@ -42,4 +44,17 @@ public class MathUtil {
         return a = a * a * ((scale + 1) * a - scale);
     }
 
+    public static float angleDifferenceRad(float angle1, float angle2){
+        float diff = Math.max(angle1, angle2) - Math.min(angle1, angle2);
+
+        while (diff > PI) diff = PI2 - diff;
+
+        return diff;
+    }
+
+    public static void moveTowards(Vector3f from, Vector3f to, float speed) {
+        from.x = moveValueTo(from.x, to.x, speed);
+        from.y = moveValueTo(from.y, to.y, speed);
+        from.z = moveValueTo(from.z, to.z, speed);
+    }
 }
