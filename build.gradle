@@ -1,5 +1,15 @@
 plugins {
     id 'java'
+	id 'application'
+}
+apply plugin : "java"
+
+ext {
+	javaMainClass = "me.cube.engine.Start"
+}
+
+application {
+	mainClassName = javaMainClass
 }
 
 group 'me.cube'
