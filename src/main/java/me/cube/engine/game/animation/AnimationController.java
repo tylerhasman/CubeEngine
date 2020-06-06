@@ -9,6 +9,11 @@ import java.util.Map;
 
 /**
  * Controls the animations for an entity
+ *
+ * Animations are split between layers.
+ * The goal of this is to allow different animations to play on different layers.
+ * By doing this we can have a running animation and a sword slash animation playing at the same time without
+ * needing to program in combinations of them.
  */
 public class AnimationController {
 
@@ -57,6 +62,7 @@ public class AnimationController {
     }
 
     public void update(float delta){
+
         avatar.resetAllParts();
         for(AnimationLayer layer : layers.values()){
             layer.update(delta);
