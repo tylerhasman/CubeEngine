@@ -61,8 +61,27 @@ public class AnimationController {
         }
     }
 
-    public void update(float delta){
+    public String getCurrentAnimation(int layer){
+        if(layers.containsKey(layer)){
+            AnimationLayer l = layers.get(layer);
 
+            return l.getCurrentAnimationId();
+        }
+        System.err.println("Unknown animation layer "+layer);
+        return "";
+    }
+
+    public float getCurrentAnimationTime(int layer){
+        if(layers.containsKey(layer)){
+            AnimationLayer l = layers.get(layer);
+
+            return l.getCurrentAnimationTime();
+        }
+        System.err.println("Unknown animation layer "+layer);
+        return 0f;
+    }
+
+    public void update(float delta){
         avatar.resetAllParts();
         for(AnimationLayer layer : layers.values()){
             layer.update(delta);

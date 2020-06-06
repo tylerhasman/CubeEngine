@@ -4,9 +4,19 @@ import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.animation.*;
+import me.cube.engine.game.particle.WeaponSwooshParticle;
 import me.cube.engine.util.MathUtil;
 import org.joml.Math;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class LivingEntity extends Entity {
 
@@ -24,6 +34,7 @@ public class LivingEntity extends Entity {
     private float weaponPutAwayTime;
     private float rollTime;
 
+    private WeaponSwooshParticle lastSwooshParticle;
 
     public LivingEntity(World world) {
         super(world);
@@ -113,8 +124,31 @@ public class LivingEntity extends Entity {
             rollTime = 0;
         }
 
-        attackTime -= delta;
+        if(animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
+            float aniTime = animationController.getCurrentAnimationTime(ANIMATION_LAYER_HAND);
+            if(aniTime > 2f && aniTime <= 4f){
 
+                Voxel weapon = root.getChild("weapon");
+
+                Vector3f top = new Vector3f(0, weapon.model.height / 2f, 0);
+                Vector3f bottom = new Vector3f(0, 0, 0);
+
+                Matrix4f transform = weapon.getTransform();
+
+                transform.transformPosition(top);
+                transform.transformPosition(bottom);
+
+                WeaponSwooshParticle particle = new WeaponSwooshParticle(top, bottom, lastSwooshParticle);
+
+                getWorld().getParticleEngine().addParticle(particle);
+
+                lastSwooshParticle = particle;
+            }
+        }else{
+            lastSwooshParticle = null;
+        }
+
+        attackTime -= delta;
 
     }
 
@@ -189,7 +223,7 @@ public class LivingEntity extends Entity {
         VoxelModel handModel = Assets.loadModel("hand.vox");
         VoxelModel footModel = Assets.loadModel("foot.vox");
         VoxelModel headModel = Assets.loadModel("head.vox");
-        VoxelModel swordModel = Assets.loadModel("sword.vxm");
+        VoxelModel swordModel = Assets.loadModel("LampPostTest.vxm");
 
         Voxel torso = new Voxel("torso", torsoModel);
 
@@ -203,7 +237,7 @@ public class LivingEntity extends Entity {
         rightHand.position.x = 8;
 
         Voxel weapon = new Voxel("weapon", swordModel);
-        weapon.scale.set(0.8f);
+        weapon.scale.set(1f);
 
         rightHand.addChild(weapon);
 

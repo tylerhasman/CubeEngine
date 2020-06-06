@@ -41,6 +41,14 @@ public class Voxel {
     }
 
     /**
+     * Get a copy of this matrixes transformation
+     * @return
+     */
+    public Matrix4f getTransform(){
+        return new Matrix4f(transform);
+    }
+
+    /**
      * Adds a child to this voxel, it will be rendered by this one's render
      */
     public void addChild(Voxel voxel){

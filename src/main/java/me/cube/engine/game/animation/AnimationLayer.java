@@ -129,4 +129,14 @@ public class AnimationLayer {
         return null;
     }
 
+    public String getCurrentAnimationId() {
+        if(activeAnimation == null){
+            return "";
+        }
+        return activeAnimation;
+    }
+
+    public float getCurrentAnimationTime(){
+        return time;
+    }
 }
