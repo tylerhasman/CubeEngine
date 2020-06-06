@@ -31,7 +31,14 @@ public class AnimationLayer {
             time += delta;
         }
 
-        float interpolated = Math.min(1f, time * 6f);
+        float transitionTimeBack = time * 6f;
+
+        if(previous != null){
+            transitionTimeBack *= previous.transitionSpeedBack;
+        }
+
+        float interpolated = Math.min(1f, transitionTimeBack);
+
         if(previous != null){
             avatar.globalWeight = 1f - interpolated;
             previous.update(avatar, prevTime);

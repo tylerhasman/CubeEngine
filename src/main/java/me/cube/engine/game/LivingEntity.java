@@ -16,7 +16,7 @@ public class LivingEntity extends Entity {
     private AnimationController animationController;
 
     private float moveSpeed;
-    private float yaw;
+    private float yaw, roll;
 
     private float attackTime;
 
@@ -33,11 +33,13 @@ public class LivingEntity extends Entity {
         yaw = 0f;
         weaponOut = false;
         attackTime = 0f;
+        roll = 0;
     }
 
     public void roll(){
         if(attackTime <= 0f && rollTime <= 0f){
             rollTime = 0.4f;
+            putAwayWeapon();
         }
     }
 
@@ -51,7 +53,9 @@ public class LivingEntity extends Entity {
     public void update(float delta) {
         super.update(delta);
 
-        if(isOnGround()){
+        if(rollTime > 0f){
+            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "rolling");
+        }else if(isOnGround()){
             if((Math.abs(velocity.x) > 0 || Math.abs(velocity.z) > 0)){
                 animationController.transitionAnimation(ANIMATION_LAYER_BASE, "walking");
             }else{
@@ -61,13 +65,31 @@ public class LivingEntity extends Entity {
             animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "falling");
         }
 
+        rotation.identity();
+
+
         if(velocity.x != 0 || velocity.z != 0){
             float targetYaw = (float) (Math.atan2(velocity.x, velocity.z) + Math.PI);
-
             yaw = MathUtil.moveAngleTowards(yaw, targetYaw, delta * 20);
+/*
+
+            float angleDif = MathUtil.angleDifferenceRad(targetYaw, yaw);
+            if(Math.abs(angleDif) > 0.05f){//Epsilon
+                if(angleDif > 0){
+                    roll = MathUtil.moveValueTo(roll, Math.toRadians(-10), delta * 5f);
+                }else if(targetYaw % MathUtil.PI > yaw % MathUtil.PI){
+                    roll = MathUtil.moveValueTo(roll, Math.toRadians(10), delta * 5f);
+                }
+            }else{
+                roll = MathUtil.moveValueTo(roll, 0f, delta * 5f);
+            }*/
+
+        }else{
+            //roll = MathUtil.moveValueTo(roll, 0f, delta * 5f);
         }
 
-        rotation.identity().rotateAxis(yaw, 0, 1, 0);
+        rotation.rotateAxis(yaw, 0, 1, 0).rotateAxis(roll, 0, 0, 1);
+
         animationController.update(delta);
 
         if(weaponOut){
@@ -118,6 +140,7 @@ public class LivingEntity extends Entity {
                 weapon.rotation.rotateAxis(Math.toRadians(90f), 0, 1, 0);
                 weapon.rotation.rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);
             }
+            weaponPutAwayTime = 0f;
             weaponOut = false;
         }
     }
@@ -154,6 +177,7 @@ public class LivingEntity extends Entity {
         animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation());
         animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation());
         animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation());
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f));
 
         animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation());
         animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(6f).setFadeOnFinish("prone"));
