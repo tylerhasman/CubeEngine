@@ -3,6 +3,8 @@ package me.cube.engine.game;
 import me.cube.engine.Terrain;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
+import me.cube.engine.game.particle.Particle;
+import me.cube.engine.game.particle.ParticleEngine;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 
@@ -20,8 +22,11 @@ public class World {
 
     private Terrain terrain;
 
+    private ParticleEngine particleEngine;
+
     public World(){
         entities = new ArrayList<>();
+        particleEngine = new ParticleEngine(2000);
 
         player = new Player(this);
 
@@ -51,6 +56,10 @@ public class World {
         return player;
     }
 
+    public ParticleEngine getParticleEngine() {
+        return particleEngine;
+    }
+
     public void update(float delta){
         for(Entity entity : entities){
             entity.updatePhysics(delta);
@@ -58,6 +67,7 @@ public class World {
         for(Entity entity : entities){
             entity.update(delta);
         }
+        particleEngine.update(delta);
     }
 
     public void render(){
@@ -71,6 +81,7 @@ public class World {
         glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.3f, 0.3f, 0.3f, 0});
         glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});
 
+
         glBegin(GL_QUADS);
 
         for(Entity entity : entities){
@@ -78,6 +89,9 @@ public class World {
         }
 
         glEnd();
+
+
+        glDisable(GL_BLEND);
 
         glEnable(GL_CULL_FACE);
 
@@ -94,6 +108,8 @@ public class World {
         glDisable(GL_LIGHT0);
         glDisable(GL_LIGHTING);
         glDisable(GL_COLOR_MATERIAL);
+
+        particleEngine.render();
 
     }
 
