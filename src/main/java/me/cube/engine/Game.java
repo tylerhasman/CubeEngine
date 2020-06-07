@@ -15,4 +15,6 @@ public interface Game {
     void onMouseScroll(double delta);
 
     void onMousePress(int button, int action);
+
+    void destroy();
 }

@@ -28,6 +28,8 @@ public class World {
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
+        Random random = new Random();
+
         player = new Player(this);
 
         player.position.set(100, 100, 100);
@@ -36,15 +38,12 @@ public class World {
 
         terrain = new Terrain(100, 100, 100);
 
-        Random random = new Random();
-
         for(int i = 0; i < 6;i++){
             Flora flora = new Flora(this);
             flora.rotation.rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0);
             flora.position.add(random.nextFloat() * 40 * 10, 15, random.nextFloat() * 40 * 10);
             entities.add(flora);
         }
-
 
     }
 
@@ -81,15 +80,9 @@ public class World {
         glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.3f, 0.3f, 0.3f, 0});
         glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});
 
-
-        glBegin(GL_QUADS);
-
         for(Entity entity : entities){
             entity.root.render();
         }
-
-        glEnd();
-
 
         glDisable(GL_BLEND);
 
@@ -97,11 +90,7 @@ public class World {
 
         glCullFace(GL_FRONT);
 
-        glBegin(GL_QUADS);
-
         terrain.render();
-
-        glEnd();
 
         glDisable(GL_CULL_FACE);
 
