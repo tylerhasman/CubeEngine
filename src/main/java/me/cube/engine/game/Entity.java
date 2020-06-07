@@ -58,13 +58,42 @@ public abstract class Entity {
         Vector3f beforePosition = new Vector3f(position);
 
         for(int i = 0; i < 10;i++){//Update physics more finely grained
+
             position.add(velocity.x * delta, 0, 0);
             updateBoundingBox();
 
+            boolean pushUp = false;
+
             if(getWorld().getTerrain().isColliding(boundingBox)){
-                position.x = beforePosition.x;
-                //velocity.x = 0;
+
+                boundingBox.minY += 10;
+                boundingBox.maxY += 10;
+
+                if(getWorld().getTerrain().isColliding(boundingBox)){
+                    position.x = beforePosition.x;
+                }else{
+                    pushUp = true;
+                }
+
             }
+
+            position.add(0, 0, velocity.z * delta);
+            updateBoundingBox();
+
+            if(getWorld().getTerrain().isColliding(boundingBox)){
+                /*position.z = beforePosition.z;
+                //velocity.z = 0;*/
+
+                boundingBox.minY += 10;
+                boundingBox.maxY += 10;
+
+                if(getWorld().getTerrain().isColliding(boundingBox)){
+                    position.z = beforePosition.z;
+                }else{
+                    pushUp = true;
+                }
+            }
+
 
             position.add(0, velocity.y * delta, 0);
             updateBoundingBox();
@@ -75,16 +104,11 @@ public abstract class Entity {
                 onGround = true;
             }
 
-            position.add(0, 0, velocity.z * delta);
-            updateBoundingBox();
-
-            if(getWorld().getTerrain().isColliding(boundingBox)){
-                position.z = beforePosition.z;
-                //velocity.z = 0;
+            if(pushUp){
+                position.add(0, 500 * delta, 0);
             }
-
-
         }
+
 
     }
 

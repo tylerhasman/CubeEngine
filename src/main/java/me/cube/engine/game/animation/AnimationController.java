@@ -9,6 +9,11 @@ import java.util.Map;
 
 /**
  * Controls the animations for an entity
+ *
+ * Animations are split between layers.
+ * The goal of this is to allow different animations to play on different layers.
+ * By doing this we can have a running animation and a sword slash animation playing at the same time without
+ * needing to program in combinations of them.
  */
 public class AnimationController {
 
@@ -54,6 +59,26 @@ public class AnimationController {
         }else{
             System.err.println("Unknown animation layer "+layer+" ("+nextAnimationId+")");
         }
+    }
+
+    public String getCurrentAnimation(int layer){
+        if(layers.containsKey(layer)){
+            AnimationLayer l = layers.get(layer);
+
+            return l.getCurrentAnimationId();
+        }
+        System.err.println("Unknown animation layer "+layer);
+        return "";
+    }
+
+    public float getCurrentAnimationTime(int layer){
+        if(layers.containsKey(layer)){
+            AnimationLayer l = layers.get(layer);
+
+            return l.getCurrentAnimationTime();
+        }
+        System.err.println("Unknown animation layer "+layer);
+        return 0f;
     }
 
     public void update(float delta){

@@ -1,18 +1,39 @@
 package me.cube.engine.game.animation;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.game.LivingEntity;
+import me.cube.engine.game.Entity;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Avatars are the buffer between an {@link Animation} and a group of {@link Voxel}s.
+ * Right now we only support humanoids.
+ * For more simple animations of world objects, we can prograqm them directly into {@link Entity#update(float)}
+ * The point of using this buffer is to allow more finely grained animations for more complex creatures such as the Player or an enemy
+ */
 public class Avatar {
 
     private final Voxel torso, leftLeg, rightLeg, leftHand, rightHand, head;
+
+    /**
+     * All weights go from 0.0 to 1.0
+     * Any other values are undefined
+     */
     private float torsoWeight, leftLegWeight, rightLegWeight, leftHandWeight, rightHandWeight, headWeight;
 
-    public float globalWeight;
+    /**
+     * A global modifier applied to all weights when queried with {@link Avatar#getWeight(BodyPart)}
+     */
+    protected float globalWeight;
+
+    /**
+     * This map is really important.
+     * Some voxels have default positions. For example, the hands or legs of a humanoid.
+     * When we reset the objects body parts with {@link #resetAllParts()} we need to know their default positions.
+     * In the future we may also need to store default rotations but for now this isn't necessary
+     */
     private Map<BodyPart, Vector3f> defaultTranslations;
 
     private Avatar(Voxel torso, Voxel leftLeg, Voxel rightLeg, Voxel leftHand, Voxel rightHand, Voxel head,
@@ -42,6 +63,9 @@ public class Avatar {
         }
     }
 
+    /**
+     * Copies another avatar onto this
+     */
     Avatar(Avatar other){
         this.torso = other.torso;
         this.leftLeg = other.leftLeg;
@@ -96,6 +120,10 @@ public class Avatar {
         return 0f;
     }
 
+    /**
+     * Resets all voxels to their default positions.
+     * Default positions are defined as the position the voxel was in when this avatar was created.
+     */
     public void resetAllParts(){
         for(BodyPart bodyPart : BodyPart.values()){
             Voxel part = getBodyPart(bodyPart);
@@ -106,6 +134,11 @@ public class Avatar {
         }
     }
 
+    /**
+     * Rotate a body part. (Additively!)
+     * The weight will affect how much it is rotated.
+     * If the weight of the body part is 0.5, and the rotated angle is 180, it will rotate 90 instead.
+     */
     public void rotate(BodyPart bodyPart, float angle, float x, float y, float z){
         Voxel voxel = getBodyPart(bodyPart);
         float weight = getWeight(bodyPart);
@@ -115,6 +148,11 @@ public class Avatar {
         }
     }
 
+    /**
+     * Translate a body part. (Additively!)
+     * The weight will affect how much it is translated.
+     * If the weight of the body part is 0.5, and the translation is (0, 1, 0), it will translate (0, 0.5, 0) instead
+     */
     public void translate(BodyPart bodyPart, float x, float y, float z){
         Voxel voxel = getBodyPart(bodyPart);
         float weight = getWeight(bodyPart);
@@ -124,15 +162,24 @@ public class Avatar {
         }
     }
 
+    /**
+     * Scale a body part! (Additively!)
+     * The weight will affect the scaled amount.
+     * If the weight of the body part is 0.5, and the scaling is (1, 1, 1), the scale will increase by (0.5, 0.5, 0.5) instead
+     */
     public void scale(BodyPart bodyPart, float x, float y, float z){
         Voxel voxel = getBodyPart(bodyPart);
         float weight = getWeight(bodyPart);
 
         if (voxel != null) {
-            voxel.scale.mul(x * weight, y * weight, z * weight);
+            voxel.scale.add((x - 1.0f) * weight, (y - 1.0f) * weight, (z - 1.0f) * weight);
         }
     }
 
+    /**
+     * Change the weight of a body part
+     * @param weight 0.0 to 1.0
+     */
     public void setWeight(BodyPart bodyPart, float weight){
         switch (bodyPart){
             case Head:
@@ -157,7 +204,10 @@ public class Avatar {
     }
 
 
-    public static enum BodyPart {
+    /**
+     * Current supported body parts
+     */
+    public enum BodyPart {
         Torso,
         LeftLeg,
         RightLeg,
