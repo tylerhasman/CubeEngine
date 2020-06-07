@@ -107,36 +107,13 @@ public class Voxel {
      */
     private void render0(){
         if(model != null){
+            glPushMatrix();
 
-            float[] verts = model.vertices;
-            float[] colors = model.colors;
-            float[] normals = model.normals;
+            glMultMatrixf(transform.get(new float[16]));
 
-            int colorIndex = 0;
-            int normalIndex = 0;
+            model.render();
 
-            Vector3f position = new Vector3f();
-
-            for(int i = 0; i < verts.length;i += 12){
-
-                float red = colors[colorIndex++];
-                float green = colors[colorIndex++];
-                float blue = colors[colorIndex++];
-
-                float norX = normals[normalIndex++];
-                float norY = normals[normalIndex++];
-                float norZ = normals[normalIndex++];
-
-                glColor3f(red, green, blue);
-                glNormal3f(norX, norY, norZ);
-
-                for(int j = 0; j < 12;j += 3){
-                    transform.transformPosition(verts[i + j], verts[i + j + 1], verts[i + j + 2], position);
-
-                    glVertex3f(position.x, position.y, position.z);
-                }
-
-            }
+            glPopMatrix();
         }
 
         for(Voxel child : children.values()){

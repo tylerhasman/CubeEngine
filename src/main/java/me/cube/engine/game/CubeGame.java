@@ -1,6 +1,7 @@
 package me.cube.engine.game;
 
 import me.cube.engine.Game;
+import me.cube.engine.file.Assets;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
@@ -165,4 +166,8 @@ public class CubeGame implements Game {
         }
     }
 
+    @Override
+    public void destroy() {
+        Assets.disposeAll();
+    }
 }

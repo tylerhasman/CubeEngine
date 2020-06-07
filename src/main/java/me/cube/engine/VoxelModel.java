@@ -1,20 +1,33 @@
 package me.cube.engine;
 
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11C.GL_VERTEX_ARRAY;
+import static org.lwjgl.opengl.GL30C.*;
 
 public class VoxelModel {
+/*
 
-    public float[] vertices;//To be passed to glQuad
-    public float[] colors;
-    public float[] normals;
+    private float[] vertices;//To be passed to glQuad
+    private float[] colors;
+    private float[] normals;
+*/
 
     public final int width, height, length;
 
     public final Vector3f pivot = new Vector3f();
+
+    private final int vertexHandle, colorHandle, normalHandle;
+
+    private final int indices;
 
     public VoxelModel(int[][][] cubes, int width, int height, int length){
         this(cubes, width, height, length, true);
@@ -27,13 +40,63 @@ public class VoxelModel {
         if(!center){
             pivot.set(width / 2f, height / 2f, length / 2f);
         }
-        generateVertices(cubes, center);
-    }
 
-    private void generateVertices(int[][][] cubes, boolean center){
-        List<Float> vertices = new ArrayList<Float>();
+        List<Float> vertices = new ArrayList<>();
         List<Float> colors = new ArrayList<>();
         List<Float> normals = new ArrayList<>();
+
+        indices = generateVertices(cubes, center, vertices, colors, normals);
+
+        float[] vertexBufferData = toArray(vertices);
+        float[] colorBufferData = toArray(colors);
+        float[] normalBufferData = toArray(normals);
+
+        vertices.clear();
+        colors.clear();
+        normals.clear();
+
+        vertexHandle = glGenBuffers();
+        colorHandle = glGenBuffers();
+        normalHandle = glGenBuffers();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
+        glBufferData(GL_ARRAY_BUFFER, colorBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
+        glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
+
+    }
+
+    public void render(){
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
+        glVertexPointer(3,GL_FLOAT, 0, 0);
+
+        glEnableClientState(GL_COLOR_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
+        glColorPointer(4, GL_FLOAT, 0, 0);
+
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
+        glNormalPointer(GL_FLOAT, 0, 0);
+
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, indices);
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+    }
+
+    public void dispose(){
+        glDeleteBuffers(new int[] {vertexHandle, colorHandle, normalHandle});
+    }
+
+    private int generateVertices(int[][][] cubes, boolean center, List<Float> vertices, List<Float> colors, List<Float> normals){
+
+        int indices = 0;
 
         for(int i = 0; i < width;i++){
             for(int j = 0; j < height;j++){
@@ -66,10 +129,13 @@ public class VoxelModel {
 
                         int verts = generateCube(vertices, normals, x, y, z, top, bottom, north, south, east, west);
 
-                        for(int vertColor = 0; vertColor < verts / 12;vertColor++){
+                        indices += verts;
+
+                        for(int vertColor = 0; vertColor < verts / 3;vertColor++){
                             colors.add(red);
                             colors.add(green);
                             colors.add(blue);//For each quad add the color in
+                            colors.add(1.0f);//For each quad add the color in
                         }
 
                     }
@@ -78,9 +144,7 @@ public class VoxelModel {
             }
         }
 
-        this.vertices = toArray(vertices);
-        this.colors = toArray(colors);
-        this.normals = toArray(normals);
+        return indices;
     }
 
     private static int getOrZero(int[][][] cube, int w, int h, int l, int x, int y, int z){
@@ -110,9 +174,11 @@ public class VoxelModel {
             vertOut.add(y + 1f);
             vertOut.add(z);
 
-            norOut.add(0f);
-            norOut.add(0f);
-            norOut.add(-1f);
+            for(int i = 0; i < 4;i++){
+                norOut.add(0f);
+                norOut.add(0f);
+                norOut.add(-1f);
+            }
         }
 
         if(south){
@@ -132,9 +198,11 @@ public class VoxelModel {
             vertOut.add(y);
             vertOut.add(z + 1f);
 
-            norOut.add(0f);
-            norOut.add(0f);
-            norOut.add(1f);
+            for(int i = 0; i < 4;i++){
+                norOut.add(0f);
+                norOut.add(0f);
+                norOut.add(1f);
+            }
         }
 
         if(top){
@@ -154,9 +222,11 @@ public class VoxelModel {
             vertOut.add(y + 1f);
             vertOut.add(z + 1f);
 
-            norOut.add(0f);
-            norOut.add(1f);
-            norOut.add(0f);
+            for(int i = 0; i < 4;i++) {
+                norOut.add(0f);
+                norOut.add(1f);
+                norOut.add(0f);
+            }
         }
 
         if(bottom){
@@ -177,9 +247,11 @@ public class VoxelModel {
             vertOut.add(y);
             vertOut.add(z);
 
-            norOut.add(0f);
-            norOut.add(-1f);
-            norOut.add(0f);
+            for(int i = 0; i < 4;i++) {
+                norOut.add(0f);
+                norOut.add(-1f);
+                norOut.add(0f);
+            }
         }
 
         if(east){
@@ -199,9 +271,11 @@ public class VoxelModel {
             vertOut.add(y);
             vertOut.add(z + 1f);
 
-            norOut.add(-1f);
-            norOut.add(0f);
-            norOut.add(0f);
+            for(int i = 0; i < 4;i++){
+                norOut.add(-1f);
+                norOut.add(0f);
+                norOut.add(0f);
+            }
         }
 
         if(west){
@@ -221,9 +295,11 @@ public class VoxelModel {
             vertOut.add(y + 1f);
             vertOut.add(z);
 
-            norOut.add(0f);
-            norOut.add(0f);
-            norOut.add(1f);
+            for(int i = 0; i < 4;i++){
+                norOut.add(0f);
+                norOut.add(0f);
+                norOut.add(1f);
+            }
         }
 
         return vertOut.size() - start;
@@ -231,7 +307,6 @@ public class VoxelModel {
 
     private static float[] toArray(List<Float> vertices){
         float[] out = new float[vertices.size()];
-
         for(int i = 0; i < out.length;i++){
             out[i] = vertices.get(i);
         }
