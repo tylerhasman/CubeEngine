@@ -37,7 +37,7 @@ public class Window implements Runnable {
     @Override
     public void run() {
         GL.createCapabilities();
-        GLUtil.setupDebugMessageCallback(System.err);
+        //GLUtil.setupDebugMessageCallback(System.err);
 
         glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
 
@@ -86,6 +86,8 @@ public class Window implements Runnable {
                 glfwSetWindowTitle(handle, title+" FPS: "+fps);
             }
         }
+
+        game.destroy();
 
 
         glfwFreeCallbacks(handle);

@@ -12,12 +12,19 @@ public class Assets {
 
     private static Map<String, VoxelModel> models = new HashMap<>();
 
+    public static void disposeAll(){
+        for(String key : models.keySet()){
+            VoxelModel model = models.get(key);
+            model.dispose();
+            System.out.println("[ASSET] Unloaded "+key);
+        }
+    }
+
     public static VoxelModel loadModel(String path){
         path = "assets/models/"+path;
         if(models.containsKey(path)){
             return models.get(path);
         }
-
 
         VoxelModel model;
         try {
