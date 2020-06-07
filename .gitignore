@@ -29,3 +29,9 @@ out/**
 hs_err_pid*
 
 assets/models/*.png
+
+# vscode specific
+*.vscode
+*.classpath
+*.project
+*.settings
