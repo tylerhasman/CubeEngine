@@ -53,6 +53,10 @@ public abstract class Entity {
 
         velocity.y += gravity * delta;
 
+        if(velocity.y < gravity){
+            velocity.y = gravity;
+        }
+
         delta = delta / 10f;
 
         Vector3f beforePosition = new Vector3f(position);
