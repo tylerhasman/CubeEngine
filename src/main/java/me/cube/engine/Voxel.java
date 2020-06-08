@@ -93,7 +93,7 @@ public class Voxel {
             transform.mul(parent);
         }
 
-        transform.scale(scale).translate(position).rotate(rotation).translate(origin.mul(-1f, new Vector3f()));
+        transform.translate(position).scale(scale).rotate(rotation).translate(origin.mul(-1f, new Vector3f()));
 
         for(Voxel child : children.values()){
             child.calculateTransforms(transform);
