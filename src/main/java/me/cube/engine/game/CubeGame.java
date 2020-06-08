@@ -54,15 +54,11 @@ public class CubeGame implements Game {
         return new Vector3f(forward.x, forward.y, forward.z);
     }
 
-    @Override
-    public void update(float delta) {
-
+    private void updateCamera(){
         float distance = Math.abs(distanceFromTarget - visualDistanceFromTarget);
         float speed = distance / 10f;
 
         visualDistanceFromTarget = MathUtil.moveValueTo(visualDistanceFromTarget, distanceFromTarget, speed);
-
-        projectionMatrix.mul(cameraMatrix, combined);
 
         Entity player = world.getPlayer();
 
@@ -80,13 +76,18 @@ public class CubeGame implements Game {
 
         p.sub(forward);
 
-
         cameraMatrix.identity().lookAt(p.x, p.y, p.z,
-                        player.position.x, player.position.y + 10, player.position.z,
-                        0, 1, 0);
+                player.position.x, player.position.y + 10, player.position.z,
+                0, 1, 0);
 
+        projectionMatrix.mul(cameraMatrix, combined);
 
+    }
+
+    @Override
+    public void update(float delta) {
         world.update(delta);
+        updateCamera();
     }
 
     @Override
