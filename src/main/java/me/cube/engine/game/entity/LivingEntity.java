@@ -107,8 +107,8 @@ public abstract class LivingEntity extends Entity {
             if(weaponPutAwayTime <= 0){
                 putAwayWeapon();
             }
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, -0.25f);
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0.25f);
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 0.1f);
+            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0.1f);
         }else{
             animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 1);
             animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 1);
@@ -124,7 +124,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if(animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
-            if(attackTime > 0.2f && attackTime < 0.6f){
+            if(attackTime > 0.4f && attackTime < 0.8f){
 
                 Voxel weapon = root.getChild("weapon");
 
@@ -245,14 +245,14 @@ public abstract class LivingEntity extends Entity {
 
         animationController = new AnimationController(avatar);
 
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation());
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation());
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation());
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f));
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation().setLooping(true));
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation().setLooping(true));
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation().setLooping(false));
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f).setLooping(true));
 
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation());
+        animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation().setLooping(true));
         animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(9f).setFadeOnFinish("prone"));
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "block", new ShieldBlockAnimation());
+        animationController.addAnimation(ANIMATION_LAYER_HAND, "block", new ShieldBlockAnimation().setLooping(false));
 
     }
 

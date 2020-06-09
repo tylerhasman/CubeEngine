@@ -1,5 +1,6 @@
 package me.cube.engine.util;
 
+import org.joml.Math;
 import org.joml.Vector3f;
 
 public class MathUtil {
@@ -56,5 +57,15 @@ public class MathUtil {
         from.x = moveValueTo(from.x, to.x, speed);
         from.y = moveValueTo(from.y, to.y, speed);
         from.z = moveValueTo(from.z, to.z, speed);
+    }
+
+    /**
+     * Return the decimal portion of f
+     */
+    public static float fract(float f) {
+        if(f == Math.floor(f)){
+            return 1.0f;
+        }
+        return f - Math.floor(f);
     }
 }

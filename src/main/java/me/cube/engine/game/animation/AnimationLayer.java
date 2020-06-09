@@ -1,5 +1,7 @@
 package me.cube.engine.game.animation;
 
+import me.cube.engine.util.MathUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,19 +65,32 @@ public class AnimationLayer {
         if(previous != null){
             avatar.globalWeight = 1f - interpolated;//It's weight goes from zero to one
             previous.update(avatar, prevTime);
+
+            if(interpolated == 1f){
+                previous.onAnimationFadeOut();
+                previousAnimation = "";
+            }
         }
 
         if(active != null){
-            avatar.globalWeight = interpolated;//Active animations weight goes from zero to one
-            active.update(avatar, time);
 
-            //If the animation has completed we check if we should transition into another animation
-            if(time >= active.getDuration()){
-                if(!active.fadeOnFinish.isEmpty()){
-                    transitionAnimation(active.fadeOnFinish, 0f);
-                }
+            float actualTime = time;
+
+            if(time >= 1f){
                 active.onAnimationComplete();
+                if(active.looping){
+                    actualTime = MathUtil.fract(time);
+                }else {
+                    time = 1f;
+                    if(!active.fadeOnFinish.isEmpty()){
+                        transitionAnimation(active.fadeOnFinish, 0f);
+                    }
+                }
             }
+
+            avatar.globalWeight = interpolated;//Active animations weight goes from zero to one
+            active.update(avatar, actualTime);
+
         }
 
     }
@@ -96,6 +111,7 @@ public class AnimationLayer {
      * Request this animation layer smoothly transitions between current animation and desired one
      */
     protected void transitionAnimation(String animationId, float offset) {
+
         if(!this.activeAnimation.equals(animationId)){
             prevTime = time;
             this.previousAnimation = this.activeAnimation;
@@ -108,6 +124,12 @@ public class AnimationLayer {
      * Change this animation layer instantly to another animation (no transition)
      */
     protected void setActiveAnimation(String animationId, float offset) {
+
+        Animation prev = getPreviousAnimation();
+        if(prev != null){
+            prev.onAnimationFadeOut();
+        }
+
         if(!this.activeAnimation.equalsIgnoreCase(animationId)){
             prevTime = 0f;
             time = offset;
@@ -138,6 +160,6 @@ public class AnimationLayer {
     }
 
     public float getCurrentAnimationTime(){
-        return time;
+        return MathUtil.fract(time);
     }
 }
