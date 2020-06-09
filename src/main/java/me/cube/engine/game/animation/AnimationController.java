@@ -44,18 +44,26 @@ public class AnimationController {
     }
 
     public void setActiveAnimation(int layer, String animationId){
+        setActiveAnimation(layer, animationId, 0);
+    }
+
+    public void setActiveAnimation(int layer, String animationId, float offset){
         if(layers.containsKey(layer)){
             AnimationLayer l = layers.get(layer);
-            l.setActiveAnimation(animationId);
+            l.setActiveAnimation(animationId, offset);
         }else{
             System.err.println("Unknown animation layer "+layer+" ("+animationId+")");
         }
     }
 
-    public void transitionAnimation(int layer, String nextAnimationId){
+    public void transitionAnimation(int layer, String nextAnimationId) {
+        transitionAnimation(layer, nextAnimationId, 0f);
+    }
+
+    public void transitionAnimation(int layer, String nextAnimationId, float offset){
         if(layers.containsKey(layer)){
             AnimationLayer l = layers.get(layer);
-            l.transitionAnimation(nextAnimationId);
+            l.transitionAnimation(nextAnimationId, offset);
         }else{
             System.err.println("Unknown animation layer "+layer+" ("+nextAnimationId+")");
         }

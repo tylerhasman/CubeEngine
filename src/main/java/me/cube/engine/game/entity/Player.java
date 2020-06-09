@@ -1,8 +1,8 @@
-package me.cube.engine.game;
+package me.cube.engine.game.entity;
 
-import me.cube.engine.Voxel;
-import me.cube.engine.VoxelModel;
-import me.cube.engine.file.Assets;
+import me.cube.engine.game.CubeGame;
+import me.cube.engine.game.Input;
+import me.cube.engine.game.World;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -58,6 +58,13 @@ public class Player extends LivingEntity {
         if(Input.isActionActive(ACTION_ATTACK_PRIMARY)){
             takeOutWeapon();
             attack();
+        }
+
+        if(Input.isActionActive(ACTION_ATTACK_SECONDAY)){
+            takeOutWeapon();
+            setBlocking(true);
+        }else{
+            setBlocking(false);
         }
 
         if(desiredDirection.x == 0 && desiredDirection.y == 0){

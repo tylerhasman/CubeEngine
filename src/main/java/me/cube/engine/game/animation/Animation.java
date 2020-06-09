@@ -8,6 +8,10 @@ public abstract class Animation {
 
     public abstract void update(Avatar avatar, float time);
 
+    protected void onAnimationComplete(){
+
+    }
+
     public float getDuration(){
         return 1f;
     }

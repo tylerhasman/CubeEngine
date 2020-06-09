@@ -3,6 +3,7 @@ package me.cube.engine.game;
 import me.cube.engine.Terrain;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
+import me.cube.engine.game.entity.*;
 import me.cube.engine.game.particle.Particle;
 import me.cube.engine.game.particle.ParticleEngine;
 import me.cube.engine.util.MathUtil;

@@ -72,8 +72,9 @@ public class AnimationLayer {
             //If the animation has completed we check if we should transition into another animation
             if(time >= active.getDuration()){
                 if(!active.fadeOnFinish.isEmpty()){
-                    transitionAnimation(active.fadeOnFinish);
+                    transitionAnimation(active.fadeOnFinish, 0f);
                 }
+                active.onAnimationComplete();
             }
         }
 
@@ -94,11 +95,11 @@ public class AnimationLayer {
     /**
      * Request this animation layer smoothly transitions between current animation and desired one
      */
-    protected void transitionAnimation(String animationId) {
+    protected void transitionAnimation(String animationId, float offset) {
         if(!this.activeAnimation.equals(animationId)){
             prevTime = time;
-            time = 0f;
             this.previousAnimation = this.activeAnimation;
+            time = offset;
         }
         this.activeAnimation = animationId;
     }
@@ -106,10 +107,10 @@ public class AnimationLayer {
     /**
      * Change this animation layer instantly to another animation (no transition)
      */
-    protected void setActiveAnimation(String animationId) {
+    protected void setActiveAnimation(String animationId, float offset) {
         if(!this.activeAnimation.equalsIgnoreCase(animationId)){
             prevTime = 0f;
-            time = 0f;
+            time = offset;
         }
         this.previousAnimation = animationId;
         this.activeAnimation = animationId;

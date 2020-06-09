@@ -2,6 +2,7 @@ package me.cube.engine.game;
 
 import me.cube.engine.Game;
 import me.cube.engine.file.Assets;
+import me.cube.engine.game.entity.Entity;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
@@ -120,6 +121,8 @@ public class CubeGame implements Game {
             Input.setActionState(ACTION_ATTACK_PRIMARY, action == GLFW_PRESS);
         }else if(button == GLFW_MOUSE_BUTTON_MIDDLE){
             Input.setActionState(ACTION_ROLL, action == GLFW_PRESS);
+        }else if(button == GLFW_MOUSE_BUTTON_RIGHT){
+            Input.setActionState(ACTION_ATTACK_SECONDAY, action == GLFW_PRESS || action == GLFW_REPEAT);
         }
     }
 

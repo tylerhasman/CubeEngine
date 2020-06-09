@@ -1,6 +1,7 @@
-package me.cube.engine.game;
+package me.cube.engine.game.entity;
 
 import me.cube.engine.Voxel;
+import me.cube.engine.game.World;
 import me.cube.engine.game.animation.AnimationController;
 import org.joml.AABBf;
 import org.joml.Quaternionf;

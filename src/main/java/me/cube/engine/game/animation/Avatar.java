@@ -1,7 +1,7 @@
 package me.cube.engine.game.animation;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.game.Entity;
+import me.cube.engine.game.entity.Entity;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
