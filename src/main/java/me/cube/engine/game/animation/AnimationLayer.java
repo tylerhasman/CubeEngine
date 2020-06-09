@@ -67,6 +67,7 @@ public class AnimationLayer {
 
         if(active != null){
             avatar.globalWeight = interpolated;//Active animations weight goes from zero to one
+            active.animationFlags = 0;//Clear all flags, update will need to re-enable them
             active.update(avatar, time);
 
             //If the animation has completed we check if we should transition into another animation
@@ -116,6 +117,14 @@ public class AnimationLayer {
         this.activeAnimation = animationId;
     }
 
+    protected int getAnimationFlags(){
+        Animation active = getActiveAnimation();
+        if(active != null){
+            return active.animationFlags;
+        }
+        return 0;
+    }
+
     private Animation getActiveAnimation(){
         if(animations.containsKey(activeAnimation)){
             return animations.get(activeAnimation);
@@ -129,6 +138,7 @@ public class AnimationLayer {
         }
         return null;
     }
+
 
     public String getCurrentAnimationId() {
         if(activeAnimation == null){

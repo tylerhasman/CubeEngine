@@ -26,6 +26,8 @@ public class AnimationController {
     }
 
     public void setLayerWeight(int layer, Avatar.BodyPart bodyPart, float weight){
+        weight = Math.min(1f, weight);
+        weight = Math.max(0f, weight);
         if(!layers.containsKey(layer)){
             layers.put(layer, new AnimationLayer(avatar));
         }
@@ -67,6 +69,15 @@ public class AnimationController {
         }else{
             System.err.println("Unknown animation layer "+layer+" ("+nextAnimationId+")");
         }
+    }
+
+    public boolean isAnimationFlagEnabled(int flag){
+        for(AnimationLayer layer : layers.values()){
+            if((layer.getAnimationFlags() & flag) == flag){
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getCurrentAnimation(int layer){

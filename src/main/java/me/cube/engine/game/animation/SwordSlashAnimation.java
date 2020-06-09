@@ -14,7 +14,7 @@ public class SwordSlashAnimation extends Animation {
         if(swingType == 0){
             swingOne(avatar, time);
         }else if(swingType == 1){
-            swingOne(avatar, time);
+            swingTwo(avatar, time);
         }
 
     }

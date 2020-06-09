@@ -4,9 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -18,9 +16,15 @@ public class Voxel {
     public final Quaternionf rotation;
     public final Vector3f origin;
     public VoxelModel model;
+
     private final Map<String, Voxel> children;
 
     private final Matrix4f transform;
+
+    /**
+     * If false this voxel (and its children) will not render!
+     */
+    public boolean enabled;
 
     public Voxel(){
         this("unnamed", null);
@@ -38,6 +42,7 @@ public class Voxel {
         if(model != null){
            origin.set(model.pivot);
         }
+        enabled = true;
     }
 
     /**
@@ -127,6 +132,8 @@ public class Voxel {
     public void render(){
         calculateTransforms(null);
 
-        render0();
+        if(enabled){
+            render0();
+        }
     }
 }
