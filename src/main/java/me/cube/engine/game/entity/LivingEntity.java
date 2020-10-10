@@ -44,6 +44,7 @@ public abstract class LivingEntity extends Entity {
         putAwayWeapon();
         attackTime = 0f;
         roll = 0;
+        physics = true;
     }
 
     public void setMaxMoveSpeed(float maxMoveSpeed) {

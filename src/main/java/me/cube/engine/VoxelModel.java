@@ -18,6 +18,8 @@ import static org.lwjgl.opengl.GL30C.*;
  */
 public class VoxelModel {
 
+    private static final int GRADIENT_SIDES = 1, DARKER_NORTH = 2, DARKER_SOUTH = 4, DARKER_WEST = 8, DARKER_EAST = 16;
+
     public final int width, height, length;
 
     public final Vector3f pivot = new Vector3f();
@@ -169,7 +171,22 @@ public class VoxelModel {
                             usedGradient = true;
                         }
 
-                        int verts = generateCube(vertices, normals, colors, red, green, blue, i, j, k, colorGradient, top, bottom, north, south, east, west);
+                        int colorFlags = 0;
+
+                        colorFlags |= colorGradient ? GRADIENT_SIDES : 0;
+/*
+
+                        for(int x = -1; x <= 1; x++){
+                            for(int y = -1; y <= 1;y++){
+                                colorFlags |= isSolid(terrain, chunk, i + 1 + x, j + 1, k + y) ? DARKER_NORTH : 0;
+                                colorFlags |= isSolid(terrain, chunk, i - 1 + x, j + 1, k + y) ? DARKER_SOUTH : 0;
+                                colorFlags |= isSolid(terrain, chunk, i + x, j + 1, k + y + 1) ? DARKER_EAST : 0;
+                                colorFlags |= isSolid(terrain, chunk, i + x, j + 1, k + y - 1) ? DARKER_WEST : 0;
+                            }
+                        }
+*/
+
+                        int verts = generateCube(vertices, normals, colors, red, green, blue, i, j, k, colorFlags, top, bottom, north, south, east, west);
 
                         indices += verts;
 
@@ -225,7 +242,7 @@ public class VoxelModel {
                         }
 
 
-                        int verts = generateCube(vertices, normals, colors, red, green, blue, x, y, z, colorGradient, top, bottom, north, south, east, west);
+                        int verts = generateCube(vertices, normals, colors, red, green, blue, x, y, z, colorGradient ? GRADIENT_SIDES : 0, top, bottom, north, south, east, west);
 
                         indices += verts;
 
@@ -263,7 +280,7 @@ public class VoxelModel {
         return cube[x][y][z];
     }
 
-    private static int generateCube(List<Float> vertOut, List<Float> norOut, List<Float> colorOut, float red, float green, float blue, float x, float y, float z, boolean colorGradient, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
+    private static int generateCube(List<Float> vertOut, List<Float> norOut, List<Float> colorOut, float red, float green, float blue, float x, float y, float z, int colorGradient, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
         int start = vertOut.size();
 
         if(north){
@@ -289,8 +306,15 @@ public class VoxelModel {
                 norOut.add(-1f);
             }
 
-            if(colorGradient){
+            if((colorGradient & GRADIENT_SIDES) != 0){
                 colorGradient(colorOut, red, green, blue, 0, 1);
+            }else{
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
             }
         }
 
@@ -317,8 +341,15 @@ public class VoxelModel {
                 norOut.add(1f);
             }
 
-            if(colorGradient){
+            if((colorGradient & GRADIENT_SIDES) != 0){
                 colorGradient(colorOut, red, green, blue, 0, 3);
+            }else{
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
             }
         }
 
@@ -345,7 +376,61 @@ public class VoxelModel {
                 norOut.add(0f);
             }
 
-            if(colorGradient){
+            boolean darkerTop = (colorGradient & (DARKER_NORTH | DARKER_SOUTH | DARKER_EAST | DARKER_WEST)) != 0;
+
+            if(darkerTop){
+
+                if((colorGradient & (DARKER_SOUTH | DARKER_WEST)) != 0){
+                    colorOut.add(red * 0.8f);
+                    colorOut.add(green * 0.8f);
+                    colorOut.add(blue * 0.8f);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }else{
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+
+                if((colorGradient & (DARKER_NORTH | DARKER_WEST)) != 0){
+                    colorOut.add(red * 0.8f);
+                    colorOut.add(green * 0.8f);
+                    colorOut.add(blue * 0.8f);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }else{
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+
+
+                if((colorGradient & (DARKER_NORTH | DARKER_EAST)) != 0){
+                    colorOut.add(red * 0.8f);
+                    colorOut.add(green * 0.8f);
+                    colorOut.add(blue * 0.8f);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }else{
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+
+                if((colorGradient & (DARKER_SOUTH | DARKER_EAST)) != 0){
+                    colorOut.add(red * 0.8f);
+                    colorOut.add(green * 0.8f);
+                    colorOut.add(blue * 0.8f);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }else{
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+
+
+            }else{
                 for(int i = 0; i < 4;i++){
                     colorOut.add(red);
                     colorOut.add(green);
@@ -379,7 +464,14 @@ public class VoxelModel {
                 norOut.add(0f);
             }
 
-            if(colorGradient){
+            if((colorGradient & GRADIENT_SIDES) != 0){
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+            }else{
                 for(int i = 0; i < 4;i++){
                     colorOut.add(red);
                     colorOut.add(green);
@@ -413,8 +505,15 @@ public class VoxelModel {
             }
 
 
-            if(colorGradient){
+            if((colorGradient & GRADIENT_SIDES) != 0){
                 colorGradient(colorOut, red, green, blue, 0, 3);
+            }else{
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
             }
         }
 
@@ -441,26 +540,20 @@ public class VoxelModel {
                 norOut.add(0f);
             }
 
-            if(colorGradient){
+            if((colorGradient & GRADIENT_SIDES) != 0){
                 colorGradient(colorOut, red, green, blue, 0, 1);
+            }else{
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
             }
 
         }
 
-        int verts = vertOut.size() - start;
-
-        if(!colorGradient){
-            for(int vertColor = 0; vertColor < verts / 3;vertColor++){
-                colorOut.add(red);
-                colorOut.add(green);
-                colorOut.add(blue);//For each quad add the color in
-                colorOut.add(1.0f);//For each quad add the color in
-            }
-        }
-
-
-
-        return verts;
+        return vertOut.size() - start;
     }
 
     private static void colorGradient(List<Float> colorOut, float red, float green, float blue, int botVertOne, int botVertTwo){

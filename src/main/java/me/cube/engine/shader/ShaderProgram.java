@@ -72,6 +72,8 @@ public class ShaderProgram {
         int location = glGetUniformLocation(programId, name);
         if(location != -1){
             glUniform1f(location, val);
+        }else{
+            //System.err.println("Shader has no uniform named "+name);
         }
     }
 
@@ -79,6 +81,8 @@ public class ShaderProgram {
         int location = glGetUniformLocation(programId, name);
         if(location != -1){
             glUniform3f(location, val.x, val.y, val.z);
+        }else{
+            //System.err.println("Shader has no uniform named "+name);
         }
     }
 
@@ -88,6 +92,8 @@ public class ShaderProgram {
             float[] arr = new float[4 * 4];
             mat.get(arr);
             glUniformMatrix4fv(location, false, arr);
+        }else{
+            //System.err.println("Shader has no uniform named "+name);
         }
     }
 
@@ -98,10 +104,6 @@ public class ShaderProgram {
 
     public void bind() {
         glUseProgram(programId);
-
-        glBindAttribLocation(programId, 0, "a_Position");
-        glBindAttribLocation(programId, 1, "a_Color");
-        glBindAttribLocation(programId, 2, "a_Normal");
     }
 
     public void unbind() {

@@ -1,15 +1,20 @@
 package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.Chunk;
+import me.cube.engine.util.MathUtil;
 import me.cube.engine.util.PerlinNoise;
+
+import java.util.Random;
 
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
-    private static final PerlinNoise terrainHeightNoise = new PerlinNoise(423807);//Randomly
+    private static final PerlinNoise terrainHeightNoise = new PerlinNoise(423807);//Randomly chosen
     private static final PerlinNoise biomeNoise = new PerlinNoise(213213);//Randomly chosen
+    private static final PerlinNoise colorNoise = new PerlinNoise(342121);//Randomly chosen
+    private static final PerlinNoise tempNoise = new PerlinNoise(423555);//Randomly chosen
     private static final float LARGE_NUMBER = 10_000;
 
-    private Biome biomeAt(int x, int z){
+    public Biome biomeAt(int x, int z){
         float genCoordX = x / 300f;
         float genCoordZ = z / 300f;
 
@@ -34,20 +39,37 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
                 int height = (int) (terrainHeightNoise.noise(genCoordX, genCoordZ) * Chunk.CHUNK_HEIGHT) + 1;
 
-                height = Math.max(1, height);
+                float coloring = (float) (colorNoise.noise(genCoordX, genCoordZ) * 0.3f) + 0.7f;
+                float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
+
 
                 if(biome == Biome.PLAINS){
                     height /= 10;
-                    g = 0x8E;
-                    b = 0x1C;
+
+                    if(tempurature < 0.1f){
+                        g = 0x8E / 2;
+                        b = 0x1C;
+                    }else{
+                        r = 28;
+                        g = 130;
+                        b = 47;
+                        coloring = (float) (colorNoise.noise(genCoordX / 4, genCoordZ / 4) * 0.5f) + 0.5f;
+                        height--;
+                    }
+
                 }else if(biome == Biome.MOUNTAINS){
                     r = 0x40;
                     g = 0x40;
                     b = 0x40;
                 }
 
+                height += 5;
 
+                r = (int) (coloring * r);
+                g = (int) (coloring * g);
+                b = (int) (coloring * b);
 
+                height = Math.max(1, height);
                 for(int y = 0; y < Chunk.CHUNK_HEIGHT;y++){
                     if(y <= height){
                         chunk.blocks[i][y][j] = ((r << 16) + (g << 8) + b);

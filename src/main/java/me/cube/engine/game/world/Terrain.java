@@ -1,8 +1,10 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.file.VxmFile;
+import me.cube.engine.game.entity.Flora;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.ChunkStorage;
+import me.cube.engine.game.world.generator.Biome;
 import me.cube.engine.game.world.generator.PerlinTerrainGenerator;
 import me.cube.engine.game.world.generator.TerrainGenerator;
 import org.joml.AABBf;
@@ -21,7 +23,7 @@ public class Terrain {
 
     private int viewDistance;
 
-    public Terrain(int viewDistance){
+    public Terrain(World world, int viewDistance){
         chunkStorage = new ChunkStorage();
         terrainGenerator = new PerlinTerrainGenerator();
         this.viewDistance = viewDistance;

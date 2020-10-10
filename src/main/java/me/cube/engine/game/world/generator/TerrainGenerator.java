@@ -6,4 +6,6 @@ public interface TerrainGenerator {
 
     void generateChunk(Chunk chunk);
 
+    Biome biomeAt(int x, int z);
+
 }

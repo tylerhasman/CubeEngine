@@ -1,6 +1,7 @@
 package me.cube.engine;
 
 import me.cube.engine.game.CubeGame;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

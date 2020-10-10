@@ -26,6 +26,8 @@ public abstract class Entity {
 
     private boolean onGround;
 
+    public boolean physics;
+
     public Entity(World world){
         this.world = world;
         root = new Voxel("root", null);
@@ -37,6 +39,7 @@ public abstract class Entity {
         boundingBox = new AABBf();
         bbMin = new Vector3f();
         bbMax = new Vector3f();
+        physics = false;
     }
 
     public boolean isOnGround() {
@@ -48,6 +51,9 @@ public abstract class Entity {
     }
 
     public void updatePhysics(float delta){
+
+        if(!physics)
+            return;
 
         onGround = false;
 

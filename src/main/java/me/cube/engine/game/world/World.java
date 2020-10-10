@@ -32,11 +32,11 @@ public class World {
 
         player = new Player(this);
 
-        player.position.set(1000, 50, 1000);
+        player.position.set(1000, 150, 1000);
 
         entities.add(player);
 
-        terrain = new Terrain(10);
+        terrain = new Terrain(this,8);
 
     }
 
@@ -52,6 +52,10 @@ public class World {
         return particleEngine;
     }
 
+    public void addEntity(Entity entity){
+        entities.add(entity);
+    }
+
     public void update(float delta){
         for(Entity entity : entities){
             entity.updatePhysics(delta);
@@ -64,8 +68,6 @@ public class World {
     }
 
     public void render(){
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 /*        glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
@@ -90,13 +92,13 @@ public class World {
 
 /*        glDisable(GL_LIGHT0);
         glDisable(GL_LIGHTING);*/
-        glDisable(GL_COLOR_MATERIAL);
 
         particleEngine.render();
 
+
     }
 
-    private void renderHitboxes(){
+    public void renderHitboxes(){
         glBegin(GL_LINES);
 
         glColor3f(1f, 0f, 0f);

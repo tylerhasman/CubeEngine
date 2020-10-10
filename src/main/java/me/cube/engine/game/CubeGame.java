@@ -31,10 +31,13 @@ public class CubeGame implements Game {
     private float distanceFromTarget;
     private float visualDistanceFromTarget;
 
+    public static float time;
+
     public static ShaderProgram shaderProgram;
 
     @Override
     public void init() {
+        time = 0;
         game = this;
         world = new World();
         projectionMatrix = new Matrix4f()
@@ -107,8 +110,11 @@ public class CubeGame implements Game {
 
     @Override
     public void update(float delta) {
+
         world.update(delta);
         updateCamera();
+
+        time += delta;
     }
 
     @Override
@@ -122,7 +128,9 @@ public class CubeGame implements Game {
             shaderProgram.bind();
             shaderProgram.setUniformMatrix4("ViewMatrix", cameraMatrix);
             shaderProgram.setUniformMatrix4("ProjectionMatrix", projectionMatrix);
-            //shaderProgram.setUniformf("u_LightPos", new Vector3f(0, 1000, 0));
+            //shaderProgram.setUniformf("u_AmbientLight", new Vector3f(0.2f, 0.2f, 0.2f));
+            shaderProgram.setUniformf("u_AmbientLight", new Vector3f());
+            shaderProgram.setUniformf("u_LightPos0", new Vector3f(0, 1000, 0));
 
             {
                 world.render();
@@ -181,6 +189,21 @@ public class CubeGame implements Game {
         if(key == GLFW_KEY_SPACE){
             Input.setActionState(ACTION_JUMP, action == GLFW_PRESS);
         }
+
+        if(key == GLFW_KEY_F6){
+            shaderProgram.cleanup();
+
+            shaderProgram = new ShaderProgram();
+            try{
+                shaderProgram.createFragmentShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/fragment.glsl")));
+                shaderProgram.createVertexShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/vertex.glsl")));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+            shaderProgram.link();
+        }
+
     }
 
     @Override
