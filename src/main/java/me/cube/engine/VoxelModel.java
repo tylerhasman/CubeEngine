@@ -436,9 +436,9 @@ public class VoxelModel {
             vertOut.add(z);
 
             for(int i = 0; i < 4;i++){
+                norOut.add(-1f);
                 norOut.add(0f);
                 norOut.add(0f);
-                norOut.add(1f);
             }
 
             if(colorGradient){
