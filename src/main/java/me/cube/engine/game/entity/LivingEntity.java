@@ -3,7 +3,7 @@ package me.cube.engine.game.entity;
 import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.file.Assets;
-import me.cube.engine.game.World;
+import me.cube.engine.game.world.World;
 import me.cube.engine.game.animation.*;
 import me.cube.engine.game.particle.WeaponSwooshParticle;
 import me.cube.engine.util.MathUtil;
@@ -18,14 +18,15 @@ public abstract class LivingEntity extends Entity {
 
     private AnimationController animationController;
 
-    private float moveSpeed;
+    private float maxMoveSpeed;
     private float yaw, roll;
 
     private float attackTime;
 
+    private float attackSpeed;
+
     private boolean weaponOut;
     private float weaponPutAwayTime;
-    private boolean bufferAttack;//If true the player has 'buffered' an attack and another attack will happen as soon as possible
     private float rollTime;
 
     private boolean blocking;
@@ -34,7 +35,8 @@ public abstract class LivingEntity extends Entity {
 
     public LivingEntity(World world) {
         super(world);
-        moveSpeed = 90f;
+        maxMoveSpeed = 90f;
+        attackSpeed = 2f;
         initAppearance();
         initAnimations();
         yaw = 0f;
@@ -42,6 +44,10 @@ public abstract class LivingEntity extends Entity {
         putAwayWeapon();
         attackTime = 0f;
         roll = 0;
+    }
+
+    public void setMaxMoveSpeed(float maxMoveSpeed) {
+        this.maxMoveSpeed = maxMoveSpeed;
     }
 
     public void setBlocking(boolean blocking) {
@@ -56,13 +62,24 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void walk(float dirX, float dirZ, float acceleration){
-        velocity.x = MathUtil.moveValueTo(velocity.x, dirX * moveSpeed, acceleration);
-        velocity.z = MathUtil.moveValueTo(velocity.z, dirZ * moveSpeed, acceleration);
+        float actualMoveSpeed = maxMoveSpeed;
+
+        if(attackTime > 0f){
+            actualMoveSpeed *= 0.85f;
+        }
+
+        velocity.x = MathUtil.moveValueTo(velocity.x, dirX * actualMoveSpeed, acceleration);
+        velocity.z = MathUtil.moveValueTo(velocity.z, dirZ * actualMoveSpeed, acceleration);
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
+
+
+        if(position.y < -500){
+            position.set(100, 100, 100);
+        }
 
         if(rollTime > 0f){
             animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "rolling");
@@ -124,7 +141,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if(animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
-            if(attackTime > 0.4f && attackTime < 0.8f){
+            if(attackTime > 0.1f && attackTime < 0.9f){
 
                 Voxel weapon = root.getChild("weapon");
 
@@ -146,11 +163,11 @@ public abstract class LivingEntity extends Entity {
             lastSwooshParticle = null;
         }
 
-        if(attackTime <= 0.2f && bufferAttack){
-            attack();
-        }
+        attackTime -= delta * attackSpeed;
 
-        attackTime -= delta;
+        if(attackTime <= 0){
+            animationController.setActiveAnimation(ANIMATION_LAYER_HAND, "prone");
+        }
 
         if(!animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
             if(blocking){
@@ -163,14 +180,11 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void attack(){
-        if(attackTime <= 0.2f && rollTime <= 0f){
+        if(attackTime <= 0f && rollTime <= 0f){
             animationController.setActiveAnimation(ANIMATION_LAYER_HAND, "swing");
 
             weaponPutAwayTime = 10f;
-            attackTime = 0.8f;
-            bufferAttack = false;
-        }else if(attackTime <= 0.4f){
-            bufferAttack = true;
+            attackTime = 1f;
         }
     }
 
@@ -248,10 +262,10 @@ public abstract class LivingEntity extends Entity {
         animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation().setLooping(true));
         animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation().setLooping(true));
         animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation().setLooping(false));
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f).setLooping(true));
+        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f).setLooping(false));
 
         animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation().setLooping(true));
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(9f).setFadeOnFinish("prone"));
+        animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(attackSpeed).setTransitionSpeedBack(1f / 2f).setFadeOnFinish("prone").setLooping(true));
         animationController.addAnimation(ANIMATION_LAYER_HAND, "block", new ShieldBlockAnimation().setLooping(false));
 
     }
@@ -278,13 +292,13 @@ public abstract class LivingEntity extends Entity {
 
         Voxel shield = new Voxel("shield", shieldModel);
         shield.scale.set(1f);
-        leftHand.addChild(shield);
+        //leftHand.addChild(shield);
 
         Voxel rightHand = new Voxel("right-hand", handModel);
         rightHand.position.x = 8;
 
         Voxel weapon = new Voxel("weapon", swordModel);
-        weapon.scale.set(0.7f);
+        weapon.scale.set(1f);
 
         rightHand.addChild(weapon);
 

@@ -3,9 +3,14 @@ package me.cube.engine.game;
 import me.cube.engine.Game;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.Entity;
+import me.cube.engine.game.world.World;
+import me.cube.engine.shader.ShaderProgram;
+import me.cube.engine.util.FileUtil;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
+
+import java.io.File;
 
 import static me.cube.engine.game.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -20,18 +25,20 @@ public class CubeGame implements Game {
 
     private Matrix4f projectionMatrix;
     private Matrix4f cameraMatrix;
-    private Matrix4f combined;
+    public static Matrix4f combined;
 
     private float yaw, pitch;
     private float distanceFromTarget;
     private float visualDistanceFromTarget;
+
+    //public static ShaderProgram shaderProgram;
 
     @Override
     public void init() {
         game = this;
         world = new World();
         projectionMatrix = new Matrix4f()
-                .perspective(Math.toRadians(90f), 1280f / 720f, 0.01f, 2000);
+                .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);
 
         cameraMatrix = new Matrix4f();
         combined = new Matrix4f();
@@ -40,6 +47,19 @@ public class CubeGame implements Game {
         visualDistanceFromTarget = distanceFromTarget;
         yaw = 0f;
         pitch = 45;
+/*
+
+        shaderProgram = new ShaderProgram();
+        try{
+            shaderProgram.createFragmentShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/fragment.glsl")));
+            shaderProgram.createVertexShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/vertex.glsl")));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        shaderProgram.link();
+*/
+
     }
 
     public Vector3f getCameraForward(){
@@ -103,10 +123,20 @@ public class CubeGame implements Game {
 
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
+/*
+
+            shaderProgram.bind();
+            shaderProgram.setUniformMatrix4("u_MVMatrix", cameraMatrix);
+            shaderProgram.setUniformf("u_LightPos", new Vector3f());
+*/
 
             {
                 world.render();
             }
+/*
+
+            shaderProgram.unbind();
+*/
 
             glDisable(GL_MULTISAMPLE);
             glDisable(GL_DEPTH_TEST);
@@ -173,5 +203,6 @@ public class CubeGame implements Game {
     @Override
     public void destroy() {
         Assets.disposeAll();
+        //shaderProgram.cleanup();
     }
 }

@@ -1,13 +1,10 @@
-package me.cube.engine.game;
+package me.cube.engine.game.world;
 
-import me.cube.engine.Terrain;
-import me.cube.engine.Voxel;
-import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.*;
-import me.cube.engine.game.particle.Particle;
 import me.cube.engine.game.particle.ParticleEngine;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +13,8 @@ import java.util.Random;
 import static org.lwjgl.opengl.GL11.*;
 
 public class World {
+
+    public static final float WORLD_SCALE = 10f;
 
     private List<Entity> entities;
 
@@ -33,18 +32,11 @@ public class World {
 
         player = new Player(this);
 
-        player.position.set(100, 100, 100);
+        player.position.set(1000, 50, 1000);
 
         entities.add(player);
 
-        terrain = new Terrain(100, 100, 100);
-
-        for(int i = 0; i < 6;i++){
-            Flora flora = new Flora(this);
-            flora.rotation.rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0);
-            flora.position.add(random.nextFloat() * 40 * 10, 15, random.nextFloat() * 40 * 10);
-            entities.add(flora);
-        }
+        terrain = new Terrain(10);
 
     }
 
@@ -67,6 +59,7 @@ public class World {
         for(Entity entity : entities){
             entity.update(delta);
         }
+        terrain.updateTerrain(new Vector3f(player.position));
         particleEngine.update(delta);
     }
 

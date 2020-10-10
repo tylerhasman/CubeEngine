@@ -1,25 +1,22 @@
 package me.cube.engine;
 
+import me.cube.engine.game.world.Chunk;
+import me.cube.engine.game.world.Terrain;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_VERTEX_ARRAY;
 import static org.lwjgl.opengl.GL30C.*;
 
+/**
+ * This code is fucked.
+ */
 public class VoxelModel {
-/*
-
-    private float[] vertices;//To be passed to glQuad
-    private float[] colors;
-    private float[] normals;
-*/
 
     public final int width, height, length;
 
@@ -31,6 +28,41 @@ public class VoxelModel {
 
     public VoxelModel(int[][][] cubes, int width, int height, int length){
         this(cubes, width, height, length, true);
+    }
+
+    public VoxelModel(Terrain terrain, Chunk chunk){
+        width = Chunk.CHUNK_WIDTH;
+        height = Chunk.CHUNK_HEIGHT;
+        length = Chunk.CHUNK_WIDTH;
+
+        pivot.set(0, 0, 0);
+
+        List<Float> vertices = new ArrayList<>();
+        List<Float> colors = new ArrayList<>();
+        List<Float> normals = new ArrayList<>();
+
+        indices = generateVertices(terrain, chunk, vertices, colors, normals);
+
+        float[] vertexBufferData = toArray(vertices);
+        float[] colorBufferData = toArray(colors);
+        float[] normalBufferData = toArray(normals);
+
+        vertices.clear();
+        colors.clear();
+        normals.clear();
+
+        vertexHandle = glGenBuffers();
+        colorHandle = glGenBuffers();
+        normalHandle = glGenBuffers();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
+        glBufferData(GL_ARRAY_BUFFER, colorBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
+        glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
     }
 
     public VoxelModel(int[][][] cubes, int width, int height, int length, boolean center){
@@ -59,6 +91,7 @@ public class VoxelModel {
         colorHandle = glGenBuffers();
         normalHandle = glGenBuffers();
 
+
         glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
         glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
 
@@ -71,18 +104,35 @@ public class VoxelModel {
     }
 
     public void render(){
+
+        //VERTEX
         glEnableClientState(GL_VERTEX_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
-        glVertexPointer(3,GL_FLOAT, 0, 0);
 
+        glVertexPointer(3, GL_FLOAT, 0, 0);
+
+/*
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+*/
+
+        //COLOR
         glEnableClientState(GL_COLOR_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
-        glColorPointer(4, GL_FLOAT, 0, 0);
 
+        glColorPointer(4, GL_FLOAT, 0, 0);
+/*
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
+*/
+
+
+        //NORMAL
         glEnableClientState(GL_NORMAL_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
         glNormalPointer(GL_FLOAT, 0, 0);
 
+        //DRAW CALL
         GL11.glDrawArrays(GL11.GL_QUADS, 0, indices);
 
         glDisableClientState(GL_VERTEX_ARRAY);
@@ -94,14 +144,59 @@ public class VoxelModel {
         glDeleteBuffers(new int[] {vertexHandle, colorHandle, normalHandle});
     }
 
+    private int generateVertices(Terrain terrain, Chunk chunk, List<Float> vertices, List<Float> colors, List<Float> normals){
+        int indices = 0;
+
+        for(int i = 0; i < width;i++){
+            for(int k = 0; k < length;k++){
+                boolean usedGradient = false;
+                for(int j = 0; j < height;j++){
+
+                    int color = chunk.blocks[i][j][k];
+
+                    if(color != 0){
+
+                        float red = ((color >> 16) & 255) / 255F;
+                        float green = ((color >> 8) & 255) / 255F;
+                        float blue = (color & 255) / 255F;
+
+                        boolean top = !isSolid(terrain, chunk, i, j + 1, k);
+                        boolean bottom = !isSolid(terrain, chunk, i, j - 1, k);
+                        boolean north = !isSolid(terrain, chunk, i, j, k-1);
+                        boolean south = !isSolid(terrain, chunk, i, j, k+1);
+                        boolean east = !isSolid(terrain, chunk, i-1, j, k);
+                        boolean west = !isSolid(terrain, chunk, i+1, j, k);
+
+                        boolean colorGradient = false;
+
+                        if(!usedGradient && (north || south || east || west)){
+                            colorGradient = true;
+                            usedGradient = true;
+                        }
+
+                        int verts = generateCube(vertices, normals, colors, red, green, blue, i, j, k, colorGradient, top, bottom, north, south, east, west);
+
+                        indices += verts;
+
+                    }else{
+                        usedGradient = false;
+                    }
+
+                }
+            }
+        }
+
+        return indices;
+    }
+
     private int generateVertices(int[][][] cubes, boolean center, List<Float> vertices, List<Float> colors, List<Float> normals){
 
         int indices = 0;
 
         for(int i = 0; i < width;i++){
-            for(int j = 0; j < height;j++){
-                for(int k = 0; k < length;k++){
-
+            for(int k = 0; k < length;k++){
+                boolean usedGradient = false;
+                for(int j = 0; j < height;j++){
                     int color = cubes[i][j][k];
 
                     if(color != 0){
@@ -127,24 +222,43 @@ public class VoxelModel {
                         boolean east = getOrZero(cubes, width, height, length, i-1, j, k) == 0;
                         boolean west = getOrZero(cubes, width, height, length, i+1, j, k) == 0;
 
-                        int verts = generateCube(vertices, normals, x, y, z, top, bottom, north, south, east, west);
+                        boolean colorGradient = false;
+
+                        if(!usedGradient){
+                            colorGradient = true;
+                            usedGradient = true;
+                        }
+
+
+                        int verts = generateCube(vertices, normals, colors, red, green, blue, x, y, z, colorGradient, top, bottom, north, south, east, west);
 
                         indices += verts;
 
-                        for(int vertColor = 0; vertColor < verts / 3;vertColor++){
-                            colors.add(red);
-                            colors.add(green);
-                            colors.add(blue);//For each quad add the color in
-                            colors.add(1.0f);//For each quad add the color in
-                        }
-
+                    }else{
+                        usedGradient = false;
                     }
-
                 }
             }
         }
 
         return indices;
+    }
+
+    private static boolean isSolid(Terrain terrain, Chunk chunk, int i, int worldY, int k){
+        if(worldY < 0){//Under the world
+            return true;
+        }
+        if(worldY >= Chunk.CHUNK_HEIGHT){
+            return false;
+        }
+        int worldX = chunk.getChunkX() * Chunk.CHUNK_WIDTH + i;
+        int worldZ = chunk.getChunkZ() * Chunk.CHUNK_WIDTH + k;
+
+        if(i < 0 || k < 0 || i >= Chunk.CHUNK_WIDTH || k >= Chunk.CHUNK_WIDTH){//Outside this chunk
+            return terrain.isSolid(worldX, worldY, worldZ);
+        }
+
+        return chunk.blocks[i][worldY][k] != 0;
     }
 
     private static int getOrZero(int[][][] cube, int w, int h, int l, int x, int y, int z){
@@ -154,7 +268,7 @@ public class VoxelModel {
         return cube[x][y][z];
     }
 
-    private static int generateCube(List<Float> vertOut, List<Float> norOut, float x, float y, float z, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
+    private static int generateCube(List<Float> vertOut, List<Float> norOut, List<Float> colorOut, float red, float green, float blue, float x, float y, float z, boolean colorGradient, boolean top, boolean bottom, boolean north, boolean south, boolean east, boolean west){
         int start = vertOut.size();
 
         if(north){
@@ -178,6 +292,10 @@ public class VoxelModel {
                 norOut.add(0f);
                 norOut.add(0f);
                 norOut.add(-1f);
+            }
+
+            if(colorGradient){
+                colorGradient(colorOut, red, green, blue, 0, 1);
             }
         }
 
@@ -203,6 +321,10 @@ public class VoxelModel {
                 norOut.add(0f);
                 norOut.add(1f);
             }
+
+            if(colorGradient){
+                colorGradient(colorOut, red, green, blue, 0, 3);
+            }
         }
 
         if(top){
@@ -226,6 +348,15 @@ public class VoxelModel {
                 norOut.add(0f);
                 norOut.add(1f);
                 norOut.add(0f);
+            }
+
+            if(colorGradient){
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
             }
         }
 
@@ -252,6 +383,15 @@ public class VoxelModel {
                 norOut.add(-1f);
                 norOut.add(0f);
             }
+
+            if(colorGradient){
+                for(int i = 0; i < 4;i++){
+                    colorOut.add(red);
+                    colorOut.add(green);
+                    colorOut.add(blue);//For each quad add the color in
+                    colorOut.add(1.0f);//For each quad add the color in
+                }
+            }
         }
 
         if(east){
@@ -275,6 +415,11 @@ public class VoxelModel {
                 norOut.add(-1f);
                 norOut.add(0f);
                 norOut.add(0f);
+            }
+
+
+            if(colorGradient){
+                colorGradient(colorOut, red, green, blue, 0, 3);
             }
         }
 
@@ -300,9 +445,43 @@ public class VoxelModel {
                 norOut.add(0f);
                 norOut.add(1f);
             }
+
+            if(colorGradient){
+                colorGradient(colorOut, red, green, blue, 0, 1);
+            }
+
         }
 
-        return vertOut.size() - start;
+        int verts = vertOut.size() - start;
+
+        if(!colorGradient){
+            for(int vertColor = 0; vertColor < verts / 3;vertColor++){
+                colorOut.add(red);
+                colorOut.add(green);
+                colorOut.add(blue);//For each quad add the color in
+                colorOut.add(1.0f);//For each quad add the color in
+            }
+        }
+
+
+
+        return verts;
+    }
+
+    private static void colorGradient(List<Float> colorOut, float red, float green, float blue, int botVertOne, int botVertTwo){
+        for(int i = 0; i < 4;i++){
+            if(i == botVertOne || i == botVertTwo){
+                colorOut.add(red * 0.8f);
+                colorOut.add(green * 0.8f);
+                colorOut.add(blue * 0.8f);//For each quad add the color in
+                colorOut.add(1.0f);//For each quad add the color in
+            }else{
+                colorOut.add(red);
+                colorOut.add(green);
+                colorOut.add(blue);//For each quad add the color in
+                colorOut.add(1.0f);//For each quad add the color in
+            }
+        }
     }
 
     private static float[] toArray(List<Float> vertices){

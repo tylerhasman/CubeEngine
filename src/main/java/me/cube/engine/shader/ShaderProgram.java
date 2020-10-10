@@ -1,5 +1,10 @@
 package me.cube.engine.shader;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+import java.io.File;
+
 import static org.lwjgl.opengl.GL20.*;
 
 public class ShaderProgram {
@@ -63,8 +68,40 @@ public class ShaderProgram {
 
     }
 
+    public void setUniformf(String name, float val){
+        int location = glGetUniformLocation(programId, name);
+        if(location != -1){
+            glUniform1f(location, val);
+        }
+    }
+
+    public void setUniformf(String name, Vector3f val){
+        int location = glGetUniformLocation(programId, name);
+        if(location != -1){
+            glUniform3f(location, val.x, val.y, val.z);
+        }
+    }
+
+    public void setUniformMatrix4(String name, Matrix4f mat){
+        int location = glGetUniformLocation(programId, name);
+        if(location != -1){
+            float[] arr = new float[4 * 4];
+            mat.get(arr);
+            glUniformMatrix4fv(location, false, arr);
+        }
+    }
+
+    public int getAttributeLocation(String name){
+
+        return glGetAttribLocation(programId, name);
+    }
+
     public void bind() {
         glUseProgram(programId);
+
+        glBindAttribLocation(programId, 0, "a_Position");
+        glBindAttribLocation(programId, 1, "a_Color");
+        glBindAttribLocation(programId, 2, "a_Normal");
     }
 
     public void unbind() {

@@ -1,8 +1,7 @@
 package me.cube.engine.game.entity;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.game.World;
-import me.cube.engine.game.animation.AnimationController;
+import me.cube.engine.game.world.World;
 import org.joml.AABBf;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -110,7 +109,7 @@ public abstract class Entity {
             }
 
             if(pushUp){
-                position.add(0, 500 * delta, 0);
+                position.add(0, 1000 * delta, 0);
             }
         }
 

@@ -2,7 +2,7 @@ package me.cube.engine.game.entity;
 
 import me.cube.engine.game.CubeGame;
 import me.cube.engine.game.Input;
-import me.cube.engine.game.World;
+import me.cube.engine.game.world.World;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -13,6 +13,7 @@ public class Player extends LivingEntity {
 
     public Player(World world) {
         super(world);
+        setMaxMoveSpeed(300);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class Player extends LivingEntity {
         if(desiredDirection.x == 0 && desiredDirection.y == 0){
             walk(0, 0, 300 * delta);
         }else{
-            walk(desiredDirection.x, desiredDirection.y, 400 * delta);
+            walk(desiredDirection.x, desiredDirection.y, 800 * delta);
         }
 
 

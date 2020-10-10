@@ -1,5 +1,6 @@
 package me.cube.engine;
 
+import me.cube.engine.game.CubeGame;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -110,6 +111,10 @@ public class Voxel {
             glPushMatrix();
 
             glMultMatrixf(transform.get(new float[16]));
+
+            //Matrix4f matrix = new Matrix4f(CubeGame.combined).mul(transform);
+
+            //CubeGame.shaderProgram.setUniformMatrix4("u_MVPMatrix", matrix);
 
             model.render();
 
