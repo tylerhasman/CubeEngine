@@ -1,18 +1,19 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.file.Assets;
 import me.cube.engine.file.VxmFile;
 import me.cube.engine.game.entity.Flora;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.ChunkStorage;
-import me.cube.engine.game.world.generator.Biome;
-import me.cube.engine.game.world.generator.PerlinTerrainGenerator;
-import me.cube.engine.game.world.generator.TerrainGenerator;
+import me.cube.engine.game.world.generator.*;
 import org.joml.AABBf;
 import org.joml.Vector3f;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
+import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Terrain {
@@ -20,12 +21,21 @@ public class Terrain {
     private ChunkStorage chunkStorage;
 
     private TerrainGenerator terrainGenerator;
+    private ChunkPopulator chunkPopulator;
 
     private int viewDistance;
 
     public Terrain(World world, int viewDistance){
         chunkStorage = new ChunkStorage();
         terrainGenerator = new PerlinTerrainGenerator();
+
+        try {
+            VxmFile tree = new VxmFile("assets/models/tree.vxm");
+            chunkPopulator = new StructurePopulator(world, Arrays.asList(new SpawnableStructure(tree.toVoxelColorArray(), null, 5, 1)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         this.viewDistance = viewDistance;
     }
 
@@ -53,9 +63,24 @@ public class Terrain {
         }
     }
 
+    public int firstEmptyBlockY(int x, int z){
+        for(int i = 0; i < CHUNK_HEIGHT;i++){
+            if(!isSolid(x, i, z)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public Biome biomeAt(int x, int z){
+        return terrainGenerator.biomeAt(x, z);
+    }
+
     private void generateChunk(int x, int z){
         Chunk chunk = new Chunk(this, x, z);
         terrainGenerator.generateChunk(chunk);
+
+        chunkPopulator.populateChunk(chunk);
 
         chunk.generateMesh();
 

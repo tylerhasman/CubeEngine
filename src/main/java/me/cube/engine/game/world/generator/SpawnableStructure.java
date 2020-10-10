@@ -18,8 +18,28 @@ public class SpawnableStructure {
         this.maxPerChunk = maxPerChunk;
     }
 
+    public int width(){
+        return cubes.length;
+    }
+
+    public int height(){
+        return cubes[0].length;
+    }
+
+    public int length(){
+        return cubes[0][0].length;
+    }
+
     public int getCube(int x, int y, int z){
         return cubes[x][y][z];
+    }
+
+    public int getSpawnRadius(){
+        return 1;
+    }
+
+    public int getSpawnYOffset(){
+        return -3;
     }
 
     public boolean isSpawnableIn(Biome biome){

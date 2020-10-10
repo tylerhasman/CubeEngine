@@ -3,6 +3,7 @@ package me.cube.engine.game.world;
 import me.cube.engine.Voxel;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.game.CubeGame;
+import me.cube.engine.game.world.generator.Biome;
 import sun.awt.WindowIDProvider;
 
 import static me.cube.engine.game.world.World.WORLD_SCALE;
@@ -27,15 +28,6 @@ public class Chunk {
         this.chunkX = x;
         this.chunkZ = z;
         mesh = null;
-    }
-
-    public int firstEmptyBlockY(int x, int z){
-        for(int i = 0; i < CHUNK_HEIGHT;i++){
-            if(!isSolid(x, i, z)){
-                return i;
-            }
-        }
-        return -1;
     }
 
     public int getChunkX() {
@@ -65,6 +57,13 @@ public class Chunk {
         VoxelModel model = new VoxelModel(terrain, this);
         mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, model);
         mesh.scale.set(World.WORLD_SCALE);
+    }
+
+    public boolean isWithinChunk(int worldX, int worldZ){
+        worldX -= chunkX * Chunk.CHUNK_WIDTH;
+        worldZ -= chunkZ * Chunk.CHUNK_WIDTH;
+
+        return worldX >= 0 && worldZ >= 0 && worldX < blocks.length && worldZ < blocks[0][0].length;
     }
 
     protected void setBlock(int x, int y, int z, int color){

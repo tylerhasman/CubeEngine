@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static org.lwjgl.opengl.GL11.*;
 
 public class World {
@@ -39,6 +40,10 @@ public class World {
         terrain = new Terrain(this,8);
 
     }
+
+
+
+
 
     public Terrain getTerrain() {
         return terrain;
