@@ -67,12 +67,12 @@ public class World {
         glEnable(GL_COLOR_MATERIAL);
         glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-        glEnable(GL_LIGHTING);
+/*        glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
         glLightfv(GL_LIGHT0, GL_AMBIENT, new float[] {0.3f, 0.3f, 0.3f, 1f});
         glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.3f, 0.3f, 0.3f, 0});
-        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});
+        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});*/
 
         for(Entity entity : entities){
             entity.root.render();
@@ -88,8 +88,8 @@ public class World {
 
         glDisable(GL_CULL_FACE);
 
-        glDisable(GL_LIGHT0);
-        glDisable(GL_LIGHTING);
+/*        glDisable(GL_LIGHT0);
+        glDisable(GL_LIGHTING);*/
         glDisable(GL_COLOR_MATERIAL);
 
         particleEngine.render();

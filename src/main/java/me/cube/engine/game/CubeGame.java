@@ -25,13 +25,13 @@ public class CubeGame implements Game {
 
     private Matrix4f projectionMatrix;
     private Matrix4f cameraMatrix;
-    public static Matrix4f combined;
+    private Matrix4f combined;
 
     private float yaw, pitch;
     private float distanceFromTarget;
     private float visualDistanceFromTarget;
 
-    //public static ShaderProgram shaderProgram;
+    public static ShaderProgram shaderProgram;
 
     @Override
     public void init() {
@@ -47,7 +47,7 @@ public class CubeGame implements Game {
         visualDistanceFromTarget = distanceFromTarget;
         yaw = 0f;
         pitch = 45;
-/*
+
 
         shaderProgram = new ShaderProgram();
         try{
@@ -58,7 +58,7 @@ public class CubeGame implements Game {
         }
 
         shaderProgram.link();
-*/
+
 
     }
 
@@ -101,7 +101,7 @@ public class CubeGame implements Game {
                 player.position.x, player.position.y + 10, player.position.z,
                 0, 1, 0);
 
-        projectionMatrix.mul(cameraMatrix, combined);
+        //projectionMatrix.mul(cameraMatrix, combined);
 
     }
 
@@ -114,29 +114,23 @@ public class CubeGame implements Game {
     @Override
     public void render() {
 
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glLoadMatrixf(combined.get(new float[16]));
         {
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
 
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
-/*
 
             shaderProgram.bind();
-            shaderProgram.setUniformMatrix4("u_MVMatrix", cameraMatrix);
-            shaderProgram.setUniformf("u_LightPos", new Vector3f());
-*/
+            shaderProgram.setUniformMatrix4("ViewMatrix", cameraMatrix);
+            shaderProgram.setUniformMatrix4("ProjectionMatrix", projectionMatrix);
+            //shaderProgram.setUniformf("u_LightPos", new Vector3f(0, 1000, 0));
 
             {
                 world.render();
             }
-/*
+
 
             shaderProgram.unbind();
-*/
+
 
             glDisable(GL_MULTISAMPLE);
             glDisable(GL_DEPTH_TEST);

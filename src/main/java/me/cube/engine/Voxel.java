@@ -108,17 +108,10 @@ public class Voxel {
      */
     private void render0(){
         if(model != null){
-            glPushMatrix();
 
-            glMultMatrixf(transform.get(new float[16]));
-
-            //Matrix4f matrix = new Matrix4f(CubeGame.combined).mul(transform);
-
-            //CubeGame.shaderProgram.setUniformMatrix4("u_MVPMatrix", matrix);
+            CubeGame.shaderProgram.setUniformMatrix4("ModelMatrix", transform);
 
             model.render();
-
-            glPopMatrix();
         }
 
         for(Voxel child : children.values()){

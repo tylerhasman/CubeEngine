@@ -109,28 +109,23 @@ public class VoxelModel {
         glEnableClientState(GL_VERTEX_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
 
-        glVertexPointer(3, GL_FLOAT, 0, 0);
-
-/*
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-*/
+
 
         //COLOR
         glEnableClientState(GL_COLOR_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
 
-        glColorPointer(4, GL_FLOAT, 0, 0);
-/*
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
-*/
-
 
         //NORMAL
         glEnableClientState(GL_NORMAL_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
-        glNormalPointer(GL_FLOAT, 0, 0);
+
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
         //DRAW CALL
         GL11.glDrawArrays(GL11.GL_QUADS, 0, indices);
