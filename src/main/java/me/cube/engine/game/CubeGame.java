@@ -104,7 +104,6 @@ public class CubeGame implements Game {
                 player.position.x, player.position.y + 10, player.position.z,
                 0, 1, 0);
 
-        //projectionMatrix.mul(cameraMatrix, combined);
 
     }
 

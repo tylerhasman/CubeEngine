@@ -57,7 +57,7 @@ public abstract class Entity {
 
         onGround = false;
 
-        velocity.y += gravity * delta * 0.2f;
+        velocity.y += gravity * delta;
 
         if(velocity.y < gravity){
             velocity.y = gravity;

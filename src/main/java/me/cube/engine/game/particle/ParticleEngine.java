@@ -1,5 +1,7 @@
 package me.cube.engine.game.particle;
 
+import me.cube.engine.game.CubeGame;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class ParticleEngine {
         glBegin(GL_QUADS);
         {
             for(int i = 0; i < particles.size();i++){
+                //TODO: This needs to pass arguments into the shader so it can be rendered properly!
                 particles.get(i).render();
             }
         }

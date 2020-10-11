@@ -75,7 +75,7 @@ public class VxmFile {
         if(v != 'V' || x != 'X' || m != 'M'){
             throw new IllegalArgumentException("Invalid magic header "+v+""+x+""+m);
         }
-        if(version != 57){
+        if(version != 57 && version != 65){
             throw new IllegalArgumentException("Invalid version "+version);
         }
 

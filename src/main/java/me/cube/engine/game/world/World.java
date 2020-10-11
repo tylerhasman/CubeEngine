@@ -29,21 +29,15 @@ public class World {
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
-        Random random = new Random();
-
         player = new Player(this);
 
-        player.position.set(1000, 150, 1000);
+        player.position.set(0, 150, 0);
 
         entities.add(player);
 
-        terrain = new Terrain(this,8);
+        terrain = new Terrain(this,10);
 
     }
-
-
-
-
 
     public Terrain getTerrain() {
         return terrain;

@@ -18,8 +18,6 @@ public class StructurePopulator implements ChunkPopulator {
 
     @Override
     public void populateChunk(Chunk chunk) {
-
-
         for(SpawnableStructure structure : spawnableStructures){
 
             for(int i = -structure.getSpawnRadius(); i <= structure.getSpawnRadius();i++){
@@ -38,7 +36,12 @@ public class StructurePopulator implements ChunkPopulator {
                             int z = r.nextInt(Chunk.CHUNK_WIDTH) + chunkZ * Chunk.CHUNK_WIDTH;
                             int y = world.getTerrain().firstEmptyBlockY(x, z);
 
-                            pasteIntoChunk(chunk, structure, x, y + structure.getSpawnYOffset(), z);
+                            Biome biome = world.getTerrain().biomeAt(x, z);
+
+                            if(structure.isSpawnableIn(biome)){
+                                pasteIntoChunk(chunk, structure, x, y + structure.getSpawnYOffset(), z);
+                            }
+
 
                         }
                     }

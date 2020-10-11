@@ -1,5 +1,6 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.Window;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.VxmFile;
 import me.cube.engine.game.entity.Flora;
@@ -11,9 +12,11 @@ import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
+import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
 import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Terrain {
@@ -31,7 +34,12 @@ public class Terrain {
 
         try {
             VxmFile tree = new VxmFile("assets/models/tree.vxm");
-            chunkPopulator = new StructurePopulator(world, Arrays.asList(new SpawnableStructure(tree.toVoxelColorArray(), null, 5, 1)));
+            VxmFile rock = new VxmFile("assets/models/rock.vxm");
+            chunkPopulator = new StructurePopulator(world, Arrays.asList(
+
+                    new SpawnableStructure(tree.toVoxelColorArray(), new Biome[] {Biome.PLAINS}, 5, 1),
+                    new SpawnableStructure(rock.toVoxelColorArray(), new Biome[] { Biome.MOUNTAINS }, 8, 3)
+                    ));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -134,23 +142,44 @@ public class Terrain {
 
         Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
 
-        if(chunk == null)
-            return false;
+        if(chunk == null){
+            return true;
+        }
 
+        if(x < 0){
+            x += CHUNK_WIDTH * Math.abs(chunkX);
+        }
+
+        if(z < 0){
+            z += CHUNK_WIDTH * Math.abs(chunkZ);
+        }
+
+        int xInChunk = x % Chunk.CHUNK_WIDTH;
+        int zInChunk = z % Chunk.CHUNK_WIDTH;
+
+        Window.DEBUG_SetTitle("Position: "+x+"/"+y+"/"+z+"      Chunk: "+chunkX+"/"+chunkZ+"       Position In Chunk: "+xInChunk+"/"+zInChunk+"       Chunk: "+chunk.getChunkX()+" "+chunk.getChunkZ());
         //Warning, this wont work for negative chunks!!
-        return chunk.isSolid(x % Chunk.CHUNK_WIDTH, y, z % Chunk.CHUNK_WIDTH);
+        return chunk.isSolid(Math.abs(xInChunk), y, Math.abs(zInChunk));
     }
 
     private static int convertWorldToChunk(int xz){
+
+        if(xz >= 0){
+            return xz / Chunk.CHUNK_WIDTH;
+        }
+
         int chunkXZ = xz / Chunk.CHUNK_WIDTH;
 
-        if(chunkXZ == 0 && xz < 0){
-            return -1;
+        chunkXZ--;
+
+        if(xz % CHUNK_WIDTH == 0){//This is a fucked solution let me tell you
+            chunkXZ++;
         }
 
         return chunkXZ;
     }
 
+    //TODO: Optimize this function!
     public boolean isColliding(AABBf boundingBox) {
         for(float x = boundingBox.minX;x <= boundingBox.maxX; x += WORLD_SCALE / 2f){
             for(float y = boundingBox.minY;y <= boundingBox.maxY; y += WORLD_SCALE / 2f){

@@ -47,12 +47,12 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                     height /= 10;
 
                     if(tempurature < 0.1f){
-                        g = 0x8E / 2;
+                        g = 0x80;
                         b = 0x1C;
                     }else{
-                        r = 28;
-                        g = 130;
-                        b = 47;
+                        r = 50;
+                        g = 150;
+                        b = 80;
                         coloring = (float) (colorNoise.noise(genCoordX / 4, genCoordZ / 4) * 0.5f) + 0.5f;
                         height--;
                     }

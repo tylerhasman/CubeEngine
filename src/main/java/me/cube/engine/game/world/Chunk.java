@@ -1,14 +1,28 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Voxel;
+import me.cube.engine.VoxelData;
 import me.cube.engine.VoxelModel;
 import me.cube.engine.game.CubeGame;
 import me.cube.engine.game.world.generator.Biome;
 import sun.awt.WindowIDProvider;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
 import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Chunk {
+
+    private static final ScheduledExecutorService meshGeneratorExec = new ScheduledThreadPoolExecutor(2, (r) -> {
+
+        Thread thread = new Thread(r, "ChunkMeshGenerator");
+
+        thread.setDaemon(true);
+
+        return thread;
+    });
 
     public static final int CHUNK_WIDTH = 32;
     public static final int CHUNK_HEIGHT = 128;
@@ -21,6 +35,8 @@ public class Chunk {
     private Voxel mesh;
 
     private final Terrain terrain;
+
+    private Future<VoxelData> meshGeneratedFuture;
 
     protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
@@ -43,6 +59,25 @@ public class Chunk {
             requireMeshRefresh = false;
             generateMesh();
         }
+
+        if(meshGeneratedFuture != null){
+            if(meshGeneratedFuture.isDone()){
+                try {
+
+                    if(mesh != null && mesh.model != null){
+                        mesh.model.dispose();
+                    }
+
+                    mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, meshGeneratedFuture.get().toModel());
+                    mesh.scale.set(World.WORLD_SCALE);
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }finally{
+                    meshGeneratedFuture = null;
+                }
+            }
+        }
+
         if(mesh != null){
             mesh.position.set(chunkX * CHUNK_WIDTH * WORLD_SCALE, 0, chunkZ * CHUNK_WIDTH * WORLD_SCALE);
             mesh.origin.set(0, 0, 0);
@@ -51,12 +86,26 @@ public class Chunk {
     }
 
     protected void generateMesh(){
-        if(mesh != null && mesh.model != null){
-            mesh.model.dispose();
+
+        if(meshGeneratedFuture != null){
+            meshGeneratedFuture.cancel(true);
+            meshGeneratedFuture = null;
         }
-        VoxelModel model = new VoxelModel(terrain, this);
-        mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, model);
-        mesh.scale.set(World.WORLD_SCALE);
+
+/*        if(mesh != null && mesh.model != null){
+            mesh.model.dispose();
+            mesh = null;
+        }*/
+
+        meshGeneratedFuture = meshGeneratorExec.submit(() -> {
+            List<Float> verts = new ArrayList<Float>();
+            List<Float> colors = new ArrayList<Float>();
+            List<Float> normals = new ArrayList<Float>();
+
+            VoxelModel.generateVertices(terrain, this, verts, colors, normals, Chunk.CHUNK_WIDTH, Chunk.CHUNK_HEIGHT, Chunk.CHUNK_WIDTH);
+
+            return new VoxelData(verts, colors, normals, Chunk.CHUNK_WIDTH, Chunk.CHUNK_HEIGHT, Chunk.CHUNK_WIDTH);
+        });
     }
 
     public boolean isWithinChunk(int worldX, int worldZ){

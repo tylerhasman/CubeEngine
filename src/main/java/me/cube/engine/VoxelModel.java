@@ -39,11 +39,11 @@ public class VoxelModel {
 
         pivot.set(0, 0, 0);
 
-        List<Float> vertices = new ArrayList<>();
-        List<Float> colors = new ArrayList<>();
-        List<Float> normals = new ArrayList<>();
+        List<Float> vertices = new ArrayList<>(30000);
+        List<Float> colors = new ArrayList<>(30000);
+        List<Float> normals = new ArrayList<>(30000);
 
-        indices = generateVertices(terrain, chunk, vertices, colors, normals);
+        indices = generateVertices(terrain, chunk, vertices, colors, normals, width, height, length);
 
         float[] vertexBufferData = toArray(vertices);
         float[] colorBufferData = toArray(colors);
@@ -105,6 +105,37 @@ public class VoxelModel {
 
     }
 
+    protected VoxelModel(List<Float> vertices, List<Float> colors, List<Float> normals, int width, int height, int length) {
+
+        this.width = width;
+        this.height = height;
+        this.length = length;
+
+        indices = vertices.size();
+
+        float[] vertexBufferData = toArray(vertices);
+        float[] colorBufferData = toArray(colors);
+        float[] normalBufferData = toArray(normals);
+
+        vertices.clear();
+        colors.clear();
+        normals.clear();
+
+        vertexHandle = glGenBuffers();
+        colorHandle = glGenBuffers();
+        normalHandle = glGenBuffers();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
+        glBufferData(GL_ARRAY_BUFFER, colorBufferData, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
+        glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
+
+    }
+
     public void render(){
 
         //VERTEX
@@ -141,7 +172,7 @@ public class VoxelModel {
         glDeleteBuffers(new int[] {vertexHandle, colorHandle, normalHandle});
     }
 
-    private int generateVertices(Terrain terrain, Chunk chunk, List<Float> vertices, List<Float> colors, List<Float> normals){
+    public static int generateVertices(Terrain terrain, Chunk chunk, List<Float> vertices, List<Float> colors, List<Float> normals, int width, int height, int length){
         int indices = 0;
 
         for(int i = 0; i < width;i++){
@@ -174,17 +205,25 @@ public class VoxelModel {
                         int colorFlags = 0;
 
                         colorFlags |= colorGradient ? GRADIENT_SIDES : 0;
-/*
 
-                        for(int x = -1; x <= 1; x++){
-                            for(int y = -1; y <= 1;y++){
-                                colorFlags |= isSolid(terrain, chunk, i + 1 + x, j + 1, k + y) ? DARKER_NORTH : 0;
-                                colorFlags |= isSolid(terrain, chunk, i - 1 + x, j + 1, k + y) ? DARKER_SOUTH : 0;
-                                colorFlags |= isSolid(terrain, chunk, i + x, j + 1, k + y + 1) ? DARKER_EAST : 0;
-                                colorFlags |= isSolid(terrain, chunk, i + x, j + 1, k + y - 1) ? DARKER_WEST : 0;
+                        int adjacentCoveringBlocks = 0;
+                        float total = 0;
+
+                        for(int x = -2; x <= 2; x++){
+                            for(int y = -2; y <= 2;y++){
+                                adjacentCoveringBlocks += isSolid(terrain, chunk, i + 1 + x, j + 1, k + y) ? 1 : 0;
+                                adjacentCoveringBlocks += isSolid(terrain, chunk, i - 1 + x, j + 1, k + y) ? 1 : 0;
+                                adjacentCoveringBlocks += isSolid(terrain, chunk, i + x, j + 1, k + y + 1) ? 1 : 0;
+                                adjacentCoveringBlocks += isSolid(terrain, chunk, i + x, j + 1, k + y - 1) ? 1 : 0;
+                                total++;
                             }
                         }
-*/
+
+                        total *= 10;
+
+                        red *= 1f - (adjacentCoveringBlocks) / total;
+                        green *= 1f - (adjacentCoveringBlocks) / total;
+                        blue *= 1f - (adjacentCoveringBlocks) / total;
 
                         int verts = generateCube(vertices, normals, colors, red, green, blue, i, j, k, colorFlags, top, bottom, north, south, east, west);
 
