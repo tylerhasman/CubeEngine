@@ -4,14 +4,10 @@ import me.cube.engine.util.FloatArray;
 
 public class Cube {
 
-    public static final int SHADE_TOP = 1, SHADE_SIDES = 2;
+    public static final int SHADE_SIDES = 1;
 
     public float red, green, blue;
     public int flags;
-
-    public float topRed, topGreen, topBlue;
-
-    public float sideRed, sideGreen, sideBlue;
 
     public boolean top, bottom, south, north, west, east;
 
@@ -62,11 +58,7 @@ public class Cube {
 
             norOut.addRepeat(new float[] {0, 1, 0}, 4);
 
-            if((flags & SHADE_TOP) == SHADE_TOP){
-                colorOut.addRepeat(new float[] {topRed, topGreen, topBlue, 1f}, 4);
-            }else{
-                colorOut.addRepeat(new float[] {red, green, blue, 1f}, 4);
-            }
+            colorOut.addRepeat(new float[] {red, green, blue, 1f}, 4);
 
         }
 
