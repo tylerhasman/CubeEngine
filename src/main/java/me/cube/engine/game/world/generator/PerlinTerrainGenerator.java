@@ -74,9 +74,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                     }
 
                 }else if(biome == Biome.MOUNTAINS){
-                    r = 0x40;
-                    g = 0x40;
-                    b = 0x40;
+                    r = 187;
+                    g = 187;
+                    b = 187;
                 }
 
                 r = (int) (coloring * r);

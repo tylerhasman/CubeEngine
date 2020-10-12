@@ -49,6 +49,11 @@ public abstract class LivingEntity extends Entity {
         attackTime = 0f;
         roll = 0;
         physics = true;
+        life = 20;
+    }
+
+    public boolean isDead(){
+        return life <= 0;
     }
 
     public void setMaxMoveSpeed(float maxMoveSpeed) {

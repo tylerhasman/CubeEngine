@@ -68,9 +68,11 @@ public class Player extends LivingEntity {
             setBlocking(false);
         }
 
+
         if(desiredDirection.x == 0 && desiredDirection.y == 0){
             walk(0, 0, 300 * delta);
         }else{
+            desiredDirection.normalize();
             walk(desiredDirection.x, desiredDirection.y, 800 * delta);
         }
 

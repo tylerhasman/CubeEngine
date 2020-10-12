@@ -7,6 +7,7 @@ import org.joml.AABBf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -35,8 +36,17 @@ public class World {
 
         entities.add(player);
 
+        NPC npc = new NPC(this);
+        npc.position.set(200, 1000, 0);
+
+        entities.add(npc);
+
         terrain = new Terrain(this,10);
 
+    }
+
+    public List<Entity> getEntities() {
+        return Collections.unmodifiableList(entities);
     }
 
     public Terrain getTerrain() {
