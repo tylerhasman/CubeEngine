@@ -76,6 +76,12 @@ public class StructurePopulator implements ChunkPopulator {
     }
 
     private static Random getRandomForChunk(int x, int z){
-        return new Random(x * 31 + z * 13);
+        if(x < 0){
+            x = x * 7;
+        }
+        if(z < 0){
+            z = z * 71;
+        }
+        return new Random(Math.abs(x * 31 + z * 13));
     }
 }

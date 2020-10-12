@@ -55,12 +55,17 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.west = !isSolid(terrain, chunk, i+1, j, k);
 
                         int adjacent = countAdjacentCoveringBlocks(terrain, chunk, i, j, k, 2);
+                        int above = Math.min(countAboveBlocks(terrain, chunk, i, j, k), 4);
 
                         cube.topRed = cube.red * (1f - (adjacent) / 250f);
                         cube.topGreen = cube.green * (1f - (adjacent) / 250f);
                         cube.topBlue = cube.blue * (1f - (adjacent) / 250f);
 
-                        cube.flags |= (adjacent > 0 ? Cube.SHADE_TOP : 0);
+                        cube.red *= (1f - (above) / 6f);
+                        cube.green *= (1f - (above) / 6f);
+                        cube.blue *= (1f - (above) / 6f);
+
+                        cube.flags |= ((adjacent > 0) ? Cube.SHADE_TOP : 0);
                         cube.flags |= (isCompletelyCovered(terrain, chunk, i, j-1, k) ? Cube.SHADE_SIDES : 0);
 
                         cube.generate(vertices, normals, colors);
@@ -70,6 +75,18 @@ public class AsyncChunkMesh extends VoxelMesh {
                 }
             }
         }
+    }
+
+    private static int countAboveBlocks(Terrain terrain, Chunk chunk, int i, int j, int k){
+
+        int count = 0;
+        for(int y = j + 1; y < Chunk.CHUNK_HEIGHT;y++){
+            if(isSolid(terrain, chunk, i, y, k)){
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private static boolean isCompletelyCovered(Terrain terrain, Chunk chunk, int i, int j, int k){

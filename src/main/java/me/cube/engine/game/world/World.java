@@ -31,7 +31,7 @@ public class World {
 
         player = new Player(this);
 
-        player.position.set(0, 150, 0);
+        player.position.set(-5000, 1000, -5000);
 
         entities.add(player);
 

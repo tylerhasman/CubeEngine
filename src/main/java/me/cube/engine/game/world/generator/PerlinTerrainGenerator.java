@@ -31,8 +31,8 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     public void generateChunk(Chunk chunk) {
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
-                float genCoordX = (chunk.getChunkX() * Chunk.CHUNK_WIDTH + i) / 85f;
-                float genCoordZ = (chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j) / 85f;
+                float genCoordX = (chunk.getChunkX() * Chunk.CHUNK_WIDTH + i) / 400f;
+                float genCoordZ = (chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j) / 400f;
                 int r = 0, g = 0, b = 0;
 
                 Biome biome = biomeAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
@@ -42,9 +42,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 float coloring = (float) (colorNoise.noise(genCoordX, genCoordZ) * 0.3f) + 0.7f;
                 float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
 
-
                 if(biome == Biome.PLAINS){
-                    height /= 10;
 
                     if(tempurature < 0.1f){
                         g = 0x80;
@@ -63,7 +61,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                     b = 0x40;
                 }
 
-                height += 5;
+                height += 15;
 
                 r = (int) (coloring * r);
                 g = (int) (coloring * g);
