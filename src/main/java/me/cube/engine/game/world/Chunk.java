@@ -1,11 +1,7 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.VoxelData;
-import me.cube.engine.VoxelModel;
-import me.cube.engine.game.CubeGame;
-import me.cube.engine.game.world.generator.Biome;
-import sun.awt.WindowIDProvider;
+import me.cube.engine.model.AsyncChunkMesh;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +32,7 @@ public class Chunk {
 
     private final Terrain terrain;
 
-    private Future<VoxelData> meshGeneratedFuture;
+    private Future<AsyncChunkMesh> meshGeneratedFuture;
 
     protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
@@ -68,7 +64,10 @@ public class Chunk {
                         mesh.model.dispose();
                     }
 
-                    mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, meshGeneratedFuture.get().toModel());
+                    AsyncChunkMesh chunkMesh = meshGeneratedFuture.get();
+                    chunkMesh.initialize();
+
+                    mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, chunkMesh);
                     mesh.scale.set(World.WORLD_SCALE);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -97,15 +96,7 @@ public class Chunk {
             mesh = null;
         }*/
 
-        meshGeneratedFuture = meshGeneratorExec.submit(() -> {
-            List<Float> verts = new ArrayList<Float>();
-            List<Float> colors = new ArrayList<Float>();
-            List<Float> normals = new ArrayList<Float>();
-
-            VoxelModel.generateVertices(terrain, this, verts, colors, normals, Chunk.CHUNK_WIDTH, Chunk.CHUNK_HEIGHT, Chunk.CHUNK_WIDTH);
-
-            return new VoxelData(verts, colors, normals, Chunk.CHUNK_WIDTH, Chunk.CHUNK_HEIGHT, Chunk.CHUNK_WIDTH);
-        });
+        meshGeneratedFuture = meshGeneratorExec.submit(() -> new AsyncChunkMesh(terrain, this));
     }
 
     public boolean isWithinChunk(int worldX, int worldZ){

@@ -1,11 +1,11 @@
 package me.cube.engine.game.entity;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.VoxelModel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.world.World;
 import me.cube.engine.game.animation.*;
 import me.cube.engine.game.particle.WeaponSwooshParticle;
+import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.util.MathUtil;
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -276,12 +276,12 @@ public abstract class LivingEntity extends Entity {
         VoxelModel handModel = Assets.loadModel("player_hand_template.vxm");
         VoxelModel footModel = Assets.loadModel("player_leg_template.vxm");
         VoxelModel headModel = Assets.loadModel("player_head_template.vxm");*/
-        VoxelModel torsoModel = Assets.loadModel("torso.vox");
-        VoxelModel handModel = Assets.loadModel("hand.vox");
-        VoxelModel footModel = Assets.loadModel("foot.vox");
-        VoxelModel headModel = Assets.loadModel("head.vox");
-        VoxelModel swordModel = Assets.loadModel("sword.vxm");
-        VoxelModel shieldModel = Assets.loadModel("WoodenShield.vxm");
+        SimpleVoxelMesh torsoModel = Assets.loadModel("torso.vox");
+        SimpleVoxelMesh handModel = Assets.loadModel("hand.vox");
+        SimpleVoxelMesh footModel = Assets.loadModel("foot.vox");
+        SimpleVoxelMesh headModel = Assets.loadModel("head.vox");
+        SimpleVoxelMesh swordModel = Assets.loadModel("sword.vxm");
+        SimpleVoxelMesh shieldModel = Assets.loadModel("WoodenShield.vxm");
 
         Voxel torso = new Voxel("torso", torsoModel);
 

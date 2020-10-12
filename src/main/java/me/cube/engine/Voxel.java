@@ -1,6 +1,9 @@
 package me.cube.engine;
 
 import me.cube.engine.game.CubeGame;
+import me.cube.engine.model.Mesh;
+import me.cube.engine.model.SimpleVoxelMesh;
+import me.cube.engine.model.VoxelMesh;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -19,7 +22,7 @@ public class Voxel {
     public final Vector3f position, scale;
     public final Quaternionf rotation;
     public final Vector3f origin;
-    public VoxelModel model;
+    public VoxelMesh model;
     private final Map<String, Voxel> children;
 
     private final Matrix4f transform;
@@ -28,7 +31,7 @@ public class Voxel {
         this("unnamed", null);
     }
 
-    public Voxel(String name, VoxelModel model){
+    public Voxel(String name, VoxelMesh model){
         this.name = name;
         transform = new Matrix4f();
         position = new Vector3f();

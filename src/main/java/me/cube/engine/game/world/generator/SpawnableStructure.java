@@ -1,9 +1,5 @@
 package me.cube.engine.game.world.generator;
 
-import me.cube.engine.VoxelModel;
-import me.cube.engine.file.VxmFile;
-import me.cube.engine.game.world.generator.Biome;
-
 public class SpawnableStructure {
 
     private int[][][] cubes;

@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL30C.*;
 /**
  * This code is fucked.
  */
-public class VoxelModel {
+public class OLD_VoxelModel {
 
     private static final int GRADIENT_SIDES = 1, DARKER_NORTH = 2, DARKER_SOUTH = 4, DARKER_WEST = 8, DARKER_EAST = 16;
 
@@ -28,11 +28,11 @@ public class VoxelModel {
 
     private final int indices;
 
-    public VoxelModel(int[][][] cubes, int width, int height, int length){
+    public OLD_VoxelModel(int[][][] cubes, int width, int height, int length){
         this(cubes, width, height, length, true);
     }
 
-    public VoxelModel(Terrain terrain, Chunk chunk){
+    public OLD_VoxelModel(Terrain terrain, Chunk chunk){
         width = Chunk.CHUNK_WIDTH;
         height = Chunk.CHUNK_HEIGHT;
         length = Chunk.CHUNK_WIDTH;
@@ -67,7 +67,7 @@ public class VoxelModel {
         glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
     }
 
-    public VoxelModel(int[][][] cubes, int width, int height, int length, boolean center){
+    public OLD_VoxelModel(int[][][] cubes, int width, int height, int length, boolean center){
         this.width = width;
         this.height = height;
         this.length = length;
@@ -105,7 +105,7 @@ public class VoxelModel {
 
     }
 
-    protected VoxelModel(List<Float> vertices, List<Float> colors, List<Float> normals, int width, int height, int length) {
+    protected OLD_VoxelModel(List<Float> vertices, List<Float> colors, List<Float> normals, int width, int height, int length) {
 
         this.width = width;
         this.height = height;
