@@ -9,6 +9,7 @@ import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.util.MathUtil;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public abstract class LivingEntity extends Entity {
@@ -63,14 +64,26 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void walk(float dirX, float dirZ, float acceleration){
-        float actualMoveSpeed = maxMoveSpeed;
 
-        if(attackTime > 0f){
-            actualMoveSpeed *= 0.85f;
+        if(dirX == 0 && dirZ == 0){
+            float magnitude = velocity.length();
+            Vector2f horVel = new Vector2f(velocity.x, velocity.z);
+            if(horVel.x != 0 && horVel.y != 0){
+                horVel.normalize(Math.max(0, magnitude - acceleration));
+                velocity.x = horVel.x;
+                velocity.z = horVel.y;
+            }
+        }else{
+            float actualMoveSpeed = maxMoveSpeed;
+
+            if(attackTime > 0f){
+                actualMoveSpeed *= 0.85f;
+            }
+
+            velocity.x = MathUtil.moveValueTo(velocity.x, dirX * actualMoveSpeed, acceleration);
+            velocity.z = MathUtil.moveValueTo(velocity.z, dirZ * actualMoveSpeed, acceleration);
         }
 
-        velocity.x = MathUtil.moveValueTo(velocity.x, dirX * actualMoveSpeed, acceleration);
-        velocity.z = MathUtil.moveValueTo(velocity.z, dirZ * actualMoveSpeed, acceleration);
     }
 
     @Override
