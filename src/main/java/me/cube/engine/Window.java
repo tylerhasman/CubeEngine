@@ -16,9 +16,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window implements Runnable {
 
-    private static long DEBUG_CHANGE_TIME = 0;
-
-    private static long handle;
+    private long handle;
 
     private Game game;
 
@@ -34,14 +32,6 @@ public class Window implements Runnable {
         this.height = height;
         mouseLocked = false;
         init(title, width, height);
-    }
-
-    public static void DEBUG_SetTitle(String title){
-        if(System.currentTimeMillis() - DEBUG_CHANGE_TIME < 100){
-            return;
-        }
-        glfwSetWindowTitle(handle, title);
-        DEBUG_CHANGE_TIME = System.currentTimeMillis();
     }
 
     @Override
@@ -93,7 +83,11 @@ public class Window implements Runnable {
                 fpsResetTimer = 0;
                 fps = fpsCounter;
                 fpsCounter = 0;
-                //glfwSetWindowTitle(handle, title+" FPS: "+fps);
+
+                long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+                long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+
+                glfwSetWindowTitle(handle, title+"         FPS: "+fps+"         RAM: "+(maxMemory-freeMemory)+"/"+maxMemory+" MB");
             }
         }
 

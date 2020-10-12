@@ -129,6 +129,7 @@ public class Terrain {
         return isSolid((int) x, (int) y, (int) z);
     }
 
+    //TODO: Fix this in negative x,z's. The collision is offset a little
     public boolean isSolid(int x, int y, int z) {
         if (y >= Chunk.CHUNK_HEIGHT) {
             return false;
@@ -157,7 +158,6 @@ public class Terrain {
         int xInChunk = x % Chunk.CHUNK_WIDTH;
         int zInChunk = z % Chunk.CHUNK_WIDTH;
 
-        Window.DEBUG_SetTitle("Position: "+x+"/"+y+"/"+z+"      Chunk: "+chunkX+"/"+chunkZ+"       Position In Chunk: "+xInChunk+"/"+zInChunk+"       Chunk: "+chunk.getChunkX()+" "+chunk.getChunkZ());
         //Warning, this wont work for negative chunks!!
         return chunk.isSolid(Math.abs(xInChunk), y, Math.abs(zInChunk));
     }
