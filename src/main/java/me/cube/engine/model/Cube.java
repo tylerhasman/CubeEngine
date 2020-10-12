@@ -13,6 +13,10 @@ public class Cube {
 
     public float x, y, z;
 
+    public boolean isVisible(){
+        return top || bottom || south || north || west || east;
+    }
+
     public void generate(FloatArray vertOut, FloatArray norOut, FloatArray colorOut){
 
         if(north){
