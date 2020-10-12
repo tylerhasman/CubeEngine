@@ -11,9 +11,7 @@ import org.joml.AABBf;
 import org.joml.Vector3f;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
@@ -57,6 +55,8 @@ public class Terrain {
         int centerX = convertWorldToChunk(blockX);
         int centerZ = convertWorldToChunk(blockZ);
 
+        List<ChunkStorage.ChunkCoordinate> loadNeeded = new ArrayList<>();
+
         for(int i = -viewDistance;i <= viewDistance;i++){
             for(int j = -viewDistance;j <= viewDistance;j++){
 
@@ -64,11 +64,22 @@ public class Terrain {
                 int chunkZ = centerZ + j;
 
                 if(!chunkStorage.isLoaded(chunkX, chunkZ)){
-                    generateChunk(chunkX, chunkZ);
+                    loadNeeded.add(new ChunkStorage.ChunkCoordinate(chunkX, chunkZ));
                 }
 
             }
         }
+
+        loadNeeded.sort((c1, c2) -> {
+            int d1 = (centerX - c1.x) * (centerX - c1.x) + (centerZ - c1.z) * (centerZ - c1.z);
+            int d2 = (centerX - c2.x) * (centerX - c2.x) + (centerZ - c2.z) * (centerZ - c2.z);
+            return Integer.compare(d1, d2);
+        });
+
+        for(ChunkStorage.ChunkCoordinate chunkToLoad : loadNeeded){
+            generateChunk(chunkToLoad.x, chunkToLoad.z);
+        }
+
     }
 
     public int firstEmptyBlockY(int x, int z){

@@ -20,6 +20,7 @@ public class Chunk {
         return thread;
     });
 
+
     public static final int CHUNK_WIDTH = 32;
     public static final int CHUNK_HEIGHT = 128;
 
@@ -90,11 +91,6 @@ public class Chunk {
             meshGeneratedFuture.cancel(true);
             meshGeneratedFuture = null;
         }
-
-/*        if(mesh != null && mesh.model != null){
-            mesh.model.dispose();
-            mesh = null;
-        }*/
 
         meshGeneratedFuture = meshGeneratorExec.submit(() -> new AsyncChunkMesh(terrain, this));
     }
