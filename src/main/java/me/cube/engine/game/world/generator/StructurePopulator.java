@@ -34,7 +34,7 @@ public class StructurePopulator implements ChunkPopulator {
                         if(chance == 0){
                             int x = r.nextInt(Chunk.CHUNK_WIDTH) + chunkX * Chunk.CHUNK_WIDTH;
                             int z = r.nextInt(Chunk.CHUNK_WIDTH) + chunkZ * Chunk.CHUNK_WIDTH;
-                            int y = world.getTerrain().firstEmptyBlockY(x, z);
+                            int y = world.getTerrain().heightAt(x, z);
 
                             Biome biome = world.getTerrain().biomeAt(x, z);
 

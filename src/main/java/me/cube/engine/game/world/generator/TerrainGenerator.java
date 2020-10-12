@@ -8,4 +8,6 @@ public interface TerrainGenerator {
 
     Biome biomeAt(int x, int z);
 
+    int heightAt(int x, int z);
+
 }

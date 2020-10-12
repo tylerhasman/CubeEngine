@@ -95,6 +95,10 @@ public class Terrain {
         return terrainGenerator.biomeAt(x, z);
     }
 
+    public int heightAt(int x, int z){
+        return terrainGenerator.heightAt(x, z);
+    }
+
     private void generateChunk(int x, int z){
         Chunk chunk = new Chunk(this, x, z);
         terrainGenerator.generateChunk(chunk);

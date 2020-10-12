@@ -27,6 +27,25 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return Biome.MOUNTAINS;
     }
 
+    public int heightAt(int x, int z){
+        float genCoordX = x / 400f;
+        float genCoordZ = z / 400f;
+        int height = (int) (terrainHeightNoise.noise(genCoordX, genCoordZ) * Chunk.CHUNK_HEIGHT) + 1;
+        Biome biome = biomeAt(x, z);
+        float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
+
+        if(biome == Biome.PLAINS) {
+
+            if (tempurature >= 0.1f) {
+                height--;
+            }
+
+        }
+
+        height += 15;
+        return height;
+    }
+
     @Override
     public void generateChunk(Chunk chunk) {
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
@@ -35,9 +54,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 float genCoordZ = (chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j) / 400f;
                 int r = 0, g = 0, b = 0;
 
-                Biome biome = biomeAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
+                int height = heightAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
 
-                int height = (int) (terrainHeightNoise.noise(genCoordX, genCoordZ) * Chunk.CHUNK_HEIGHT) + 1;
+                Biome biome = biomeAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
 
                 float coloring = (float) (colorNoise.noise(genCoordX, genCoordZ) * 0.3f) + 0.7f;
                 float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
@@ -52,7 +71,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                         g = 150;
                         b = 80;
                         coloring = (float) (colorNoise.noise(genCoordX / 4, genCoordZ / 4) * 0.5f) + 0.5f;
-                        height--;
                     }
 
                 }else if(biome == Biome.MOUNTAINS){
@@ -60,8 +78,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                     g = 0x40;
                     b = 0x40;
                 }
-
-                height += 15;
 
                 r = (int) (coloring * r);
                 g = (int) (coloring * g);
