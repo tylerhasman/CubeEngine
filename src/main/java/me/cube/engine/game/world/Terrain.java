@@ -63,8 +63,12 @@ public class Terrain {
                 int chunkX = centerX + i;
                 int chunkZ = centerZ + j;
 
-                if(!chunkStorage.isLoaded(chunkX, chunkZ)){
-                    loadNeeded.add(new ChunkStorage.ChunkCoordinate(chunkX, chunkZ));
+                int dst2 = i * i + j * j;
+
+                if(dst2 < viewDistance * viewDistance){
+                    if(!chunkStorage.isLoaded(chunkX, chunkZ)){
+                        loadNeeded.add(new ChunkStorage.ChunkCoordinate(chunkX, chunkZ));
+                    }
                 }
 
             }
@@ -78,6 +82,14 @@ public class Terrain {
 
         for(ChunkStorage.ChunkCoordinate chunkToLoad : loadNeeded){
             generateChunk(chunkToLoad.x, chunkToLoad.z);
+        }
+
+        for(Chunk loaded : chunkStorage.getLoadedChunks()){
+            int dst2 = loaded.dst2(centerX, centerZ);
+            if(dst2 > viewDistance * viewDistance + 4 * 4){
+                loaded.dispose();
+                chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
+            }
         }
 
     }

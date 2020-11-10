@@ -35,12 +35,15 @@ public class Chunk {
 
     private Future<AsyncChunkMesh> meshGeneratedFuture;
 
+    private boolean disposed;
+
     protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
         blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         this.chunkX = x;
         this.chunkZ = z;
         mesh = null;
+        disposed = false;
     }
 
     public int getChunkX() {
@@ -51,7 +54,27 @@ public class Chunk {
         return chunkZ;
     }
 
+    public int dst2(int x, int z){
+        return (chunkX - x) * (chunkX - x) + (chunkZ - z) * (chunkZ - z);
+    }
+
+    public void dispose(){
+        if(!disposed){
+            if(meshGeneratedFuture != null){
+                meshGeneratedFuture.cancel(true);
+                meshGeneratedFuture = null;
+            }
+            if(mesh != null && mesh.model != null){
+                mesh.model.dispose();
+            }
+            disposed = true;
+        }
+    }
+
     public void render(){
+        if(disposed){
+            return;
+        }
         if(requireMeshRefresh){
             requireMeshRefresh = false;
             generateMesh();
@@ -86,6 +109,10 @@ public class Chunk {
     }
 
     protected void generateMesh(){
+
+        if(disposed){
+            return;
+        }
 
         if(meshGeneratedFuture != null){
             meshGeneratedFuture.cancel(true);
