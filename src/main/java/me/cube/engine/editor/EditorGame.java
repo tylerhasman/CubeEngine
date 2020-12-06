@@ -3,15 +3,20 @@ package me.cube.engine.editor;
 import me.cube.engine.Camera;
 import me.cube.engine.Game;
 import me.cube.engine.Input;
+import me.cube.engine.Voxel;
+import me.cube.engine.file.Assets;
 import me.cube.engine.game.world.Terrain;
+import me.cube.engine.model.VoxelMesh;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL13C.GL_MULTISAMPLE;
 
@@ -21,6 +26,8 @@ public class EditorGame implements Game {
 
     private Vector3f cameraPosition;
     private float yaw, pitch;
+
+    private Vector3f mouseWorldProjection = new Vector3f();
 
     @Override
     public void init() {
@@ -54,9 +61,16 @@ public class EditorGame implements Game {
         return new Vector3f(forward.x, forward.y, forward.z);
     }
 
-    @Override
-    public void update(float delta) {
+    public Vector3f getCameraRight(){
+        Vector3f forward = getCameraForward();
+        Vector3f right = new Vector3f();
 
+        forward.rotateAxis(Math.toRadians(-90f), 0, 1, 0, right);
+
+        return right;
+    }
+
+    private void updateCamera(float delta){
         float speed = 300f;
 
         if(Input.isActionActive(ACTION_EDITOR_SPEED)){
@@ -66,13 +80,12 @@ public class EditorGame implements Game {
         speed *= delta;
 
         Vector3f forward = getCameraForward();
+        Vector3f right = getCameraRight();
 
-        Vector3f left = new Vector3f();
         forward.mul(speed);
+        right.mul(speed);
 
-        forward.rotateAxis(Math.toRadians(90f), 0, 1, 0, left);
-
-        left.y = 0;
+        right.y = 0;
 
         if(Input.isActionActive(ACTION_FORWARD)){
             cameraPosition.add(forward);
@@ -81,9 +94,9 @@ public class EditorGame implements Game {
         }
 
         if(Input.isActionActive(ACTION_LEFT)){
-            cameraPosition.add(left);
+            cameraPosition.sub(right);
         }else if(Input.isActionActive(ACTION_RIGHT)){
-            cameraPosition.sub(left);
+            cameraPosition.add(right);
         }
 
         if(Input.isActionActive(ACTION_JUMP)){
@@ -93,9 +106,22 @@ public class EditorGame implements Game {
         Camera.cameraMatrix.identity().lookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
                 cameraPosition.x + forward.x, cameraPosition.y + forward.y, cameraPosition.z + forward.z,
                 0, 1, 0);
+    }
+
+    @Override
+    public void update(float delta) {
+
+        updateCamera(delta);
+
+        Vector2f mouse = Input.getNormalizedCursorPosition();
+
+        Vector3f world = Camera.screenToWorld(mouse);
+
+        Vector3f direction = Camera.screenToDirection(mouse);
+
+        mouseWorldProjection.set(terrain.rayTrace(world.add(0, 0, 0), direction, 300f));
 
         terrain.updateTerrain(new Vector3f(cameraPosition));
-
 
     }
 
@@ -105,7 +131,19 @@ public class EditorGame implements Game {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
 
+        glEnable(GL_CULL_FACE);
+
+        glCullFace(GL_FRONT);
+
         terrain.render();
+
+        glDisable(GL_CULL_FACE);
+
+        Voxel voxel = new Voxel("Cursor", Assets.loadModel("red_fruit.vxm"));
+
+        voxel.position.set(mouseWorldProjection);
+
+        voxel.render();
 
         glDisable(GL_MULTISAMPLE);
         glDisable(GL_DEPTH_TEST);

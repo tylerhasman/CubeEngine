@@ -8,6 +8,7 @@ import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.ChunkStorage;
 import me.cube.engine.game.world.generator.*;
 import org.joml.AABBf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -30,6 +31,19 @@ public class Terrain {
         terrainGenerator = new PerlinTerrainGenerator();
 
         this.viewDistance = viewDistance;
+    }
+
+    public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
+
+        Vector3f out = new Vector3f(origin);
+        Vector3f accum = new Vector3f();
+
+        while(!isSolid(out) && accum.lengthSquared() <= maxDistance * maxDistance){
+            out.add(direction);
+            accum.add(direction);
+        }
+
+        return out;
     }
 
     public void updateTerrain(Vector3f playerPosition){

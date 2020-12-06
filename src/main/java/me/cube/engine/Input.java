@@ -1,5 +1,7 @@
 package me.cube.engine;
 
+import org.joml.Vector2f;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -32,6 +34,28 @@ public class Input {
 
     protected static void setWindowHandle(long handle){
         windowHandle = handle;
+    }
+
+    public static Vector2f getCursorPosition(){
+        double[] x = new double[1];
+        double[] y = new double[1];
+        glfwGetCursorPos(windowHandle, x, y);
+
+        return new Vector2f((float) x[0], (float) y[0]);
+    }
+
+    public static Vector2f getNormalizedCursorPosition(){
+
+        int[] width = new int[1];
+        int[] height = new int[1];
+        glfwGetWindowSize(windowHandle, width, height);
+
+        Vector2f cursor = getCursorPosition();
+
+        cursor.x = (2.0f * (cursor.x / width[0])) - 1.0f;
+        cursor.y = (2.0f * ((height[0] - cursor.y) / height[0])) - 1.0f;
+
+        return cursor;
     }
 
     /**
