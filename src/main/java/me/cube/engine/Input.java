@@ -75,4 +75,8 @@ public class Input {
         }
     }
 
+    public static int getCursorMode(){
+        return glfwGetInputMode(windowHandle, GLFW_CURSOR);
+    }
+
 }

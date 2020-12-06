@@ -219,4 +219,13 @@ public class Terrain {
         return false;
     }
 
+    public void setCube(int x, int y, int z, int cube) {
+
+        int chunkX = convertWorldToChunk(x);
+        int chunkZ = convertWorldToChunk(z);
+
+        Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
+
+        chunk.setBlockWorldCoords(x, y, z, cube);
+    }
 }

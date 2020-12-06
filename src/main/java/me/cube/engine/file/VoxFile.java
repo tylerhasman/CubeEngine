@@ -12,7 +12,7 @@ import java.util.List;
  * All models are max 126x126x126 in dimension. Colors are also limited to
  * Hopefully we never hit that limit!
  */
-public class VoxFile {
+public class VoxFile implements VoxelFile {
 
     private static int DEFAULT_PALLETE[] = {
         0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,

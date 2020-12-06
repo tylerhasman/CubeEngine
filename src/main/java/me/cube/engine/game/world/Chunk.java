@@ -137,7 +137,15 @@ public class Chunk {
     }
 
     protected void setBlockWorldCoords(int x, int y, int z, int color){
-        //TODO: Implement
+        x -= chunkX * Chunk.CHUNK_WIDTH;
+        z -= chunkZ * Chunk.CHUNK_WIDTH;
+
+        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+            return;
+        }
+
+        blocks[x][y][z] = color;
+        requireMeshRefresh = true;
     }
 
     protected boolean isSolid(int x, int y, int z){

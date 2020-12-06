@@ -49,33 +49,30 @@ public class Assets {
         return material;
     }
 
-    public static SimpleVoxelMesh loadModel(String path){
+    public static VoxelFile loadVoxelData(String path){
         path = "assets/models/"+path;
-        if(models.containsKey(path)){
-            return models.get(path);
-        }
 
-        SimpleVoxelMesh model;
         try {
             if(path.endsWith("vox")){
-                VoxFile voxFile = new VoxFile(path);
-
-                model = new SimpleVoxelMesh(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
+                return new VoxFile(path);
             }else if(path.endsWith("vxm")){
-                VxmFile voxFile = new VxmFile(path);
-
-                model = new SimpleVoxelMesh(voxFile.toVoxelColorArray(), voxFile.width(), voxFile.height(), voxFile.length());
-                model.pivot.set(voxFile.getPivot());
+                return new VxmFile(path);
             }else{
-                model = new SimpleVoxelMesh(new int[0][0][0], 0, 0, 0);
                 System.err.println("Unknown file format "+path);
             }
 
             System.out.println("[ASSET] Loaded "+path);
         } catch (IOException e) {
             e.printStackTrace();
-            model = new SimpleVoxelMesh(new int[0][0][0], 0, 0, 0);
         }
+        return new EmptyVoxelFile();
+    }
+
+    public static SimpleVoxelMesh loadModel(String path){
+
+        VoxelFile voxelFile = loadVoxelData(path);
+
+        SimpleVoxelMesh model = new SimpleVoxelMesh(voxelFile.toVoxelColorArray(), voxelFile.width(), voxelFile.height(), voxelFile.length());
 
         models.put(path, model);
 

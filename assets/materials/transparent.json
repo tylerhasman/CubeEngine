@@ -1,0 +1,9 @@
+{
+  "name": "Transparent Material",
+  "shader": "assets/shaders/transparentShader",
+  "uniforms": {
+    "u_AmbientLight": "v3: 0, 0, 0",
+    "u_LightPos0": "v3: 0, 1000, 0"
+  }
+
+}

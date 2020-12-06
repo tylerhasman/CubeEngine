@@ -1,11 +1,11 @@
 package me.cube.engine.editor;
 
-import me.cube.engine.Camera;
-import me.cube.engine.Game;
-import me.cube.engine.Input;
-import me.cube.engine.Voxel;
+import me.cube.engine.*;
 import me.cube.engine.file.Assets;
+import me.cube.engine.file.VoxelFile;
 import me.cube.engine.game.world.Terrain;
+import me.cube.engine.game.world.World;
+import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.model.VoxelMesh;
 import org.joml.*;
 import org.joml.Math;
@@ -29,6 +29,9 @@ public class EditorGame implements Game {
 
     private Vector3f mouseWorldProjection = new Vector3f();
 
+    private VoxelFile selectedModel;
+    private VoxelMesh selectedModelMesh;
+
     @Override
     public void init() {
 
@@ -45,6 +48,9 @@ public class EditorGame implements Game {
 
         yaw = 0f;
         pitch = 45f;
+
+        selectedModel = Assets.loadVoxelData("rock.vxm");
+        selectedModelMesh = new SimpleVoxelMesh(selectedModel.toVoxelColorArray(), selectedModel.width(), selectedModel.height(), selectedModel.length());
 
     }
 
@@ -119,14 +125,21 @@ public class EditorGame implements Game {
 
         Vector3f direction = Camera.screenToDirection(mouse);
 
-        mouseWorldProjection.set(terrain.rayTrace(world.add(0, 0, 0), direction, 300f));
+        mouseWorldProjection.set(terrain.rayTrace(world.add(0, 0, 0), direction, 5000f));
+
 
         terrain.updateTerrain(new Vector3f(cameraPosition));
+
+
 
     }
 
     @Override
     public void render() {
+
+        glEnable(GL_BLEND);
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
@@ -139,14 +152,25 @@ public class EditorGame implements Game {
 
         glDisable(GL_CULL_FACE);
 
-        Voxel voxel = new Voxel("Cursor", Assets.loadModel("red_fruit.vxm"));
+        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            glCullFace(GL_BACK);
+            Voxel voxel = new Voxel("Cursor", selectedModelMesh, Assets.loadMaterial("transparent.json"));
+            voxel.scale.set(World.WORLD_SCALE);
 
-        voxel.position.set(mouseWorldProjection);
+            Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
 
-        voxel.render();
+            voxel.position.set((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(selectedModel.height() / 2f) + 1, (int) worldGridPosition.z).mul(World.WORLD_SCALE).add(0, 0.01f, 0);
+
+            voxel.render();
+            glDisable(GL_CULL_FACE);
+        }
 
         glDisable(GL_MULTISAMPLE);
         glDisable(GL_DEPTH_TEST);
+
+        glDisable(GL_BLEND);
     }
 
     @Override
@@ -201,6 +225,34 @@ public class EditorGame implements Game {
                 Input.setCursorMode(GLFW_CURSOR_HIDDEN);
             }else{
                 Input.setCursorMode(GLFW_CURSOR_NORMAL);
+            }
+        }
+
+        if(button == GLFW_MOUSE_BUTTON_1){
+            if(action == GLFW_PRESS){
+                Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
+
+                worldGridPosition.set((int) worldGridPosition.x - selectedModel.width() / 2f, (int) worldGridPosition.y, (int) worldGridPosition.z - selectedModel.length() / 2f);
+
+                int[][][] data = selectedModel.toVoxelColorArray();
+
+                for(int i = 0; i < selectedModel.width();i++){
+                    for(int j = 0; j < selectedModel.height();j++){
+                        for(int k = 0; k < selectedModel.length();k++){
+
+                            int cube = data[i][j][k];
+
+                            if(cube == 0){
+                                continue;
+                            }
+
+                            terrain.setCube((int) worldGridPosition.x + i, (int) worldGridPosition.y + j, (int) worldGridPosition.z + k, cube);
+
+                        }
+                    }
+                }
+
+
             }
         }
 
