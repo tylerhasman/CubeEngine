@@ -1,13 +1,13 @@
 package me.cube.engine.game.entity;
 
 import me.cube.engine.game.CubeGame;
-import me.cube.engine.game.Input;
+import me.cube.engine.Input;
 import me.cube.engine.game.world.World;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import static me.cube.engine.game.Input.*;
+import static me.cube.engine.Input.*;
 
 public class Player extends LivingEntity {
 

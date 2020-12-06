@@ -1,0 +1,9 @@
+{
+  "name": "Default Material",
+  "shader": "assets/shaders/defaultShader",
+  "uniforms": {
+    "u_AmbientLight": "v3: 0, 0, 0",
+    "u_LightPos0": "v3: 0, 1000, 0"
+  }
+
+}

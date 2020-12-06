@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -15,8 +17,11 @@ public class ShaderProgram {
 
     private int fragmentShaderId;
 
-    public ShaderProgram() {
+    private final Map<String, Integer> locationCache;
+
+    protected ShaderProgram() {
         programId = glCreateProgram();
+        locationCache = new HashMap<>();
         if (programId == 0) {
             throw new RuntimeException("Could not create Shader");
         }
@@ -68,8 +73,17 @@ public class ShaderProgram {
 
     }
 
-    public void setUniformf(String name, float val){
+    private int getUniformLocation(String name){
+        if(locationCache.containsKey(name)){
+            return locationCache.get(name);
+        }
         int location = glGetUniformLocation(programId, name);
+        locationCache.put(name, location);
+        return location;
+    }
+
+    public void setUniformf(String name, float val){
+        int location = getUniformLocation(name);
         if(location != -1){
             glUniform1f(location, val);
         }else{
@@ -78,7 +92,7 @@ public class ShaderProgram {
     }
 
     public void setUniformf(String name, Vector3f val){
-        int location = glGetUniformLocation(programId, name);
+        int location = getUniformLocation(name);
         if(location != -1){
             glUniform3f(location, val.x, val.y, val.z);
         }else{
@@ -87,7 +101,7 @@ public class ShaderProgram {
     }
 
     public void setUniformMatrix4(String name, Matrix4f mat){
-        int location = glGetUniformLocation(programId, name);
+        int location = getUniformLocation(name);
         if(location != -1){
             float[] arr = new float[4 * 4];
             mat.get(arr);
@@ -97,10 +111,9 @@ public class ShaderProgram {
         }
     }
 
-    public int getAttributeLocation(String name){
-
+/*    public int getAttributeLocation(String name){
         return glGetAttribLocation(programId, name);
-    }
+    }*/
 
     public void bind() {
         glUseProgram(programId);

@@ -1,5 +1,7 @@
 package me.cube.engine.game.particle;
 
+import me.cube.engine.game.CubeGame;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.glColor4f;

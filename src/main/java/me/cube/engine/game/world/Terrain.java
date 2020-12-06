@@ -22,25 +22,12 @@ public class Terrain {
     private ChunkStorage chunkStorage;
 
     private TerrainGenerator terrainGenerator;
-    private ChunkPopulator chunkPopulator;
 
     private int viewDistance;
 
-    public Terrain(World world, int viewDistance){
+    public Terrain(int viewDistance){
         chunkStorage = new ChunkStorage();
         terrainGenerator = new PerlinTerrainGenerator();
-
-        try {
-            VxmFile tree = new VxmFile("assets/models/tree.vxm");
-            VxmFile rock = new VxmFile("assets/models/rock.vxm");
-            chunkPopulator = new StructurePopulator(world, Arrays.asList(
-
-                    new SpawnableStructure(tree.toVoxelColorArray(), new Biome[] {Biome.PLAINS}, 5, 1),
-                    new SpawnableStructure(rock.toVoxelColorArray(), new Biome[] { Biome.MOUNTAINS }, 8, 3)
-                    ));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         this.viewDistance = viewDistance;
     }
@@ -114,8 +101,6 @@ public class Terrain {
     private void generateChunk(int x, int z){
         Chunk chunk = new Chunk(this, x, z);
         terrainGenerator.generateChunk(chunk);
-
-        chunkPopulator.populateChunk(chunk);
 
         chunk.generateMesh();
 

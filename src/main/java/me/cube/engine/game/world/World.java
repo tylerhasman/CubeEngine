@@ -1,9 +1,11 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.Camera;
 import me.cube.engine.game.entity.*;
 import me.cube.engine.game.particle.ParticleEngine;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -20,8 +22,6 @@ public class World {
 
     private List<Entity> entities;
 
-    private Player player;
-
     private Terrain terrain;
 
     private ParticleEngine particleEngine;
@@ -30,18 +30,12 @@ public class World {
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
-        player = new Player(this);
-
-        player.position.set(0, 1000, 0);
-
-        entities.add(player);
-
         NPC npc = new NPC(this);
         npc.position.set(200, 1000, 0);
 
         entities.add(npc);
 
-        terrain = new Terrain(this,10);
+        terrain = new Terrain(10);
 
     }
 
@@ -53,10 +47,6 @@ public class World {
         return terrain;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
     public ParticleEngine getParticleEngine() {
         return particleEngine;
     }
@@ -65,25 +55,20 @@ public class World {
         entities.add(entity);
     }
 
-    public void update(float delta){
+    public void update(float delta, Vector3f fromPosition){
         for(Entity entity : entities){
             entity.updatePhysics(delta);
         }
         for(Entity entity : entities){
             entity.update(delta);
         }
-        terrain.updateTerrain(new Vector3f(player.position));
+
+
+        terrain.updateTerrain(new Vector3f(fromPosition));
         particleEngine.update(delta);
     }
 
     public void render(){
-
-/*        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-
-        glLightfv(GL_LIGHT0, GL_AMBIENT, new float[] {0.3f, 0.3f, 0.3f, 1f});
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, new float[] {0.3f, 0.3f, 0.3f, 0});
-        glLightfv(GL_LIGHT0, GL_POSITION, new float[] {player.position.x, player.position.y + 40, player.position.z, 1});*/
 
         for(Entity entity : entities){
             entity.root.render();
@@ -98,9 +83,6 @@ public class World {
         terrain.render();
 
         glDisable(GL_CULL_FACE);
-
-/*        glDisable(GL_LIGHT0);
-        glDisable(GL_LIGHTING);*/
 
         particleEngine.render();
 

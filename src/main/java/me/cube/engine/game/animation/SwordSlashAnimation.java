@@ -7,33 +7,24 @@ import static me.cube.engine.util.MathUtil.PI;
 
 public class SwordSlashAnimation extends Animation {
 
-    private int swingType = 0;
-
     @Override
     public void update(Avatar avatar, float time) {
 
         avatar.rotate(Avatar.BodyPart.Torso, PI / 8f, 0, 1, 0);
         avatar.translate(Avatar.BodyPart.LeftHand, 0, 0, 4);
 
-        if(swingType == 0){
-            swingOne(avatar, time);
-        }else if(swingType == 1){
-            swingTwo(avatar, time);
-        }
+        swingOne(avatar, time);
 
     }
 
     @Override
     protected void onAnimationComplete() {
-        swingType++;
-        if(swingType > 1){
-            swingType = 0;
-        }
+
     }
 
     @Override
     protected void onAnimationFadeOut() {
-        swingType = 0;
+
     }
 
     private void swingTwo(Avatar avatar, float time) {

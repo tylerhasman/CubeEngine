@@ -2,6 +2,7 @@ package me.cube.engine;
 
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.MemoryStack;
 
@@ -16,6 +17,8 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Window implements Runnable {
 
+    protected static GLCapabilities capabilities;
+
     private long handle;
 
     private Game game;
@@ -23,20 +26,17 @@ public class Window implements Runnable {
     private String title;
     private int width, height;
 
-    private boolean mouseLocked;
-
     public Window(Game game, String title, int width, int height){
         this.game = game;
         this.title = title;
         this.width = width;
         this.height = height;
-        mouseLocked = false;
         init(title, width, height);
     }
 
     @Override
     public void run() {
-        GL.createCapabilities();
+        capabilities = GL.createCapabilities();
         //GLUtil.setupDebugMessageCallback(System.err);
 
         glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
@@ -59,7 +59,7 @@ public class Window implements Runnable {
             double[] x = new double[1];
             double[] y = new double[1];
 
-            if(mouseLocked){
+            if(glfwGetInputMode(handle, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN){
                 glfwGetCursorPos(handle, x, y);
 
                 game.onCursorMove(x[0] - width / 2f, height / 2f - y[0]);
@@ -120,15 +120,12 @@ public class Window implements Runnable {
         if(handle == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
+        Input.setWindowHandle(handle);
+
         glfwSetKeyCallback(handle, new GLFWKeyCallback() {
             @Override
             public void invoke (long window, int key, int scancode, int action, int mods) {
                 game.onKeyPress(key, action);
-
-                if(key == GLFW_KEY_ESCAPE){
-                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                    mouseLocked = false;
-                }
             }
         });
 
@@ -138,10 +135,6 @@ public class Window implements Runnable {
 
                 game.onMousePress(button, action);
 
-                if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
-                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-                    mouseLocked = true;
-                }
             }
         });
 
@@ -152,9 +145,7 @@ public class Window implements Runnable {
             }
         });
 
-        glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-        mouseLocked = true;
+        //glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1); // int*

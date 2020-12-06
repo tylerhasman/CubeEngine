@@ -1,18 +1,16 @@
 package me.cube.engine.game;
 
+import me.cube.engine.Camera;
 import me.cube.engine.Game;
+import me.cube.engine.Input;
 import me.cube.engine.file.Assets;
-import me.cube.engine.game.entity.Entity;
+import me.cube.engine.game.entity.Player;
 import me.cube.engine.game.world.World;
-import me.cube.engine.shader.ShaderProgram;
-import me.cube.engine.util.FileUtil;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
 
-import java.io.File;
-
-import static me.cube.engine.game.Input.*;
+import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -23,28 +21,24 @@ public class CubeGame implements Game {
 
     private World world;
 
-    private Matrix4f projectionMatrix;
-    private Matrix4f cameraMatrix;
-    private Matrix4f combined;
-
     private float yaw, pitch;
     private float distanceFromTarget;
     private float visualDistanceFromTarget;
 
     public static float time;
 
-    public static ShaderProgram shaderProgram;
+    private Player player;
 
     @Override
     public void init() {
         time = 0;
         game = this;
         world = new World();
-        projectionMatrix = new Matrix4f()
+        Camera.projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);
 
-        cameraMatrix = new Matrix4f();
-        combined = new Matrix4f();
+        Camera.cameraMatrix = new Matrix4f();
+        //combined = new Matrix4f();
 
         distanceFromTarget = 60;
         visualDistanceFromTarget = distanceFromTarget;
@@ -52,15 +46,13 @@ public class CubeGame implements Game {
         pitch = 45;
 
 
-        shaderProgram = new ShaderProgram();
-        try{
-            shaderProgram.createFragmentShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/fragment.glsl")));
-            shaderProgram.createVertexShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/vertex.glsl")));
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        player = new Player(world);
 
-        shaderProgram.link();
+        player.position.set(0, 1000, 0);
+
+        world.addEntity(player);
+
+        Input.setCursorMode(GLFW_CURSOR_HIDDEN);
 
 
     }
@@ -84,8 +76,6 @@ public class CubeGame implements Game {
 
         visualDistanceFromTarget = MathUtil.moveValueTo(visualDistanceFromTarget, distanceFromTarget, speed);
 
-        Entity player = world.getPlayer();
-
         Vector3f forward = getCameraForward();
 
         Vector3f p = new Vector3f();
@@ -100,17 +90,21 @@ public class CubeGame implements Game {
 
         p.sub(forward);
 
-        cameraMatrix.identity().lookAt(p.x, p.y, p.z,
+        Camera.cameraMatrix.identity().lookAt(p.x, p.y, p.z,
                 player.position.x, player.position.y + 10, player.position.z,
                 0, 1, 0);
 
 
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     @Override
     public void update(float delta) {
 
-        world.update(delta);
+        world.update(delta, player.position);
         updateCamera();
 
         time += delta;
@@ -124,25 +118,13 @@ public class CubeGame implements Game {
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
 
-            shaderProgram.bind();
-            shaderProgram.setUniformMatrix4("ViewMatrix", cameraMatrix);
-            shaderProgram.setUniformMatrix4("ProjectionMatrix", projectionMatrix);
-            //shaderProgram.setUniformf("u_AmbientLight", new Vector3f(0.2f, 0.2f, 0.2f));
-            shaderProgram.setUniformf("u_AmbientLight", new Vector3f());
-            shaderProgram.setUniformf("u_LightPos0", new Vector3f(0, 1000, 0));
-
             {
                 world.render();
             }
 
-
-            shaderProgram.unbind();
-
-
             glDisable(GL_MULTISAMPLE);
             glDisable(GL_DEPTH_TEST);
         }
-
 
     }
 
@@ -154,6 +136,12 @@ public class CubeGame implements Game {
             Input.setActionState(ACTION_ROLL, action == GLFW_PRESS);
         }else if(button == GLFW_MOUSE_BUTTON_RIGHT){
             Input.setActionState(ACTION_ATTACK_SECONDAY, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
+
+
+
+        if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
+            Input.setCursorMode(GLFW_CURSOR_HIDDEN);
         }
     }
 
@@ -169,6 +157,11 @@ public class CubeGame implements Game {
 
     @Override
     public void onKeyPress(int key, int action) {
+
+        if(key == GLFW_KEY_ESCAPE){
+            Input.setCursorMode(GLFW_CURSOR_NORMAL);
+        }
+
         if(key == GLFW_KEY_W){
             Input.setActionState(ACTION_FORWARD, action == GLFW_PRESS || action == GLFW_REPEAT);
         }
@@ -190,17 +183,7 @@ public class CubeGame implements Game {
         }
 
         if(key == GLFW_KEY_F6){
-            shaderProgram.cleanup();
-
-            shaderProgram = new ShaderProgram();
-            try{
-                shaderProgram.createFragmentShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/fragment.glsl")));
-                shaderProgram.createVertexShader(FileUtil.readFileAsString(new File("assets/shaders/voxelShader/vertex.glsl")));
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            shaderProgram.link();
+            //TODO: Reload all materials
         }
 
     }
@@ -219,6 +202,5 @@ public class CubeGame implements Game {
     @Override
     public void destroy() {
         Assets.disposeAll();
-        //shaderProgram.cleanup();
     }
 }

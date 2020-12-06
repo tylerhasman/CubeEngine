@@ -1,0 +1,6 @@
+{
+  "name": "Test Material",
+  "shader": "assets/shaders/testShader",
+  "uniforms": {}
+
+}

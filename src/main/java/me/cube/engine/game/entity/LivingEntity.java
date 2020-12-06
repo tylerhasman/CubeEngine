@@ -6,6 +6,7 @@ import me.cube.engine.game.world.World;
 import me.cube.engine.game.animation.*;
 import me.cube.engine.game.particle.WeaponSwooshParticle;
 import me.cube.engine.model.SimpleVoxelMesh;
+import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
 import org.joml.Math;
 import org.joml.Matrix4f;

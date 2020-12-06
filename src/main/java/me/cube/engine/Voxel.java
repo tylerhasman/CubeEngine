@@ -1,20 +1,15 @@
 package me.cube.engine;
 
+import me.cube.engine.file.Assets;
 import me.cube.engine.game.CubeGame;
-import me.cube.engine.model.Mesh;
-import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.model.VoxelMesh;
-import org.joml.Math;
+import me.cube.engine.shader.Material;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class Voxel {
 
@@ -27,11 +22,21 @@ public class Voxel {
 
     private final Matrix4f transform;
 
+    //TODO: Allow materials to be changed dynamically...
+    public final Material material;
+
     public Voxel(){
         this("unnamed", null);
     }
 
     public Voxel(String name, VoxelMesh model){
+        this(name, model, Assets.defaultMaterial());
+    }
+
+    public Voxel(String name, VoxelMesh model, Material material){
+        if(material == null){
+            throw new IllegalArgumentException("material cannot be null");
+        }
         this.name = name;
         transform = new Matrix4f();
         position = new Vector3f();
@@ -43,6 +48,7 @@ public class Voxel {
         if(model != null){
            origin.set(model.pivot);
         }
+        this.material = material;
     }
 
     /**
@@ -113,9 +119,16 @@ public class Voxel {
     private void render0(){
         if(model != null){
 
-            CubeGame.shaderProgram.setUniformMatrix4("ModelMatrix", transform);
+            material.setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
+            material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
+
+            material.setUniformMat4f("ModelMatrix", transform);
+
+            material.bind();
 
             model.render();
+
+            material.unbind();
         }
 
         for(Voxel child : children.values()){
