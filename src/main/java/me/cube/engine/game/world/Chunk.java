@@ -155,4 +155,14 @@ public class Chunk {
         return blocks[x][y][z] != 0;
     }
 
+    public int getBlockWorldCoords(int x, int y, int z) {
+        x -= chunkX * Chunk.CHUNK_WIDTH;
+        z -= chunkZ * Chunk.CHUNK_WIDTH;
+
+        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+            return 0;
+        }
+
+        return blocks[x][y][z];
+    }
 }

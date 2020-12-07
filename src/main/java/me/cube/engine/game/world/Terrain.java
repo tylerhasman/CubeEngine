@@ -226,6 +226,22 @@ public class Terrain {
 
         Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
 
-        chunk.setBlockWorldCoords(x, y, z, cube);
+        if(chunk != null){
+            chunk.setBlockWorldCoords(x, y, z, cube);
+        }
+
+    }
+
+    public int getCube(int x, int y, int z) {
+        int chunkX = convertWorldToChunk(x);
+        int chunkZ = convertWorldToChunk(z);
+
+        Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
+
+        if(chunk != null){
+            return chunk.getBlockWorldCoords(x, y, z);
+        }
+
+        return 0;
     }
 }

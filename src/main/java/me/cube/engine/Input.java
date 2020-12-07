@@ -8,7 +8,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Input {
 
     //TODO: This should be in a class in the game package
-    public static int ACTION_FORWARD = 0,
+    public static final int ACTION_FORWARD = 0,
             ACTION_BACK = 1,
             ACTION_LEFT = 2,
             ACTION_RIGHT = 3,
@@ -18,14 +18,26 @@ public class Input {
             ACTION_ATTACK_SECONDAY = 7;
 
 
-    public static int ACTION_EDITOR_SPEED = 19;
+    public static final int ACTION_EDITOR_SPEED = 19;
+
+    public static final int MODIFIER_CONTROL = 0;
 
     private static final boolean[] actions = new boolean[20];
+
+    private static final boolean[] modifiers = new boolean[10];
 
     private static long windowHandle = 0;
 
     public static boolean isActionActive(int action){
         return actions[action];
+    }
+
+    public static void setModifier(int modifier, boolean state){
+        modifiers[modifier] = state;
+    }
+
+    public static boolean isModifierActive(int modifier){
+        return modifiers[modifier];
     }
 
     public static void setActionState(int action, boolean state){

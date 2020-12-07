@@ -10,6 +10,9 @@ import me.cube.engine.model.VoxelMesh;
 import org.joml.*;
 import org.joml.Math;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -22,6 +25,8 @@ import static org.lwjgl.opengl.GL13C.GL_MULTISAMPLE;
 
 public class EditorGame implements Game {
 
+    private static final int MAX_ACTION_MEMORY = 20;
+
     private Terrain terrain;
 
     private Vector3f cameraPosition;
@@ -29,11 +34,19 @@ public class EditorGame implements Game {
 
     private Vector3f mouseWorldProjection = new Vector3f();
 
-    private VoxelFile selectedModel;
+    private int selectedModel;
     private VoxelMesh selectedModelMesh;
+
+    private List<EditAction> editActions;
+
+    private List<VoxelFile> placeableModels;
 
     @Override
     public void init() {
+
+        placeableModels = Assets.loadVoxelDataFolder("assets/models/");
+
+        editActions = new ArrayList<>(MAX_ACTION_MEMORY);
 
         cameraPosition = new Vector3f();
 
@@ -49,9 +62,37 @@ public class EditorGame implements Game {
         yaw = 0f;
         pitch = 45f;
 
-        selectedModel = Assets.loadVoxelData("rock.vxm");
-        selectedModelMesh = new SimpleVoxelMesh(selectedModel.toVoxelColorArray(), selectedModel.width(), selectedModel.height(), selectedModel.length());
+        selectModel(0);
 
+
+    }
+
+    private void selectModel(int index){
+        if(index < 0 || index >= placeableModels.size()){
+            return;
+        }
+
+        VoxelFile model = placeableModels.get(index);
+        selectedModel = index;
+
+        selectedModelMesh = new SimpleVoxelMesh(model.toVoxelColorArray(), model.width(), model.height(), model.length());
+    }
+
+    private void executeAction(EditAction editAction){
+        editActions.add(0, editAction);
+        editAction.execute(terrain);
+
+        if(editActions.size() > MAX_ACTION_MEMORY){
+            editActions.remove(editActions.size()-1);
+        }
+    }
+
+    private void undo(){
+        if(editActions.size() > 0){
+            EditAction editAction = editActions.remove(0);
+
+            editAction.undo(terrain);
+        }
     }
 
     public Vector3f getCameraForward(){
@@ -87,11 +128,12 @@ public class EditorGame implements Game {
 
         Vector3f forward = getCameraForward();
         Vector3f right = getCameraRight();
+        right.y = 0;
 
         forward.mul(speed);
-        right.mul(speed);
+        right.normalize().mul(speed);
 
-        right.y = 0;
+
 
         if(Input.isActionActive(ACTION_FORWARD)){
             cameraPosition.add(forward);
@@ -153,18 +195,19 @@ public class EditorGame implements Game {
         glDisable(GL_CULL_FACE);
 
         if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-            glCullFace(GL_BACK);
-            Voxel voxel = new Voxel("Cursor", selectedModelMesh, Assets.loadMaterial("transparent.json"));
+            /*glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);*/
+            Voxel voxel = new Voxel("Cursor", selectedModelMesh);
             voxel.scale.set(World.WORLD_SCALE);
 
             Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
 
-            voxel.position.set((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(selectedModel.height() / 2f) + 1, (int) worldGridPosition.z).mul(World.WORLD_SCALE).add(0, 0.01f, 0);
+            VoxelFile model = placeableModels.get(selectedModel);
+
+            voxel.position.set((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(model.height() / 2f) + 1, (int) worldGridPosition.z).add(0.5f, 0.01f, 0.5F).mul(World.WORLD_SCALE);
 
             voxel.render();
-            glDisable(GL_CULL_FACE);
+            //glDisable(GL_CULL_FACE);
         }
 
         glDisable(GL_MULTISAMPLE);
@@ -199,6 +242,14 @@ public class EditorGame implements Game {
         if(key == GLFW_KEY_LEFT_SHIFT){
             Input.setActionState(ACTION_EDITOR_SPEED, action == GLFW_PRESS || action == GLFW_REPEAT);
         }
+
+        if(key == GLFW_KEY_LEFT_CONTROL){
+            Input.setModifier(MODIFIER_CONTROL, action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
+
+        if(key == GLFW_KEY_Z && action == GLFW_PRESS && Input.isModifierActive(MODIFIER_CONTROL)){
+            undo();
+        }
     }
 
     @Override
@@ -214,7 +265,11 @@ public class EditorGame implements Game {
 
     @Override
     public void onMouseScroll(double delta) {
-
+        if(delta > 0){
+            selectModel(selectedModel + 1);
+        }else if(delta < 0){
+            selectModel(selectedModel - 1);
+        }
     }
 
     @Override
@@ -232,26 +287,15 @@ public class EditorGame implements Game {
             if(action == GLFW_PRESS){
                 Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
 
-                worldGridPosition.set((int) worldGridPosition.x - selectedModel.width() / 2f, (int) worldGridPosition.y, (int) worldGridPosition.z - selectedModel.length() / 2f);
+                VoxelFile model = placeableModels.get(selectedModel);
 
-                int[][][] data = selectedModel.toVoxelColorArray();
+                worldGridPosition.set((int) worldGridPosition.x - model.width() / 2f, (int) worldGridPosition.y, (int) worldGridPosition.z - model.length() / 2f);
 
-                for(int i = 0; i < selectedModel.width();i++){
-                    for(int j = 0; j < selectedModel.height();j++){
-                        for(int k = 0; k < selectedModel.length();k++){
+                int pasteX = (int) worldGridPosition.x;
+                int pasteY = (int) worldGridPosition.y + 1;
+                int pasteZ = (int) worldGridPosition.z;
 
-                            int cube = data[i][j][k];
-
-                            if(cube == 0){
-                                continue;
-                            }
-
-                            terrain.setCube((int) worldGridPosition.x + i, (int) worldGridPosition.y + j, (int) worldGridPosition.z + k, cube);
-
-                        }
-                    }
-                }
-
+                executeAction(new PasteStructureAction(model, pasteX, pasteY, pasteZ));
 
             }
         }

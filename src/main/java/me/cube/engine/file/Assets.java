@@ -9,8 +9,7 @@ import me.cube.engine.util.FileUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Assets {
 
@@ -49,6 +48,27 @@ public class Assets {
         return material;
     }
 
+    //TODO: This is really shitty because loadVoxelData assumes the file is in the path assets/models/XXXX
+    //      We need to make loadVoxelData accept absolute paths as well!
+    //      A super far in the future to-do would be to load everything from a proper asset cache file or something.
+    public static List<VoxelFile> loadVoxelDataFolder(String pathToFolder){
+        File folder = new File(pathToFolder);
+
+        if(!folder.exists() || !folder.isDirectory()){
+            return Collections.emptyList();
+        }
+
+        List<VoxelFile> files = new ArrayList<>();
+
+        for(File child : folder.listFiles()){
+            if(child.isFile()){
+                files.add(loadVoxelData(child.getName()));
+            }
+        }
+
+        return files;
+    }
+
     public static VoxelFile loadVoxelData(String path){
         path = "assets/models/"+path;
 
@@ -60,8 +80,6 @@ public class Assets {
             }else{
                 System.err.println("Unknown file format "+path);
             }
-
-            System.out.println("[ASSET] Loaded "+path);
         } catch (IOException e) {
             e.printStackTrace();
         }
