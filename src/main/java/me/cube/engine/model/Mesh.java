@@ -17,15 +17,30 @@ public class Mesh {
     private int vertexHandle, colorHandle, normalHandle;
     private boolean initialized = false;
 
-    protected Mesh(){
+    /**
+     *         GL_POINTS         = 0x0
+     *         GL_LINES          = 0x1
+     *         GL_LINE_LOOP      = 0x2
+     *         GL_LINE_STRIP     = 0x3
+     *         GL_TRIANGLES      = 0x4
+     *         GL_TRIANGLE_STRIP = 0x5
+     *         GL_TRIANGLE_FAN   = 0x6
+     *         GL_QUADS          = 0x7
+     *         GL_QUAD_STRIP     = 0x8
+     *         GL_POLYGON        = 0x9
+     */
+    private final int mode;
 
+    protected Mesh(int mode){
+        this.mode = mode;
     }
 
-    public Mesh(FloatArray vertices, FloatArray colors, FloatArray normals){
-        this(vertices.toArray(), colors.toArray(), normals.toArray());
+    public Mesh(int mode, FloatArray vertices, FloatArray colors, FloatArray normals){
+        this(mode, vertices.toArray(), colors.toArray(), normals.toArray());
     }
 
-    public Mesh(float[] vertexBufferData, float[] colorBufferData, float[] normalBufferData) {
+    public Mesh(int mode, float[] vertexBufferData, float[] colorBufferData, float[] normalBufferData) {
+        this(mode);
         initialize(vertexBufferData, colorBufferData, normalBufferData);
     }
 
@@ -77,7 +92,7 @@ public class Mesh {
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
-            GL11.glDrawArrays(GL11.GL_QUADS, 0, indices);
+            GL11.glDrawArrays(mode, 0, indices);
 
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);

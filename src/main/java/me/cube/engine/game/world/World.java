@@ -1,17 +1,20 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Camera;
+import me.cube.engine.Voxel;
+import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.*;
 import me.cube.engine.game.particle.ParticleEngine;
+import me.cube.engine.model.Mesh;
+import me.cube.engine.model.VoxelMesh;
+import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static org.lwjgl.opengl.GL11.*;
@@ -30,12 +33,7 @@ public class World {
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
-        NPC npc = new NPC(this);
-        npc.position.set(200, 1000, 0);
-
-        entities.add(npc);
-
-        terrain = new Terrain(10);
+        terrain = new Terrain(10, "test");
 
     }
 
@@ -72,6 +70,9 @@ public class World {
 
         for(Entity entity : entities){
             entity.root.render();
+
+            //renderBoundingBox(entity);
+
         }
 
         glDisable(GL_BLEND);
@@ -84,60 +85,48 @@ public class World {
 
         glDisable(GL_CULL_FACE);
 
-        particleEngine.render();
-
+//        particleEngine.render();
 
     }
 
-    public void renderHitboxes(){
-        glBegin(GL_LINES);
+    private void renderBoundingBox(Entity entity){
+        AABBf bb = entity.boundingBox;
 
-        glColor3f(1f, 0f, 0f);
-        for(Entity entity : entities){
-            AABBf boundingBox = entity.boundingBox;
+        Voxel point = new Voxel("BB", Assets.loadModel("red_fruit.vxm"));
 
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
-            glVertex3f(boundingBox.minX + (boundingBox.maxX - boundingBox.minX), boundingBox.minY, boundingBox.minZ);
+        point.scale.set(0.5f);
 
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
-            glVertex3f(boundingBox.minX, boundingBox.minY + (boundingBox.maxY - boundingBox.minY), boundingBox.minZ);
+        float width = bb.maxX - bb.minX;
+        float height = bb.maxY - bb.minY;
+        float length = bb.maxZ - bb.minZ;
 
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.minZ + (boundingBox.maxZ - boundingBox.minZ));
+        point.position.set(bb.minX, bb.minY, bb.minZ);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
-            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+        point.position.set(bb.minX, bb.minY + height, bb.minZ);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
-            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+        point.position.set(bb.minX + width, bb.minY, bb.minZ);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+        point.position.set(bb.minX + width, bb.minY + height, bb.minZ);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+        point.position.set(bb.minX + width, bb.minY, bb.minZ + length);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
-            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+        point.position.set(bb.minX + width, bb.minY + height, bb.minZ + length);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
-            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+        point.position.set(bb.maxX, bb.maxY, bb.maxZ);
+        point.render();
 
-            glVertex3f(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
+        point.position.set(bb.minX, bb.minY + height, bb.minZ + length);
+        point.render();
 
-            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
-            glVertex3f(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+        point.position.set(bb.minX, bb.minY, bb.minZ + length);
+        point.render();
 
-            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
-            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
-
-            glVertex3f(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
-            glVertex3f(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
-
-        }
-
-        glEnd();
     }
 
 }

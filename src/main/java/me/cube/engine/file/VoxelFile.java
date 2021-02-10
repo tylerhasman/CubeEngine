@@ -1,5 +1,7 @@
 package me.cube.engine.file;
 
+import org.joml.Vector3f;
+
 public interface VoxelFile {
 
     int[][][] toVoxelColorArray();
@@ -9,5 +11,7 @@ public interface VoxelFile {
     int height();
 
     int length();
+
+    Vector3f pivot();
 
 }

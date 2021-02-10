@@ -17,4 +17,7 @@ public interface Game {
     void onMousePress(int button, int action);
 
     void destroy();
+
+    String getTitle();
+
 }

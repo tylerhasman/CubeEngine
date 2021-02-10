@@ -23,15 +23,13 @@ public class Window implements Runnable {
 
     private Game game;
 
-    private String title;
     private int width, height;
 
-    public Window(Game game, String title, int width, int height){
+    public Window(Game game, int width, int height){
         this.game = game;
-        this.title = title;
         this.width = width;
         this.height = height;
-        init(title, width, height);
+        init(game.getTitle(), width, height);
     }
 
     @Override
@@ -84,11 +82,11 @@ public class Window implements Runnable {
                 fps = fpsCounter;
                 fpsCounter = 0;
 
-                long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
-                long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
-
-                glfwSetWindowTitle(handle, title+"         FPS: "+fps+"         RAM: "+(maxMemory-freeMemory)+"/"+maxMemory+" MB");
             }
+            long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+            long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+
+            glfwSetWindowTitle(handle, game.getTitle()+"         FPS: "+fps+"         RAM: "+(maxMemory-freeMemory)+"/"+maxMemory+" MB");
         }
 
         game.destroy();

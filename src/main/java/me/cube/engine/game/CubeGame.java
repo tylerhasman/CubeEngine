@@ -5,10 +5,14 @@ import me.cube.engine.Game;
 import me.cube.engine.Input;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.Player;
+import me.cube.engine.game.world.Chunk;
+import me.cube.engine.game.world.Terrain;
 import me.cube.engine.game.world.World;
+import me.cube.engine.model.Mesh;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
+import org.lwjgl.opengl.GL11;
 
 import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -45,15 +49,13 @@ public class CubeGame implements Game {
         yaw = 0f;
         pitch = 45;
 
-
         player = new Player(world);
 
-        player.position.set(0, 1000, 0);
+        player.position.set(0, 500, 0);
 
         world.addEntity(player);
 
         Input.setCursorMode(GLFW_CURSOR_HIDDEN);
-
 
     }
 
@@ -88,8 +90,6 @@ public class CubeGame implements Game {
             }
         }
 
-        p.sub(forward);
-
         Camera.cameraMatrix.identity().lookAt(p.x, p.y, p.z,
                 player.position.x, player.position.y + 10, player.position.z,
                 0, 1, 0);
@@ -115,6 +115,9 @@ public class CubeGame implements Game {
 
         {
 
+            glPolygonMode(GL_FRONT, GL_LINE);
+            glPolygonMode(GL_BACK, GL_LINE);
+
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
 
@@ -124,6 +127,9 @@ public class CubeGame implements Game {
 
             glDisable(GL_MULTISAMPLE);
             glDisable(GL_DEPTH_TEST);
+
+            glPolygonMode(GL_FRONT, GL_FILL);
+            glPolygonMode(GL_BACK, GL_FILL);
         }
 
     }
@@ -200,7 +206,49 @@ public class CubeGame implements Game {
     }
 
     @Override
+    public String getTitle() {
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Cube Game - ");
+
+        if(player != null){
+
+            int x = (int)(player.position.x / World.WORLD_SCALE);
+            int z = (int)(player.position.z / World.WORLD_SCALE);
+
+            buffer.append("Position: (");
+            buffer.append(x);
+            buffer.append("/");
+            buffer.append(z);
+            buffer.append(")");
+
+            int chunkX = Chunk.worldToChunk((int)(player.position.x / World.WORLD_SCALE));
+            int chunkZ = Chunk.worldToChunk((int)(player.position.z / World.WORLD_SCALE));
+
+            buffer.append("Chunk: (");
+            buffer.append(chunkX);
+            buffer.append("/");
+            buffer.append(chunkZ);
+            buffer.append(")");
+
+            x -= chunkX * Chunk.CHUNK_WIDTH;
+            z -= chunkZ * Chunk.CHUNK_WIDTH;
+
+            buffer.append("Pos in Chunk: (");
+            buffer.append(x);
+            buffer.append("/");
+            buffer.append(z);
+            buffer.append(")");
+
+
+        }
+
+        return buffer.toString();
+    }
+
+    @Override
     public void destroy() {
         Assets.disposeAll();
+        world.getTerrain().dispose();
     }
 }

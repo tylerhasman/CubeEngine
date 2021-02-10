@@ -1,8 +1,10 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Voxel;
+import me.cube.engine.file.ChunkSave;
 import me.cube.engine.model.AsyncChunkMesh;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -37,13 +39,16 @@ public class Chunk {
 
     private boolean disposed;
 
-    protected Chunk(Terrain terrain, int x, int z){
+    private ChunkSave chunkSave;
+
+    protected Chunk(Terrain terrain, int x, int z, ChunkSave chunkSave){
         this.terrain = terrain;
         blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         this.chunkX = x;
         this.chunkZ = z;
         mesh = null;
         disposed = false;
+        this.chunkSave = chunkSave;
     }
 
     public int getChunkX() {
@@ -68,6 +73,11 @@ public class Chunk {
                 mesh.model.dispose();
             }
             disposed = true;
+            try {
+                chunkSave.save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -103,6 +113,7 @@ public class Chunk {
 
         if(mesh != null){
             mesh.position.set(chunkX * CHUNK_WIDTH * WORLD_SCALE, 0, chunkZ * CHUNK_WIDTH * WORLD_SCALE);
+
             mesh.origin.set(0, 0, 0);
             mesh.render();
         }
@@ -133,10 +144,32 @@ public class Chunk {
         if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
             return;
         }
+
+        if(blocks[x][y][z] != color){
+            chunkSave.modify(x, y, z, color);
+        }
+
         blocks[x][y][z] = color;
+        requireMeshRefresh = true;
+
     }
 
-    protected void setBlockWorldCoords(int x, int y, int z, int color){
+    public int getBlock(int x, int y, int z){
+        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+            return 0;
+        }
+
+        return blocks[x][y][z];
+    }
+
+    /**
+     * Calculates which chunk a world coordinate lies in
+     */
+    public static int worldToChunk(int worldCoord){
+        return (int) Math.floor((float) worldCoord / (float) CHUNK_WIDTH);
+    }
+
+/*    protected void setBlockWorldCoords(int x, int y, int z, int color){
         x -= chunkX * Chunk.CHUNK_WIDTH;
         z -= chunkZ * Chunk.CHUNK_WIDTH;
 
@@ -144,15 +177,7 @@ public class Chunk {
             return;
         }
 
-        blocks[x][y][z] = color;
-        requireMeshRefresh = true;
-    }
-
-    protected boolean isSolid(int x, int y, int z){
-        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
-            return false;
-        }
-        return blocks[x][y][z] != 0;
+        setBlock(x, y, z, color);
     }
 
     public int getBlockWorldCoords(int x, int y, int z) {
@@ -164,5 +189,5 @@ public class Chunk {
         }
 
         return blocks[x][y][z];
-    }
+    }*/
 }

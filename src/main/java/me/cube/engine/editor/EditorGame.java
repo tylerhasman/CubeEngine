@@ -44,7 +44,7 @@ public class EditorGame implements Game {
     @Override
     public void init() {
 
-        placeableModels = Assets.loadVoxelDataFolder("assets/models/");
+        placeableModels = Assets.loadVoxelDataFolder("editor/models/");
 
         editActions = new ArrayList<>(MAX_ACTION_MEMORY);
 
@@ -52,7 +52,7 @@ public class EditorGame implements Game {
 
         cameraPosition.y = 250;
 
-        terrain = new Terrain(10);
+        terrain = new Terrain(10, "test");
 
         Camera.projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);
@@ -303,7 +303,12 @@ public class EditorGame implements Game {
     }
 
     @Override
-    public void destroy() {
+    public String getTitle() {
+        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "");
+    }
 
+    @Override
+    public void destroy() {
+        terrain.dispose();
     }
 }

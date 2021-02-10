@@ -62,15 +62,17 @@ public class Assets {
 
         for(File child : folder.listFiles()){
             if(child.isFile()){
-                files.add(loadVoxelData(child.getName()));
+                files.add(loadVoxelData(child.getAbsolutePath(), true));
             }
         }
 
         return files;
     }
 
-    public static VoxelFile loadVoxelData(String path){
-        path = "assets/models/"+path;
+    public static VoxelFile loadVoxelData(String path, boolean absolutePath){
+        if(!absolutePath){
+            path = "assets/models/"+path;
+        }
 
         try {
             if(path.endsWith("vox")){
@@ -88,9 +90,11 @@ public class Assets {
 
     public static SimpleVoxelMesh loadModel(String path){
 
-        VoxelFile voxelFile = loadVoxelData(path);
+        VoxelFile voxelFile = loadVoxelData(path, false);
 
         SimpleVoxelMesh model = new SimpleVoxelMesh(voxelFile.toVoxelColorArray(), voxelFile.width(), voxelFile.height(), voxelFile.length());
+
+        model.pivot.set(voxelFile.pivot());
 
         models.put(path, model);
 

@@ -123,8 +123,8 @@ public abstract class Entity {
     }
 
     private void updateBoundingBox(){
-        position.sub(8, 0, 8, bbMin);
-        position.add(8, 24, 8, bbMax);
+        position.sub(0, 0, 0, bbMin);
+        position.add(0, 24, 0, bbMax);
 
         boundingBox.setMin(bbMin);
         boundingBox.setMax(bbMax);

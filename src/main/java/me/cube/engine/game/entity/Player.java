@@ -13,7 +13,6 @@ public class Player extends LivingEntity {
 
     public Player(World world) {
         super(world);
-        setMaxMoveSpeed(300);
     }
 
     @Override

@@ -2,6 +2,7 @@ package me.cube.engine.game.world;
 
 import me.cube.engine.Window;
 import me.cube.engine.file.Assets;
+import me.cube.engine.file.ChunkSave;
 import me.cube.engine.file.VxmFile;
 import me.cube.engine.game.entity.Flora;
 import me.cube.engine.game.world.Chunk;
@@ -11,6 +12,7 @@ import org.joml.AABBf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -21,16 +23,23 @@ import static me.cube.engine.game.world.World.WORLD_SCALE;
 public class Terrain {
 
     private ChunkStorage chunkStorage;
-
     private TerrainGenerator terrainGenerator;
-
     private int viewDistance;
 
+    private File levelDataFolder;
+
     public Terrain(int viewDistance){
+        this(viewDistance, "none");
+    }
+
+    public Terrain(int viewDistance, String levelName){
         chunkStorage = new ChunkStorage();
         terrainGenerator = new PerlinTerrainGenerator();
 
         this.viewDistance = viewDistance;
+
+        levelDataFolder = new File("assets/terrain/"+levelName);
+        levelDataFolder.mkdir();
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
@@ -53,8 +62,8 @@ public class Terrain {
         int blockX = (int) playerPosition.x;
         int blockZ = (int) playerPosition.z;
 
-        int centerX = convertWorldToChunk(blockX);
-        int centerZ = convertWorldToChunk(blockZ);
+        int centerX = Chunk.worldToChunk(blockX);
+        int centerZ = Chunk.worldToChunk(blockZ);
 
         List<ChunkStorage.ChunkCoordinate> loadNeeded = new ArrayList<>();
 
@@ -95,6 +104,12 @@ public class Terrain {
 
     }
 
+    public void dispose(){
+        for(Chunk loaded : chunkStorage.getLoadedChunks()){
+            loaded.dispose();
+        }
+    }
+
     public int firstEmptyBlockY(int x, int z){
         for(int i = 0; i < CHUNK_HEIGHT;i++){
             if(!isSolid(x, i, z)){
@@ -113,8 +128,17 @@ public class Terrain {
     }
 
     private void generateChunk(int x, int z){
-        Chunk chunk = new Chunk(this, x, z);
+        File chunkFile = new File(levelDataFolder, "chunk-"+x+"-"+z+".dat");
+
+        ChunkSave chunkSave = new ChunkSave(chunkFile);
+
+        Chunk chunk = new Chunk(this, x, z, chunkSave);
+
         terrainGenerator.generateChunk(chunk);
+
+        if(chunkSave.hasChanges()){
+            chunkSave.applyTo(chunk);
+        }
 
         chunk.generateMesh();
 
@@ -133,6 +157,9 @@ public class Terrain {
 
             }
         }
+
+
+
     }
 
     public void render() {
@@ -155,7 +182,6 @@ public class Terrain {
         return isSolid((int) x, (int) y, (int) z);
     }
 
-    //TODO: Fix this in negative x,z's. The collision is offset a little
     public boolean isSolid(int x, int y, int z) {
         if (y >= Chunk.CHUNK_HEIGHT) {
             return false;
@@ -164,46 +190,12 @@ public class Terrain {
             return true;
         }
 
-        int chunkX = convertWorldToChunk(x);
-        int chunkZ = convertWorldToChunk(z);
-
-        Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
-
-        if(chunk == null){
-            return true;
-        }
-
-        if(x < 0){
-            x += CHUNK_WIDTH * Math.abs(chunkX);
-        }
-
-        if(z < 0){
-            z += CHUNK_WIDTH * Math.abs(chunkZ);
-        }
-
-        int xInChunk = x % Chunk.CHUNK_WIDTH;
-        int zInChunk = z % Chunk.CHUNK_WIDTH;
-
-        //Warning, this wont work for negative chunks!!
-        return chunk.isSolid(Math.abs(xInChunk), y, Math.abs(zInChunk));
+        return getCube(x, y, z) != 0;
     }
 
-    private static int convertWorldToChunk(int xz){
-
-        if(xz >= 0){
-            return xz / Chunk.CHUNK_WIDTH;
-        }
-
-        int chunkXZ = xz / Chunk.CHUNK_WIDTH;
-
-        chunkXZ--;
-
-        if(xz % CHUNK_WIDTH == 0){//This is a fucked solution let me tell you
-            chunkXZ++;
-        }
-
-        return chunkXZ;
-    }
+/*    public static int convertWorldToChunk(int xz) {
+        return (int) Math.floor((float) xz / (float) CHUNK_WIDTH);
+    }*/
 
     //TODO: Optimize this function!
     public boolean isColliding(AABBf boundingBox) {
@@ -221,25 +213,25 @@ public class Terrain {
 
     public void setCube(int x, int y, int z, int cube) {
 
-        int chunkX = convertWorldToChunk(x);
-        int chunkZ = convertWorldToChunk(z);
+        int chunkX = Chunk.worldToChunk(x);
+        int chunkZ = Chunk.worldToChunk(z);
 
         Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
 
         if(chunk != null){
-            chunk.setBlockWorldCoords(x, y, z, cube);
+            chunk.setBlock(x - chunkX * CHUNK_WIDTH, y, z - chunkZ * CHUNK_WIDTH, cube);
         }
 
     }
 
     public int getCube(int x, int y, int z) {
-        int chunkX = convertWorldToChunk(x);
-        int chunkZ = convertWorldToChunk(z);
+        int chunkX = Chunk.worldToChunk(x);
+        int chunkZ = Chunk.worldToChunk(z);
 
         Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
 
         if(chunk != null){
-            return chunk.getBlockWorldCoords(x, y, z);
+            return chunk.getBlock(x - chunkX * CHUNK_WIDTH, y, z - chunkZ * CHUNK_WIDTH);
         }
 
         return 0;

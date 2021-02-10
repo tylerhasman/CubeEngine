@@ -1,5 +1,7 @@
 package me.cube.engine.file;
 
+import org.joml.Vector3f;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -89,6 +91,11 @@ public class VoxFile implements VoxelFile {
 
     public int length(){
         return length;
+    }
+
+    @Override
+    public Vector3f pivot() {
+        return new Vector3f();
     }
 
     private void load(ByteBuffer buffer) throws IOException {
