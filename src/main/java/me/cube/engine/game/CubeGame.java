@@ -33,11 +33,14 @@ public class CubeGame implements Game {
 
     private Player player;
 
+    private boolean wireFrame;
+
     @Override
     public void init() {
         time = 0;
         game = this;
         world = new World();
+        wireFrame = false;
         Camera.projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);
 
@@ -114,10 +117,14 @@ public class CubeGame implements Game {
     public void render() {
 
         {
-
-            glPolygonMode(GL_FRONT, GL_LINE);
-            glPolygonMode(GL_BACK, GL_LINE);
-
+            if(wireFrame){
+                glPolygonMode(GL_FRONT, GL_LINE);
+                glPolygonMode(GL_BACK, GL_LINE);
+            }else{
+                glPolygonMode(GL_FRONT, GL_FILL);
+                glPolygonMode(GL_BACK, GL_FILL);
+            }
+            
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
 
@@ -128,8 +135,6 @@ public class CubeGame implements Game {
             glDisable(GL_MULTISAMPLE);
             glDisable(GL_DEPTH_TEST);
 
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glPolygonMode(GL_BACK, GL_FILL);
         }
 
     }
