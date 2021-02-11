@@ -6,15 +6,18 @@ import me.cube.engine.shader.Material;
 import me.cube.engine.shader.ShaderProgram;
 import me.cube.engine.util.FileUtil;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class Assets {
 
     private static Map<String, SimpleVoxelMesh> models = new HashMap<>();
     private static Map<String, Material> materials = new HashMap<>();
+    private static Map<String, CubeFont> fonts = new HashMap<>();
 
     public static void disposeAll(){
         for(String key : models.keySet()){
@@ -27,6 +30,12 @@ public class Assets {
             Material material = materials.get(key);
             material.dispose();
             System.out.println("[ASSET] Unloaded material "+key);
+        }
+
+        for(String key : fonts.keySet()){
+            CubeFont font = fonts.get(key);
+            font.dispose();
+            System.out.println("[ASSET] Unloaded font "+key);
         }
     }
 
@@ -69,6 +78,24 @@ public class Assets {
         return files;
     }
 
+    //TODO: Handle null
+    public static CubeFont loadFont(String path) {
+        if(fonts.containsKey(path)){
+            return fonts.get(path);
+        }
+
+        CubeFont font = null;
+        try {
+            font = new CubeFont(path, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        fonts.put(path, font);
+
+        return font;
+    }
+
     public static VoxelFile loadVoxelData(String path, boolean absolutePath){
         if(!absolutePath){
             path = "assets/models/"+path;
@@ -89,6 +116,10 @@ public class Assets {
     }
 
     public static SimpleVoxelMesh loadModel(String path){
+
+        if(models.containsKey(path)){
+            return models.get(path);
+        }
 
         VoxelFile voxelFile = loadVoxelData(path, false);
 
