@@ -124,7 +124,7 @@ public class CubeGame implements Game {
                 glPolygonMode(GL_FRONT, GL_FILL);
                 glPolygonMode(GL_BACK, GL_FILL);
             }
-            
+
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_MULTISAMPLE);
 
@@ -247,6 +247,9 @@ public class CubeGame implements Game {
 
 
         }
+
+        if(world != null)
+            buffer.append("     ").append(world.getWorldTimeFormatted());
 
         return buffer.toString();
     }

@@ -10,9 +10,11 @@ import me.cube.engine.model.VoxelMesh;
 import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
@@ -20,6 +22,8 @@ import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static org.lwjgl.opengl.GL11.*;
 
 public class World {
+
+    private static final float ONE_DAY = 24 * 60;//Seconds
 
     public static final float WORLD_SCALE = 10f;
 
@@ -29,12 +33,15 @@ public class World {
 
     private ParticleEngine particleEngine;
 
+    private float worldTime;
+
     public World(){
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
         terrain = new Terrain(10, "test");
 
+        worldTime = ONE_DAY / 2f;
     }
 
     public List<Entity> getEntities() {
@@ -61,14 +68,66 @@ public class World {
             entity.update(delta);
         }
 
+        worldTime += delta;
+        if(worldTime >= ONE_DAY){
+            worldTime -= ONE_DAY;
+        }
+
+        //worldTime = 60 * 12;
 
         terrain.updateTerrain(new Vector3f(fromPosition));
         particleEngine.update(delta);
     }
 
+    public String getWorldTimeFormatted(){
+        float normalizedWorldTime = worldTime / (24f * 60f);
+
+        int hour = (int) (normalizedWorldTime * 24);
+        int minute = (int) (normalizedWorldTime * 60 * 24) - (hour * 60);
+
+        String ampm = "AM";
+
+        if(hour >= 12){
+            hour -= 12;
+            ampm = "PM";
+        }
+
+        return String.format("%02d", hour)+":"+String.format("%02d", minute)+" "+ampm;
+    }
+
+    private Vector3f applyAmbientLighting(Vector3f ambientLight){
+
+        final Vector3f moonLight = new Vector3f(46f,68f,130f).mul(1f / 255f);
+
+        float normalizedWorldTime = worldTime / (24f * 60f);
+        float sunElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
+        float moonElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 + MathUtil.PI / 2.4f);
+
+        if(sunElevation < 0.1f) {
+            sunElevation = 0.1f;
+        }
+
+        if(moonElevation < 0){
+            moonElevation = 0f;
+        }
+
+        ambientLight.mul(sunElevation);
+
+        ambientLight.lerp(moonLight, moonElevation);
+
+        return ambientLight;
+    }
+
     public void render(){
 
+        Vector3f ambientColor = applyAmbientLighting(new Vector3f(1f, 1f, 1f));
+        Vector3f skyColor = applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
+
+        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         for(Entity entity : entities){
+            entity.root.material.setUniform3f("u_AmbientLight", ambientColor);
             entity.root.render();
 
             //renderBoundingBox(entity);
