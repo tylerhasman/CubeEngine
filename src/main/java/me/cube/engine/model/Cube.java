@@ -5,8 +5,6 @@ import org.joml.Vector3f;
 
 public class Cube {
 
-    public static final int SHADE_SIDES = 1, BLEND_NEIGHBORS = 2;
-
     public float red, green, blue;
     public int flags;
 
@@ -14,24 +12,32 @@ public class Cube {
 
     public float x, y, z;
 
-    public int[][] neighbors = new int[3][3];
+    public int[][][] neighbors = new int[3][3][3];
 
     public boolean isVisible(){
         return top || bottom || south || north || west || east;
     }
 
-    private Vector3f calculateColor(int minX, int maxX, int minZ, int maxZ){
+    private Vector3f calculateColor(int minX, int maxX, int minY, int maxY, int minZ, int maxZ){
 
         Vector3f outputColor = new Vector3f(red, green, blue);
         float legit = 1f;
 
         for(int i = minX;i <= maxX;i++){
-            for(int j = minZ;j <= maxZ;j++){
-                int color = neighbors[i][j];
+            for(int k = minY; k <= maxY;k++){
+                for(int j = minZ;j <= maxZ;j++){
+                    int color = neighbors[i][k][j];
 
-                if(color != 0){
-                    legit++;
-                    outputColor.add(rgbToVector(color));
+                    if(color != 0){
+                        legit++;
+                        if(k != 1){
+                            outputColor.add(rgbToVector(color).mul(0.5f));
+
+                        }else{
+                            outputColor.add(rgbToVector(color));
+
+                        }
+                    }
                 }
             }
         }
@@ -59,12 +65,22 @@ public class Cube {
 
             norOut.addRepeat(new float[] {0, 0, -1}, 4);
 
-            if((flags & SHADE_SIDES) == SHADE_SIDES){
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 2);
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 2);
-            }else{
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
-            }
+            //colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
+
+            Vector3f color1 = calculateColor(0, 1, 0, 1, 0, 1);
+            Vector3f color2 = calculateColor(1, 2, 0, 1, 0, 1);
+
+            Vector3f color3 = calculateColor(0, 1, 1, 2, 0, 1);
+            Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
+
+            colorOut.add(color1);
+            colorOut.add(1f);
+            colorOut.add(color2);
+            colorOut.add(1f);
+            colorOut.add(color3);
+            colorOut.add(1f);
+            colorOut.add(color4);
+            colorOut.add(1f);
 
         }
 
@@ -76,13 +92,20 @@ public class Cube {
 
             norOut.addRepeat(new float[] {0, 0, 1}, 4);
 
-            if((flags & SHADE_SIDES) == SHADE_SIDES){
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 1);
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 2);
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 1);
-            }else{
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
-            }
+            Vector3f color1 = calculateColor(0, 1, 0, 1, 1, 2);
+            Vector3f color2 = calculateColor(1, 2, 1, 2, 1, 2);
+
+            Vector3f color3 = calculateColor(0, 1, 1, 2, 1, 2);
+            Vector3f color4 = calculateColor(1, 2, 0, 1, 1, 2);
+
+            colorOut.add(color1);
+            colorOut.add(1f);
+            colorOut.add(color2);
+            colorOut.add(1f);
+            colorOut.add(color3);
+            colorOut.add(1f);
+            colorOut.add(color4);
+            colorOut.add(1f);
 
         }
 
@@ -94,19 +117,19 @@ public class Cube {
 
             norOut.addRepeat(new float[] {0, 1, 0}, 4);
 
-            Vector3f northWestColor = calculateColor(0, 1, 0, 1);
-            Vector3f southWestColor = calculateColor(0, 1, 1, 2);
+            Vector3f color1 = calculateColor(0, 1, 1, 2, 0, 1);
+            Vector3f color2 = calculateColor(1, 2, 1, 2, 0, 1);
+            Vector3f color3 = calculateColor(1, 2,1, 2, 1, 2);
+            Vector3f color4 = calculateColor(0, 1, 1, 2, 1, 2);
 
-            Vector3f northEastColor = calculateColor(1, 2, 0, 1);
-            Vector3f southEastColor = calculateColor(1, 2, 1, 2);
 
-            colorOut.add(northWestColor);
+            colorOut.add(color1);
             colorOut.add(1f);
-            colorOut.add(northEastColor);
+            colorOut.add(color2);
             colorOut.add(1f);
-            colorOut.add(southEastColor);
+            colorOut.add(color3);
             colorOut.add(1f);
-            colorOut.add(southWestColor);
+            colorOut.add(color4);
             colorOut.add(1f);
 
         }
@@ -131,14 +154,21 @@ public class Cube {
 
             norOut.addRepeat(new float[] {1, 0, 0}, 4);
 
+            Vector3f color1 = calculateColor(0, 1, 0, 1, 0, 1);
+            Vector3f color2 = calculateColor(0, 1, 1, 2, 1, 2);
 
-            if((flags & SHADE_SIDES) == SHADE_SIDES){
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 1);
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 2);
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 1);
-            }else{
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
-            }
+            Vector3f color3 = calculateColor(0, 1, 1, 2, 1, 2);
+            Vector3f color4 = calculateColor(0, 1, 0, 1, 0, 1);
+
+            colorOut.add(color1);
+            colorOut.add(1f);
+            colorOut.add(color2);
+            colorOut.add(1f);
+            colorOut.add(color3);
+            colorOut.add(1f);
+            colorOut.add(color4);
+            colorOut.add(1f);
+
         }
 
         if(west){
@@ -149,12 +179,22 @@ public class Cube {
 
             norOut.addRepeat(new float[] {-1, 0, 0}, 4);
 
-            if((flags & SHADE_SIDES) == SHADE_SIDES){
-                colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 2);
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 2);
-            }else{
-                colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
-            }
+
+            Vector3f color1 = calculateColor(1, 2, 0, 1, 0, 1);
+            Vector3f color2 = calculateColor(1, 2, 0, 1, 1, 2);
+
+            Vector3f color3 = calculateColor(1, 2, 1, 2, 1, 2);
+            Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
+
+            colorOut.add(color1);
+            colorOut.add(1f);
+            colorOut.add(color2);
+            colorOut.add(1f);
+            colorOut.add(color3);
+            colorOut.add(1f);
+            colorOut.add(color4);
+            colorOut.add(1f);
+
         }
     }
 

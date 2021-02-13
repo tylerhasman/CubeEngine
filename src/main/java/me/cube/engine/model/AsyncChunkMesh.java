@@ -72,9 +72,6 @@ public class AsyncChunkMesh extends VoxelMesh {
                                 cube.blue *= (1f - (above) / 16f);
                             }
 
-                            cube.flags |= (isCompletelyCovered(terrain, chunk, i, j-1, k) ? Cube.SHADE_SIDES : 0);
-                            cube.flags |= Cube.BLEND_NEIGHBORS;
-
                             cube.generate(vertices, normals, colors);
                         }
 
@@ -109,19 +106,24 @@ public class AsyncChunkMesh extends VoxelMesh {
         return top && north && south && east && west;
     }
 
-    private static int[][] calculateNeighbors(Terrain terrain, Chunk chunk, int x, int y, int z){
-        int[][] neighbors = new int[3][3];
+    private static int[][][] calculateNeighbors(Terrain terrain, Chunk chunk, int x, int y, int z){
+        int[][][] neighbors = new int[3][3][3];
 
         for(int i = 0; i < 3;i++){
 
             int xOffset = i - 1;
 
-            for(int j = 0;j < 3;j++){
-                int zOffset = j - 1;
+            for(int k = 0; k < 3;k++){
 
-                neighbors[i][j] = colorOf(terrain, chunk, x + xOffset, y, z + zOffset);
+                int yOffset = k - 1;
 
+                for(int j = 0;j < 3;j++){
+                    int zOffset = j - 1;
+
+                    neighbors[i][k][j] = colorOf(terrain, chunk, x + xOffset, y + yOffset, z + zOffset);
+                }
             }
+
         }
 
         return neighbors;
