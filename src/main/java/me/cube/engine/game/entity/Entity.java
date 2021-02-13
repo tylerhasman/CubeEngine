@@ -31,9 +31,9 @@ public abstract class Entity {
     public Entity(World world){
         this.world = world;
         root = new Voxel("root", null);
-        position = root.position;
-        scale = root.scale;
-        rotation = root.rotation;
+        position = new Vector3f();
+        scale = new Vector3f(1, 1, 1);
+        rotation = new Quaternionf().identity();
         velocity = new Vector3f();
         gravity = -168f;
         boundingBox = new AABBf();

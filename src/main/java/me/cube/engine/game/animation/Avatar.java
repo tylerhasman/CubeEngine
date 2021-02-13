@@ -2,6 +2,7 @@ package me.cube.engine.game.animation;
 
 import me.cube.engine.Voxel;
 import me.cube.engine.game.entity.Entity;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class Avatar {
         for(BodyPart bodyPart : BodyPart.values()){
             Voxel part = getBodyPart(bodyPart);
             if(part != null){
-                defaultTranslations.put(bodyPart, new Vector3f(part.position));
+                defaultTranslations.put(bodyPart, new Vector3f(part.getTransform().getLocalPosition()));
             }
         }
     }
@@ -128,8 +129,7 @@ public class Avatar {
         for(BodyPart bodyPart : BodyPart.values()){
             Voxel part = getBodyPart(bodyPart);
             if(part != null){
-                part.position.set(defaultTranslations.get(bodyPart));
-                part.rotation.identity();
+                part.getTransform().set(defaultTranslations.get(bodyPart), new Quaternionf(), new Vector3f(1,1, 1));
             }
         }
     }
@@ -144,7 +144,7 @@ public class Avatar {
         float weight = getWeight(bodyPart);
 
         if (voxel != null) {
-            voxel.rotation.rotateAxis(angle * weight, x, y, z);
+            voxel.getTransform().rotateAxis(angle * weight, x, y, z);
         }
     }
 
@@ -158,7 +158,7 @@ public class Avatar {
         float weight = getWeight(bodyPart);
 
         if (voxel != null) {
-            voxel.position.add(x * weight, y * weight, z * weight);
+            voxel.getTransform().translate(x * weight, y * weight, z * weight);
         }
     }
 
@@ -167,14 +167,14 @@ public class Avatar {
      * The weight will affect the scaled amount.
      * If the weight of the body part is 0.5, and the scaling is (1, 1, 1), the scale will increase by (0.5, 0.5, 0.5) instead
      */
-    public void scale(BodyPart bodyPart, float x, float y, float z){
+/*    public void scale(BodyPart bodyPart, float x, float y, float z){
         Voxel voxel = getBodyPart(bodyPart);
         float weight = getWeight(bodyPart);
 
         if (voxel != null) {
             voxel.scale.add((x - 1.0f) * weight, (y - 1.0f) * weight, (z - 1.0f) * weight);
         }
-    }
+    }*/
 
     /**
      * Change the weight of a body part

@@ -102,7 +102,8 @@ public class Chunk {
                     chunkMesh.initialize();
 
                     mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, chunkMesh);
-                    mesh.scale.set(World.WORLD_SCALE);
+                    mesh.getTransform().scale(World.WORLD_SCALE);
+                    mesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }finally{
@@ -112,9 +113,7 @@ public class Chunk {
         }
 
         if(mesh != null){
-            mesh.position.set(chunkX * CHUNK_WIDTH * WORLD_SCALE, 0, chunkZ * CHUNK_WIDTH * WORLD_SCALE);
 
-            mesh.origin.set(0, 0, 0);
             mesh.render();
         }
     }

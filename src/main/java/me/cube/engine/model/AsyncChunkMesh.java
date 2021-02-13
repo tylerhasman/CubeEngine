@@ -3,6 +3,7 @@ package me.cube.engine.model;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.Terrain;
 import me.cube.engine.util.FloatArray;
+import org.joml.Vector3f;
 
 public class AsyncChunkMesh extends VoxelMesh {
 
@@ -43,6 +44,8 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.green = ((color >> 8) & 255) / 255F;
                         cube.blue = (color & 255) / 255F;
 
+                        cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
+
                         cube.x = i;
                         cube.y = j;
                         cube.z = k;
@@ -70,6 +73,7 @@ public class AsyncChunkMesh extends VoxelMesh {
                             }
 
                             cube.flags |= (isCompletelyCovered(terrain, chunk, i, j-1, k) ? Cube.SHADE_SIDES : 0);
+                            cube.flags |= Cube.BLEND_NEIGHBORS;
 
                             cube.generate(vertices, normals, colors);
                         }
@@ -105,6 +109,52 @@ public class AsyncChunkMesh extends VoxelMesh {
         return top && north && south && east && west;
     }
 
+    private static int[][] calculateNeighbors(Terrain terrain, Chunk chunk, int x, int y, int z){
+        int[][] neighbors = new int[3][3];
+
+        for(int i = 0; i < 3;i++){
+
+            int xOffset = i - 1;
+
+            for(int j = 0;j < 3;j++){
+                int zOffset = j - 1;
+
+                neighbors[i][j] = colorOf(terrain, chunk, x + xOffset, y, z + zOffset);
+
+            }
+        }
+
+        return neighbors;
+    }
+
+/*    private static Vector3f calculateColor(Terrain terrain, Chunk chunk, int x, int y, int z){
+        Vector3f outputColor = new Vector3f();
+
+        int[] neighbors = new int[5];
+
+        neighbors[0] = colorOf(terrain, chunk, x + 1, y, z);
+        neighbors[1] = colorOf(terrain, chunk, x - 1, y, z);
+        neighbors[2] = colorOf(terrain, chunk, x, y, z + 1);
+        neighbors[3] = colorOf(terrain, chunk, x, y, z - 1);
+
+        float valid = 1;
+
+        outputColor.add(rgbToVector(colorOf(terrain, chunk, x, y, z)));//Self
+
+        for(int i = 0; i < neighbors.length;i++){
+
+            if(neighbors[i] != 0){
+                valid++;
+                outputColor.add(rgbToVector(neighbors[i]));
+            }
+
+        }
+
+        return outputColor.mul(1f / valid);
+    }*/
+
+
+
     private static int countAdjacentCoveringBlocks(Terrain terrain, Chunk chunk, int i, int j, int k, int radius){
         int adjacentCoveringBlocks = 0;
 
@@ -118,6 +168,23 @@ public class AsyncChunkMesh extends VoxelMesh {
         }
 
         return adjacentCoveringBlocks;
+    }
+
+    private static int colorOf(Terrain terrain, Chunk chunk, int chunkX, int worldY, int chunkZ){
+        if(worldY < 0){//Under the world
+            return 0;
+        }
+        if(worldY >= Chunk.CHUNK_HEIGHT){
+            return 0;
+        }
+        int worldX = chunk.getChunkX() * Chunk.CHUNK_WIDTH + chunkX;
+        int worldZ = chunk.getChunkZ() * Chunk.CHUNK_WIDTH + chunkZ;
+
+        if(chunkX < 0 || chunkZ < 0 || chunkX >= Chunk.CHUNK_WIDTH || chunkZ >= Chunk.CHUNK_WIDTH){//Outside this chunk
+            return terrain.getCube(worldX, worldY, worldZ);
+        }
+
+        return chunk.blocks[chunkX][worldY][chunkZ];
     }
 
     private static boolean isSolid(Terrain terrain, Chunk chunk, int i, int worldY, int k){

@@ -13,20 +13,26 @@ import java.util.Map;
 
 public class Voxel {
 
-    public final String name;
-    public final Vector3f position, scale;
-    public final Quaternionf rotation;
-    public final Vector3f origin;
-    public VoxelMesh model;
-    private final Map<String, Voxel> children;
+    //private Voxel parent;
 
-    private final Matrix4f transform;
+    public final String name;
+/*    public final Vector3f position, scale;
+    public final Quaternionf rotation;
+    public final Vector3f origin;*/
+    public VoxelMesh model;
+    //private final Map<String, Voxel> children;
+
+    private Transform transform;
 
     //TODO: Allow materials to be changed dynamically...
     public final Material material;
 
     public Voxel(){
-        this("unnamed", null);
+        this("unnamed");
+    }
+
+    public Voxel(String name){
+        this(name, null);
     }
 
     public Voxel(String name, VoxelMesh model){
@@ -38,43 +44,31 @@ public class Voxel {
             throw new IllegalArgumentException("material cannot be null");
         }
         this.name = name;
-        transform = new Matrix4f();
-        position = new Vector3f();
-        scale = new Vector3f(1f, 1f, 1f);
-        rotation = new Quaternionf();
         this.model = model;
-        children = new HashMap<>();
-        origin = new Vector3f();
-        if(model != null){
+/*        if(model != null){
            origin.set(model.pivot);
-        }
+        }*/
         this.material = material;
+        this.transform = new Transform(this);
     }
 
-    /**
-     * Get a copy of this matrixes transformation
-     * @return
-     */
-    public Matrix4f getTransform(){
-        return new Matrix4f(transform);
-    }
-
-    /**
-     * Adds a child to this voxel, it will be rendered by this one's render
-     */
-    public void addChild(Voxel voxel){
-        children.put(voxel.name, voxel);
+    public Transform getTransform() {
+        return transform;
     }
 
     /**
      * Recursively finds a child of this voxel. If two child voxels share the same name the behaviour is undefined.
      */
     public Voxel getChild(String name){
-        if(children.containsKey(name)){
-            return children.get(name);
+
+        for(Transform child : transform.getChildren()){
+            if(child.voxel.name.equals(name)){
+                return child.voxel;
+            }
         }
-        for(Voxel child : children.values()){
-            Voxel found = child.getChild(name);
+
+        for(Transform child : transform.getChildren()){
+            Voxel found = child.voxel.getChild(name);
             if(found != null){
                 return found;
             }
@@ -83,47 +77,15 @@ public class Voxel {
     }
 
     /**
-     * Recursively removes all children with this name
-     * @param name
+     * Updates this voxels transformations and renders it.
      */
-    public void removeChild(String name){
-        children.remove(name);
-        for(Voxel child : children.values()){
-           child.removeChild(name);
-        }
-    }
-
-    /**
-     * Calculates this voxel and all its childrens transforms relative to some parent voxel
-     */
-    private void calculateTransforms(Matrix4f parent){
-
-        transform.identity();
-
-        if(parent != null){
-            transform.mul(parent);
-        }
-
-        // Origin * Rotation * Scale * Position
-        transform.translate(position).scale(scale).rotate(rotation).translate(origin.mul(-1f, new Vector3f()));
-
-        for(Voxel child : children.values()){
-            child.calculateTransforms(transform);
-        }
-
-    }
-
-    /**
-     * Actually renders this voxel and children ones.
-     * Does not update transformations
-     */
-    private void render0(){
+    public void render(){
         if(model != null){
 
             material.setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
             material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
 
-            material.setUniformMat4f("ModelMatrix", transform);
+            material.setUniformMat4f("ModelMatrix", transform.getTransformation());
 
             material.bind();
 
@@ -132,17 +94,8 @@ public class Voxel {
             material.unbind();
         }
 
-        for(Voxel child : children.values()){
-            child.render0();
+        for(Transform child : transform.getChildren()){
+            child.voxel.render();
         }
-    }
-
-    /**
-     * Updates this voxels transformations and renders it.
-     */
-    public void render(){
-        calculateTransforms(null);
-
-        render0();
     }
 }

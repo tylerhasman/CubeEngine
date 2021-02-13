@@ -1,5 +1,7 @@
 package me.cube.engine.util;
 
+import org.joml.Vector3f;
+
 import java.util.Arrays;
 
 public class FloatArray {
@@ -19,6 +21,12 @@ public class FloatArray {
         for(float f : floats){
             add(f);
         }
+    }
+
+    public void add(Vector3f vector){
+        add(vector.x);
+        add(vector.y);
+        add(vector.z);
     }
 
     public void add(float f){

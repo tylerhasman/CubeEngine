@@ -198,13 +198,13 @@ public class EditorGame implements Game {
             /*glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);*/
             Voxel voxel = new Voxel("Cursor", selectedModelMesh);
-            voxel.scale.set(World.WORLD_SCALE);
+            voxel.getTransform().scale(World.WORLD_SCALE);
 
             Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
 
             VoxelFile model = placeableModels.get(selectedModel);
 
-            voxel.position.set((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(model.height() / 2f) + 1, (int) worldGridPosition.z).add(0.5f, 0.01f, 0.5F).mul(World.WORLD_SCALE);
+            voxel.getTransform().translate((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(model.height() / 2f) + 1, (int) worldGridPosition.z).translate(0.5f, 0.01f, 0.5F).scale(World.WORLD_SCALE);
 
             voxel.render();
             //glDisable(GL_CULL_FACE);

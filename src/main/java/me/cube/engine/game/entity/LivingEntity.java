@@ -1,5 +1,6 @@
 package me.cube.engine.game.entity;
 
+import me.cube.engine.Transform;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.world.World;
@@ -97,7 +98,6 @@ public abstract class LivingEntity extends Entity {
     public void update(float delta) {
         super.update(delta);
 
-
         if(position.y < -500){
             position.set(100, 100, 100);
         }
@@ -156,7 +156,7 @@ public abstract class LivingEntity extends Entity {
         if(rollTime > 0){
             rollTime -= delta;
             Voxel torso = root.getChild("torso");
-            torso.rotation.rotateAxis(MathUtil.PI2 * rollTime * (1f / 0.4f), 1, 0, -0.2f);
+            torso.getTransform().rotateAxis(MathUtil.PI2 * rollTime * (1f / 0.4f), 1, 0, -0.2f);
         }else{
             rollTime = 0;
         }
@@ -169,7 +169,7 @@ public abstract class LivingEntity extends Entity {
                 Vector3f top = new Vector3f(0, weapon.model.height / 2f, 0);
                 Vector3f bottom = new Vector3f(0, 0, 0);
 
-                Matrix4f transform = weapon.getTransform();
+                Transform transform = weapon.getTransform();
 
                 transform.transformPosition(top);
                 transform.transformPosition(bottom);
@@ -215,24 +215,24 @@ public abstract class LivingEntity extends Entity {
             Voxel torso = root.getChild("torso");
             Voxel shield = root.getChild("shield");
             if(weapon != null){
-                root.removeChild("weapon");
-                torso.addChild(weapon);
-                weapon.position.z = 6;
+
+                weapon.getTransform().setParent(torso.getTransform());
+                weapon.getTransform().setLocalPosition(6, 10, 6);
+                //weapon.getTransform().rot
+
+/*                weapon.position.z = 6;
                 weapon.position.x = 6;
                 weapon.position.y = 10;
                 weapon.rotation.identity();
                 weapon.rotation.rotateAxis(Math.toRadians(90f), 0, 1, 0);
-                weapon.rotation.rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);
+                weapon.rotation.rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);*/
             }
             if(shield != null){
-                root.removeChild("shield");
-                torso.addChild(shield);
-                shield.position.z = 6;
-                shield.position.x = 0;
-                shield.position.y = 5;
-                shield.rotation.identity();
-                shield.rotation.rotateAxis(Math.toRadians(90f), 0, 1, 0);
-                shield.rotation.rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);
+
+                shield.getTransform().setParent(torso.getTransform());
+                shield.getTransform().setLocalPosition(0, 5, 6);
+                shield.getTransform().rotateAxis(Math.toRadians(90f), 0, 1, 0);
+                shield.getTransform().rotateAxis(Math.toRadians(180f + 45f), 1, 0, 0);
             }
             weaponPutAwayTime = 0f;
             weaponOut = false;
@@ -246,21 +246,14 @@ public abstract class LivingEntity extends Entity {
             Voxel rightHand = root.getChild("right-hand");
             Voxel leftHand = root.getChild("left-hand");
             if(weapon != null){
-                root.removeChild("weapon");
-                rightHand.addChild(weapon);
-                weapon.position.z = 0;
-                weapon.position.x = 0;
-                weapon.position.y = 0;
-                weapon.rotation.identity();
+
+                weapon.getTransform().setParent(rightHand.getTransform());
+                weapon.getTransform().setLocalPosition(0, 0, 0);
             }
 
             if(shield != null){
-                root.removeChild("shield");
-                leftHand.addChild(shield);
-                shield.position.x = 0;
-                shield.position.y = 0;
-                shield.position.z = 0;
-                shield.rotation.identity();
+                shield.getTransform().setParent(leftHand.getTransform());
+                shield.getTransform().setLocalPosition(0, 0, 0);
             }
 
             weaponPutAwayTime = 10f;
@@ -301,47 +294,39 @@ public abstract class LivingEntity extends Entity {
         SimpleVoxelMesh footModel = Assets.loadModel("foot.vox");
         SimpleVoxelMesh headModel = Assets.loadModel("head.vox");
         SimpleVoxelMesh swordModel = Assets.loadModel("sword.vxm");
-        SimpleVoxelMesh shieldModel = Assets.loadModel("WoodenShield.vxm");
 
         Voxel torso = new Voxel("torso", torsoModel);
 
         Voxel head = new Voxel("head", headModel);
-        head.position.y = 10;
+        head.getTransform().translate(0, 10, 0);
 
         Voxel leftHand = new Voxel("left-hand", handModel);
-        leftHand.position.x = -8;
-
-        Voxel shield = new Voxel("shield", shieldModel);
-        shield.scale.set(1f);
+        leftHand.getTransform().translate(-8, 0, 0);
         //leftHand.addChild(shield);
 
         Voxel rightHand = new Voxel("right-hand", handModel);
-        rightHand.position.x = 8;
+        rightHand.getTransform().translate(8, 0, 0);
 
         Voxel weapon = new Voxel("weapon", swordModel);
-        weapon.scale.set(1f);
 
-        rightHand.addChild(weapon);
+        weapon.getTransform().setParent(rightHand.getTransform());
 
         Voxel leftFoot = new Voxel("left-foot", footModel);
-        leftFoot.position.y = -6;
-        leftFoot.position.x = -4;
-        leftFoot.position.z = 1;
+
+        leftFoot.getTransform().translate(-4, -6, 1);
 
         Voxel rightFoot = new Voxel("right-foot", footModel);
-        rightFoot.position.y = -6;
-        rightFoot.position.x = 4;
-        rightFoot.position.z = 1;
+        rightFoot.getTransform().translate(4, -6, 1);
 
-        torso.position.y += 9.5f;
+        torso.getTransform().translate(0, 9.5f, 0);
 
-        root.addChild(torso);
+        root.getTransform().addChild(torso.getTransform());
 
-        torso.addChild(head);
-        torso.addChild(leftHand);
-        torso.addChild(rightHand);
-        torso.addChild(leftFoot);
-        torso.addChild(rightFoot);
+        torso.getTransform().addChild(head.getTransform());
+        torso.getTransform().addChild(leftHand.getTransform());
+        torso.getTransform().addChild(rightHand.getTransform());
+        torso.getTransform().addChild(leftFoot.getTransform());
+        torso.getTransform().addChild(rightFoot.getTransform());
     }
     
 }

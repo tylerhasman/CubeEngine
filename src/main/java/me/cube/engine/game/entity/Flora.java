@@ -8,6 +8,6 @@ public class Flora extends Entity {
     public Flora(World world) {
         super(world);
         gravity = 0f;
-        root.addChild(new Voxel("flower", Assets.loadModel("flower.vxm")));
+        root.getTransform().addChild(new Voxel("flower", Assets.loadModel("flower.vxm")).getTransform());
     }
 }

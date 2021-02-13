@@ -118,17 +118,37 @@ public class World {
         return ambientLight;
     }
 
+    private Vector3f getSunMoonPosition(){
+        float normalizedWorldTime = worldTime / (24f * 60f);
+
+        float sunX = Math.cos(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
+        float sunY = Math.sin(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
+
+        //float moonElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 + MathUtil.PI / 2.4f);
+
+        return new Vector3f(sunX, sunY, 0);
+    }
+
     public void render(){
 
         Vector3f ambientColor = applyAmbientLighting(new Vector3f(1f, 1f, 1f));
         Vector3f skyColor = applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
+        Vector3f sunPosition = getSunMoonPosition();
+
+        Vector3f sunDirection = sunPosition.normalize(new Vector3f());
 
         glClearColor(skyColor.x, skyColor.y, skyColor.z, 1f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         for(Entity entity : entities){
-            entity.root.material.setUniform3f("u_AmbientLight", ambientColor);
-            entity.root.render();
+
+            entity.root.getTransform().set(entity.position, entity.rotation, entity.scale);
+            if(!entity.root.getTransform().hasParent()){
+                entity.root.material.setUniform3f("u_AmbientLight", ambientColor);
+                entity.root.material.setUniform3f("u_LightDirection", sunDirection);
+                entity.root.material.setUniform3f("u_LightColor", ambientColor);
+                entity.root.render();
+            }
 
             //renderBoundingBox(entity);
 
@@ -147,6 +167,7 @@ public class World {
 //        particleEngine.render();
 
     }
+/*
 
     private void renderBoundingBox(Entity entity){
         AABBf bb = entity.boundingBox;
@@ -187,5 +208,6 @@ public class World {
         point.render();
 
     }
+*/
 
 }
