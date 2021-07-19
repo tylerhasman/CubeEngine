@@ -105,6 +105,10 @@ public class Terrain {
 
     }
 
+    public TerrainGenerator getTerrainGenerator() {
+        return terrainGenerator;
+    }
+
     public void dispose(){
         for(Chunk loaded : chunkStorage.getLoadedChunks()){
             loaded.dispose();

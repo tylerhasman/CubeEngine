@@ -46,43 +46,49 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     }
 
     @Override
-    public void generateChunk(Chunk chunk) {
+    public int colorAt(float x, float y, float z) {
+        int r = 0, g = 0, b = 0;
+
+        Biome biome = biomeAt(Math.round(x), Math.round(z));
+
+        float genCoordX = x / 400f;
+        float genCoordZ = z / 400f;
+        float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.2f);
+        float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
+
+        if(biome == Biome.PLAINS){
+
+            if(tempurature < 0.1f){
+                g = 0x80;
+                b = 0x1C;
+            }else{
+                r = 50;
+                g = 150;
+                b = 80;
+            }
+
+        }else if(biome == Biome.MOUNTAINS){
+            r = 187;
+            g = 187;
+            b = 187;
+        }
         float[] hslBuffer = new float[3];//Reuse
+
+        Color.RGBtoHSB(r, g, b, hslBuffer);
+
+        hslBuffer[0] += coloring;
+
+        return Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
+    }
+
+    @Override
+    public void generateChunk(Chunk chunk) {
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
-                float genCoordX = (chunk.getChunkX() * Chunk.CHUNK_WIDTH + i) / 400f;
-                float genCoordZ = (chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j) / 400f;
-                int r = 0, g = 0, b = 0;
 
                 int height = heightAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
 
-                Biome biome = biomeAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
-
-                float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.2f);
-                float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
-
-                if(biome == Biome.PLAINS){
-
-                    if(tempurature < 0.1f){
-                        g = 0x80;
-                        b = 0x1C;
-                    }else{
-                        r = 50;
-                        g = 150;
-                        b = 80;
-                    }
-
-                }else if(biome == Biome.MOUNTAINS){
-                    r = 187;
-                    g = 187;
-                    b = 187;
-                }
-
-                Color.RGBtoHSB(r, g, b, hslBuffer);
-
-                hslBuffer[0] += coloring;
-
-                int rgb = Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
+                int rgb = colorAt(i, height, j);
 
                 height = Math.max(1, height);
                 for(int y = 0; y < Chunk.CHUNK_HEIGHT;y++){
