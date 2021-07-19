@@ -88,7 +88,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
                 int height = heightAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
 
-                int rgb = colorAt(i, height, j);
+                int rgb = colorAt(i + chunk.getChunkX() * Chunk.CHUNK_WIDTH, height, j + chunk.getChunkZ() * Chunk.CHUNK_WIDTH);
 
                 height = Math.max(1, height);
                 for(int y = 0; y < Chunk.CHUNK_HEIGHT;y++){
