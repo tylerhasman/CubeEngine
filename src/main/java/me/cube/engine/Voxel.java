@@ -4,6 +4,7 @@ import me.cube.engine.file.Assets;
 import me.cube.engine.game.CubeGame;
 import me.cube.engine.model.VoxelMesh;
 import me.cube.engine.shader.Material;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -86,6 +87,10 @@ public class Voxel {
             material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
 
             material.setUniformMat4f("ModelMatrix", transform.getTransformation());
+
+            Matrix3f normalMatrix = new Matrix3f(transform.getTransformation().transpose().invert());
+
+            material.setUniformMat3f("NormalMatrix", normalMatrix);
 
             material.bind();
 

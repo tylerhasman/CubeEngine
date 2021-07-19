@@ -16,7 +16,7 @@ public class Player extends LivingEntity {
 
     public Player(World world) {
         super(world);
-        setMaxMoveSpeed(400);
+        setMaxMoveSpeed(100);
 
     }
 
@@ -24,7 +24,7 @@ public class Player extends LivingEntity {
     public void update(float delta) {
         super.update(delta);
 
-        Vector3f forward = CubeGame.game.getCameraForward().mul(1, 0, 1).normalize();//TODO: When you aim the camera more downwards you move slower, fix this
+        Vector3f forward = CubeGame.game.getCameraForward().mul(1, 0, 1).normalize();
 
         Vector3f right = new Vector3f();
 

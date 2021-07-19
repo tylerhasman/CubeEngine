@@ -32,7 +32,6 @@ public class Cube {
                         legit++;
                         if(k != 1){
                             outputColor.add(rgbToVector(color).mul(0.5f));
-
                         }else{
                             outputColor.add(rgbToVector(color));
 

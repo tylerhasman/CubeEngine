@@ -5,12 +5,15 @@ import me.cube.engine.game.world.Terrain;
 import me.cube.engine.util.FloatArray;
 import org.joml.Vector3f;
 
+import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
+import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
+
 public class AsyncChunkMesh extends VoxelMesh {
 
     private FloatArray vertices, colors, normals;
 
     public AsyncChunkMesh(Terrain terrain, Chunk chunk){
-        super(Chunk.CHUNK_WIDTH, Chunk.CHUNK_HEIGHT, Chunk.CHUNK_WIDTH);
+        super(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH);
         vertices = new FloatArray(4096);
         colors = new FloatArray(4096);
         normals = new FloatArray(4096);
@@ -30,9 +33,10 @@ public class AsyncChunkMesh extends VoxelMesh {
 
     private void generate(Terrain terrain, Chunk chunk){
         Cube cube = new Cube();
-        for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
-            for(int j = 0; j < Chunk.CHUNK_HEIGHT;j++){
-                for(int k = 0;k < Chunk.CHUNK_WIDTH;k++){
+
+        for(int i = 0; i < CHUNK_WIDTH;i++){
+            for(int j = 0; j < CHUNK_HEIGHT;j++){
+                for(int k = 0;k < CHUNK_WIDTH;k++){
 
                     int color = chunk.blocks[i][j][k];
 
@@ -58,11 +62,11 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.west = !isSolid(terrain, chunk, i+1, j, k);
 
                         if(cube.isVisible()){
-                            int adjacent = countAdjacentCoveringBlocks(terrain, chunk, i, j, k, 2);
+                            float adjacent = countAdjacentCoveringBlocks(terrain, chunk, i, j, k, 3);
 
-                            cube.red *= (1f - (adjacent) / 250f);
-                            cube.green *= (1f - (adjacent) / 250f);
-                            cube.blue *= (1f - (adjacent) / 250f);
+                            cube.red *= (1f - (adjacent) / 196f);
+                            cube.green *= (1f - (adjacent) / 196f);
+                            cube.blue *= (1f - (adjacent) / 196f);
 
                             if(cube.top){
                                 int above = countAboveBlocks(terrain, chunk, i, j, k, 12);
@@ -75,9 +79,7 @@ public class AsyncChunkMesh extends VoxelMesh {
                             cube.generate(vertices, normals, colors);
                         }
 
-
                     }
-
 
                 }
             }
@@ -160,14 +162,19 @@ public class AsyncChunkMesh extends VoxelMesh {
     private static int countAdjacentCoveringBlocks(Terrain terrain, Chunk chunk, int i, int j, int k, int radius){
         int adjacentCoveringBlocks = 0;
 
+        int count = 0;
+
         for(int x = -radius; x <= radius; x++){
             for(int y = -radius; y <= radius;y++){
                 adjacentCoveringBlocks += isSolid(terrain, chunk, i + 1 + x, j + 1, k + y) ? 1 : 0;
                 adjacentCoveringBlocks += isSolid(terrain, chunk, i - 1 + x, j + 1, k + y) ? 1 : 0;
                 adjacentCoveringBlocks += isSolid(terrain, chunk, i + x, j + 1, k + y + 1) ? 1 : 0;
                 adjacentCoveringBlocks += isSolid(terrain, chunk, i + x, j + 1, k + y - 1) ? 1 : 0;
+
+                count += 4;
             }
         }
+
 
         return adjacentCoveringBlocks;
     }
@@ -176,13 +183,13 @@ public class AsyncChunkMesh extends VoxelMesh {
         if(worldY < 0){//Under the world
             return 0;
         }
-        if(worldY >= Chunk.CHUNK_HEIGHT){
+        if(worldY >= CHUNK_HEIGHT){
             return 0;
         }
-        int worldX = chunk.getChunkX() * Chunk.CHUNK_WIDTH + chunkX;
-        int worldZ = chunk.getChunkZ() * Chunk.CHUNK_WIDTH + chunkZ;
+        int worldX = chunk.getChunkX() * CHUNK_WIDTH + chunkX;
+        int worldZ = chunk.getChunkZ() * CHUNK_WIDTH + chunkZ;
 
-        if(chunkX < 0 || chunkZ < 0 || chunkX >= Chunk.CHUNK_WIDTH || chunkZ >= Chunk.CHUNK_WIDTH){//Outside this chunk
+        if(chunkX < 0 || chunkZ < 0 || chunkX >= CHUNK_WIDTH || chunkZ >= CHUNK_WIDTH){//Outside this chunk
             return terrain.getCube(worldX, worldY, worldZ);
         }
 
@@ -193,13 +200,13 @@ public class AsyncChunkMesh extends VoxelMesh {
         if(worldY < 0){//Under the world
             return true;
         }
-        if(worldY >= Chunk.CHUNK_HEIGHT){
+        if(worldY >= CHUNK_HEIGHT){
             return false;
         }
-        int worldX = chunk.getChunkX() * Chunk.CHUNK_WIDTH + i;
-        int worldZ = chunk.getChunkZ() * Chunk.CHUNK_WIDTH + k;
+        int worldX = chunk.getChunkX() * CHUNK_WIDTH + i;
+        int worldZ = chunk.getChunkZ() * CHUNK_WIDTH + k;
 
-        if(i < 0 || k < 0 || i >= Chunk.CHUNK_WIDTH || k >= Chunk.CHUNK_WIDTH){//Outside this chunk
+        if(i < 0 || k < 0 || i >= CHUNK_WIDTH || k >= CHUNK_WIDTH){//Outside this chunk
             return terrain.isSolid(worldX, worldY, worldZ);
         }
 

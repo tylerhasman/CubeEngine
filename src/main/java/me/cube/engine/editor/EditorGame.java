@@ -204,7 +204,7 @@ public class EditorGame implements Game {
 
             VoxelFile model = placeableModels.get(selectedModel);
 
-            voxel.getTransform().translate((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(model.height() / 2f) + 1, (int) worldGridPosition.z).translate(0.5f, 0.01f, 0.5F).scale(World.WORLD_SCALE);
+            voxel.getTransform().translate((int) worldGridPosition.x, (int) worldGridPosition.y + Math.ceil(model.height() / 2f) + 1, (int) worldGridPosition.z).translate(0.5f, 0.01f, 0.5F);
 
             voxel.render();
             //glDisable(GL_CULL_FACE);

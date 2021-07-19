@@ -13,7 +13,7 @@ uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 
 void main(){
-    v_Normal = mat3(ModelMatrix) * a_Normal;
+    v_Normal = normalize(mat3(ModelMatrix) * a_Normal);
     v_Position = vec3(ModelMatrix * vec4(a_Position, 1.0));
     v_Color = a_Color;
 

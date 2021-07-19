@@ -2,6 +2,7 @@ package me.cube.engine.shader;
 
 import me.cube.engine.shader.ShaderProgram;
 import me.cube.engine.util.FileUtil;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.json.JSONArray;
@@ -22,6 +23,7 @@ public class Material {
     private Map<String, Float> fUniforms = new HashMap<>();
     private Map<String, Vector3f> f3Uniforms = new HashMap<>();
     private Map<String, Matrix4f> fMUniforms = new HashMap<>();
+    private Map<String, Matrix3f> fM3Uniforms = new HashMap<>();
 
     public Material(ShaderProgram shader){
         if(shader == null) {
@@ -105,6 +107,11 @@ public class Material {
         //shader.setUniformMatrix4(name, matrix4f);
     }
 
+    public void setUniformMat3f(String name, Matrix3f matrix3f){
+        fM3Uniforms.put(name, new Matrix3f(matrix3f));
+        //shader.setUniformMatrix4(name, matrix4f);
+    }
+
     public void dispose(){
         shader.cleanup();
     }
@@ -122,6 +129,10 @@ public class Material {
 
         for(String name : fMUniforms.keySet()){
             shader.setUniformMatrix4(name, fMUniforms.get(name));
+        }
+
+        for(String name : fM3Uniforms.keySet()){
+            shader.setUniformMatrix3(name, fM3Uniforms.get(name));
         }
 
     }

@@ -2,7 +2,7 @@
   "name": "Default Material",
   "shader": "assets/shaders/defaultShader",
   "uniforms": {
-    "u_AmbientLight": "v3: 1, 1, 1",
+    "u_AmbientLight": "v3: 0.1, 0.1, 0.1",
     "u_LightPos0": "v3: 0, 1000, 0"
   }
 

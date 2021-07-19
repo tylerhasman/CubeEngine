@@ -1,5 +1,6 @@
 package me.cube.engine.shader;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -111,6 +112,17 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniformMatrix3(String name, Matrix3f mat) {
+        int location = getUniformLocation(name);
+        if(location != -1){
+            float[] arr = new float[3 * 3];
+            mat.get(arr);
+            glUniformMatrix3fv(location, false, arr);
+        }else{
+            //System.err.println("Shader has no uniform named "+name);
+        }
+    }
+
 /*    public int getAttributeLocation(String name){
         return glGetAttribLocation(programId, name);
     }*/
@@ -129,4 +141,5 @@ public class ShaderProgram {
             glDeleteProgram(programId);
         }
     }
+
 }

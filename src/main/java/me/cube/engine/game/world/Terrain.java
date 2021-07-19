@@ -1,5 +1,6 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.Input;
 import me.cube.engine.Window;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.ChunkSave;
@@ -128,6 +129,7 @@ public class Terrain {
     }
 
     private void generateChunk(int x, int z){
+
         File chunkFile = new File(levelDataFolder, "chunk-"+x+"-"+z+".dat");
 
         ChunkSave chunkSave = new ChunkSave(chunkFile);

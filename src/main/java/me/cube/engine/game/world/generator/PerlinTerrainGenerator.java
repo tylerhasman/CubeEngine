@@ -1,10 +1,9 @@
 package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.Chunk;
-import me.cube.engine.util.MathUtil;
 import me.cube.engine.util.PerlinNoise;
 
-import java.util.Random;
+import java.awt.*;
 
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
@@ -48,6 +47,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
     @Override
     public void generateChunk(Chunk chunk) {
+        float[] hslBuffer = new float[3];//Reuse
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
                 float genCoordX = (chunk.getChunkX() * Chunk.CHUNK_WIDTH + i) / 400f;
@@ -58,7 +58,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
                 Biome biome = biomeAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
 
-                float coloring = (float) (colorNoise.noise(genCoordX * 5, genCoordZ * 5) * 0.3f) + 0.7f;
+                float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.2f);
                 float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
 
                 if(biome == Biome.PLAINS){
@@ -78,14 +78,16 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                     b = 187;
                 }
 
-                r = (int) (coloring * r);
-                g = (int) (coloring * g);
-                b = (int) (coloring * b);
+                Color.RGBtoHSB(r, g, b, hslBuffer);
+
+                hslBuffer[0] += coloring;
+
+                int rgb = Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
 
                 height = Math.max(1, height);
                 for(int y = 0; y < Chunk.CHUNK_HEIGHT;y++){
                     if(y <= height){
-                        chunk.blocks[i][y][j] = ((r << 16) + (g << 8) + b);
+                        chunk.blocks[i][y][j] = rgb;
                     }
                 }
             }
