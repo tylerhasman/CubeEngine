@@ -74,8 +74,9 @@ public class Transform {
         return toWorldFrame().transformPosition(point);
     }
 
-    public void rotateAxis(float angle, float x, float y, float z) {
+    public Transform rotateAxis(float angle, float x, float y, float z) {
         frame.rotate(angle, x, y, z);
+        return this;
     }
 
     public Transform translate(float x, float y, float z){
@@ -91,6 +92,11 @@ public class Transform {
 
 
 
+    }
+
+    public Transform identity(){
+        frame.identity();
+        return this;
     }
 
     public void scale(float xyz){

@@ -1,9 +1,11 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.ChunkSave;
 import me.cube.engine.file.VoxelFile;
 import me.cube.engine.game.world.generator.*;
+import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 import org.joml.Vector3f;
 
@@ -24,6 +26,8 @@ public class Terrain {
 
     private List<ChunkPopulator> populators;
 
+    private List<Voxel> fluffs;
+
     public Terrain(int viewDistance){
         this(viewDistance, "none");
     }
@@ -38,6 +42,8 @@ public class Terrain {
         levelDataFolder = new File("assets/terrain/"+levelName);
         levelDataFolder.mkdir();
 
+        fluffs = new ArrayList<>();
+
         initializeStructures();
     }
 
@@ -49,16 +55,16 @@ public class Terrain {
         VoxelFile rockData = Assets.loadVoxelData("rock.vxm", false);
 
         SpawnableStructure tree = new SpawnableStructure(treeData.toVoxelColorArray(), new Biome[] {
-                Biome.PLAINS
-        }, 30, 2, 0x3231) ;
+                Biome.FOREST
+        }, 1, 2, 0x3231) ;/*
         SpawnableStructure tree2 = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
-                Biome.PLAINS
-        }, 30, 2, 0x1221) ;
+                Biome.FOREST
+        }, 10, 2, 0x1221) ;*/
         SpawnableStructure rock = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
                 Biome.MOUNTAINS
         }, 45, 3, 0x3125) ;
 
-        StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, tree2, rock));
+        StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, rock));
 
         populators.add(structurePopulator);
 
@@ -194,6 +200,25 @@ public class Terrain {
             }
         }
 
+        Random random = new Random();
+
+        int fluffCount = random.nextInt(10);
+
+        for(int i = 0; i < fluffCount;i++){
+            float fluffX = random.nextFloat() * CHUNK_WIDTH;
+            float fluffZ = random.nextFloat() * CHUNK_WIDTH;
+            float fluffRotation = random.nextFloat() * MathUtil.PI2;
+
+            float fluffY = (heightAt((int) (x * CHUNK_WIDTH + fluffX), (int) (z * CHUNK_WIDTH + fluffZ) ) + 1) * WORLD_SCALE ;
+
+            Voxel voxel = new Voxel();
+            voxel.model = Assets.loadModel("flower.vxm");
+
+            voxel.getTransform().identity()
+                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY + voxel.model.pivot.y, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE);
+
+            fluffs.add(voxel);
+        }
 
 
     }
@@ -201,6 +226,9 @@ public class Terrain {
     public void render() {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
             chunk.render();
+        }
+        for(Voxel fluff : fluffs){
+            fluff.render();
         }
     }
 

@@ -35,7 +35,7 @@ public abstract class Entity {
         scale = new Vector3f(1, 1, 1);
         rotation = new Quaternionf().identity();
         velocity = new Vector3f();
-        gravity = -168f;
+        gravity = -189;
         boundingBox = new AABBf();
         bbMin = new Vector3f();
         bbMax = new Vector3f();

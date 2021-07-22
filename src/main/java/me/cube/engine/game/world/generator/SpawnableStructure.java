@@ -37,7 +37,7 @@ public class SpawnableStructure {
     }
 
     public int getSpawnYOffset(){
-        return -3;
+        return 0;
     }
 
     public boolean isSpawnableIn(Biome biome){

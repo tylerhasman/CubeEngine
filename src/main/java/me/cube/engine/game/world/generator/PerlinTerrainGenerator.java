@@ -19,6 +19,11 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         double noise = biomeNoise.noise(genCoordX, genCoordZ);
 
+
+        if(noise < 0.4f){
+            return Biome.FOREST;
+        }
+
         if(noise < 0.2f){
             return Biome.PLAINS;
         }
@@ -58,7 +63,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         float coloring3 = (float) ((colorNoise.noise(-genCoordZ * 2, -genCoordX * 2) - 0.5f) * 0.1f);
         float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
 
-        if(biome == Biome.PLAINS){
+        if(biome == Biome.PLAINS || biome == Biome.FOREST){
 
             if(tempurature < 0.1f){
                 g = 0x80;
