@@ -1,6 +1,7 @@
 package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.Chunk;
+import me.cube.engine.game.world.Terrain;
 import me.cube.engine.game.world.World;
 
 import java.util.List;
@@ -9,15 +10,13 @@ import java.util.Random;
 public class StructurePopulator implements ChunkPopulator {
 
     private List<SpawnableStructure> spawnableStructures;
-    private World world;
 
-    public StructurePopulator(World world, List<SpawnableStructure> spawnableStructures) {
+    public StructurePopulator(List<SpawnableStructure> spawnableStructures) {
         this.spawnableStructures = spawnableStructures;
-        this.world = world;
     }
 
     @Override
-    public void populateChunk(Chunk chunk) {
+    public void populateChunk(Terrain terrain, Chunk chunk) {
         for(SpawnableStructure structure : spawnableStructures){
 
             for(int i = -structure.getSpawnRadius(); i <= structure.getSpawnRadius();i++){
@@ -26,7 +25,7 @@ public class StructurePopulator implements ChunkPopulator {
                     int chunkX = chunk.getChunkX() + i;
                     int chunkZ = chunk.getChunkZ() + j;
 
-                    Random r = getRandomForChunk(chunkX, chunkZ);
+                    Random r = getRandomForChunk(chunkX + structure.randomSeed, chunkZ - structure.randomSeed);
                     int toSpawn = r.nextInt(structure.getMaxPerChunk() + 1);
 
                     for(int n = 0; n < toSpawn;n++){
@@ -34,9 +33,9 @@ public class StructurePopulator implements ChunkPopulator {
                         if(chance == 0){
                             int x = r.nextInt(Chunk.CHUNK_WIDTH) + chunkX * Chunk.CHUNK_WIDTH;
                             int z = r.nextInt(Chunk.CHUNK_WIDTH) + chunkZ * Chunk.CHUNK_WIDTH;
-                            int y = world.getTerrain().heightAt(x, z);
+                            int y = terrain.heightAt(x, z);
 
-                            Biome biome = world.getTerrain().biomeAt(x, z);
+                            Biome biome = terrain.biomeAt(x, z);
 
                             if(structure.isSpawnableIn(biome)){
                                 pasteIntoChunk(chunk, structure, x, y + structure.getSpawnYOffset(), z);

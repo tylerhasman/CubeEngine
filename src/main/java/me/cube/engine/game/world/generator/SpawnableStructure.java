@@ -6,12 +6,14 @@ public class SpawnableStructure {
     private Biome[] spawnableIn;
     private int spawnRarity;
     private int maxPerChunk;
+    public final int randomSeed;
 
-    public SpawnableStructure(int[][][] cubes, Biome[] spawnableIn, int spawnRarity, int maxPerChunk) {
+    public SpawnableStructure(int[][][] cubes, Biome[] spawnableIn, int spawnRarity, int maxPerChunk, int randomSeed) {
         this.cubes = cubes;
         this.spawnableIn = spawnableIn;
         this.spawnRarity = spawnRarity;
         this.maxPerChunk = maxPerChunk;
+        this.randomSeed = randomSeed;
     }
 
     public int width(){

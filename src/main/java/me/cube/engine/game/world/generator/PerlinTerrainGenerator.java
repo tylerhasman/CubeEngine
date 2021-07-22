@@ -53,7 +53,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         float genCoordX = x / 400f;
         float genCoordZ = z / 400f;
-        float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.2f);
+        float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.1);
+        float coloring2 = (float) ((colorNoise.noise(genCoordZ * 2, genCoordX * 2) - 0.5f) * 0.1f);
+        float coloring3 = (float) ((colorNoise.noise(-genCoordZ * 2, -genCoordX * 2) - 0.5f) * 0.1f);
         float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
 
         if(biome == Biome.PLAINS){
@@ -77,6 +79,8 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         Color.RGBtoHSB(r, g, b, hslBuffer);
 
         hslBuffer[0] += coloring;
+        hslBuffer[0] += coloring2;
+        hslBuffer[0] += coloring3;
 
         return Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
     }

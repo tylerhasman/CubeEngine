@@ -1,20 +1,13 @@
 package me.cube.engine.game.world;
 
-import me.cube.engine.Input;
-import me.cube.engine.Window;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.ChunkSave;
-import me.cube.engine.file.VxmFile;
-import me.cube.engine.game.entity.Flora;
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.ChunkStorage;
+import me.cube.engine.file.VoxelFile;
 import me.cube.engine.game.world.generator.*;
 import org.joml.AABBf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
@@ -29,6 +22,8 @@ public class Terrain {
 
     private File levelDataFolder;
 
+    private List<ChunkPopulator> populators;
+
     public Terrain(int viewDistance){
         this(viewDistance, "none");
     }
@@ -36,11 +31,37 @@ public class Terrain {
     public Terrain(int viewDistance, String levelName){
         chunkStorage = new ChunkStorage();
         terrainGenerator = new PerlinTerrainGenerator();
+        populators = new ArrayList<>();
 
         this.viewDistance = viewDistance;
 
         levelDataFolder = new File("assets/terrain/"+levelName);
         levelDataFolder.mkdir();
+
+        initializeStructures();
+    }
+
+    private void initializeStructures(){
+
+        VoxelFile treeData = Assets.loadVoxelData("tree.vxm", false);
+        VoxelFile treeData2 = Assets.loadVoxelData("tree.vox", false);
+
+        VoxelFile rockData = Assets.loadVoxelData("rock.vxm", false);
+
+        SpawnableStructure tree = new SpawnableStructure(treeData.toVoxelColorArray(), new Biome[] {
+                Biome.PLAINS
+        }, 30, 2, 0x3231) ;
+        SpawnableStructure tree2 = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
+                Biome.PLAINS
+        }, 30, 2, 0x1221) ;
+        SpawnableStructure rock = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
+                Biome.MOUNTAINS
+        }, 45, 3, 0x3125) ;
+
+        StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, tree2, rock));
+
+        populators.add(structurePopulator);
+
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
@@ -140,11 +161,20 @@ public class Terrain {
 
         Chunk chunk = new Chunk(this, x, z, chunkSave);
 
+        long time = System.currentTimeMillis();
+
         terrainGenerator.generateChunk(chunk);
+
+        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk "+x+" "+z);
 
         if(chunkSave.hasChanges()){
             chunkSave.applyTo(chunk);
         }
+
+        for(ChunkPopulator chunkPopulator : populators){
+            chunkPopulator.populateChunk(this, chunk);
+        }
+
 
         chunk.generateMesh();
 

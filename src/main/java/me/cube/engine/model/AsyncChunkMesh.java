@@ -32,6 +32,9 @@ public class AsyncChunkMesh extends VoxelMesh {
     }
 
     private void generate(Terrain terrain, Chunk chunk){
+
+        long time = System.currentTimeMillis();
+
         Cube cube = new Cube();
 
         for(int i = 0; i < CHUNK_WIDTH;i++){
@@ -84,6 +87,8 @@ public class AsyncChunkMesh extends VoxelMesh {
                 }
             }
         }
+
+        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk mesh");
     }
 
     private static int countAboveBlocks(Terrain terrain, Chunk chunk, int i, int j, int k, int max){
