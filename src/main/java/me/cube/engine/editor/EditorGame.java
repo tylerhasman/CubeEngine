@@ -170,7 +170,7 @@ public class EditorGame implements Game {
         mouseWorldProjection.set(terrain.rayTrace(world.add(0, 0, 0), direction, 5000f));
 
 
-        terrain.updateTerrain(new Vector3f(cameraPosition));
+        terrain.updateTerrain(delta, new Vector3f(cameraPosition));
 
 
 

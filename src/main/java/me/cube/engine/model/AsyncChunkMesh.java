@@ -78,10 +78,6 @@ public class AsyncChunkMesh extends VoxelMesh {
 
                             if(cube.top){
                                 int above = countAboveBlocks(terrain, chunk, i, j, k, 12);
-
-                                cube.red *= (1f - (above) / 16f);
-                                cube.green *= (1f - (above) / 16f);
-                                cube.blue *= (1f - (above) / 16f);
                             }
 
                             cube.generate(vertices, normals, colors);

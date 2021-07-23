@@ -1,0 +1,9 @@
+{
+  "name": "Fluff Material with Wind",
+  "shader": "assets/shaders/fluffShader",
+  "uniforms": {
+    "u_AmbientLight": "v3: 0.1, 0.1, 0.1",
+    "u_LightPos0": "v3: 0, 1000, 0"
+  }
+
+}

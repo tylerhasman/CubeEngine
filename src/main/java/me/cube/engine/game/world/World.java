@@ -75,7 +75,7 @@ public class World {
 
         //worldTime = 60 * 12;
 
-        terrain.updateTerrain(new Vector3f(fromPosition));
+        terrain.updateTerrain(delta, new Vector3f(fromPosition));
         particleEngine.update(delta);
     }
 

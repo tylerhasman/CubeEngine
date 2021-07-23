@@ -28,6 +28,8 @@ public class Terrain {
 
     private List<Voxel> fluffs;
 
+    private float time;
+
     public Terrain(int viewDistance){
         this(viewDistance, "none");
     }
@@ -43,6 +45,9 @@ public class Terrain {
         levelDataFolder.mkdir();
 
         fluffs = new ArrayList<>();
+
+        time = 0;
+
 
         initializeStructures();
     }
@@ -83,7 +88,7 @@ public class Terrain {
         return out;
     }
 
-    public void updateTerrain(Vector3f playerPosition){
+    public void updateTerrain(float delta, Vector3f playerPosition){
 
         playerPosition.mul(1f / WORLD_SCALE);
 
@@ -129,6 +134,8 @@ public class Terrain {
                 chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
             }
         }
+
+        time += delta;
 
     }
 
@@ -211,11 +218,12 @@ public class Terrain {
 
             float fluffY = (heightAt((int) (x * CHUNK_WIDTH + fluffX), (int) (z * CHUNK_WIDTH + fluffZ) ) + 1) * WORLD_SCALE ;
 
-            Voxel voxel = new Voxel();
-            voxel.model = Assets.loadModel("flower.vxm");
+            Voxel voxel = new Voxel("Fluff", Assets.loadModel("flower.vxm"), Assets.loadMaterial("fluff.json"));
 
             voxel.getTransform().identity()
-                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY + voxel.model.pivot.y, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE);
+                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE)
+                    .rotateAxis(fluffRotation, 0, 1, 0);
+
 
             fluffs.add(voxel);
         }
@@ -227,7 +235,14 @@ public class Terrain {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
             chunk.render();
         }
+
+        float windSpeed = (float) (Math.sin(Math.cos(time / 10f) * 100) +
+                        Math.sin(Math.cos(time / 10f) + Math.PI / 2f) * 4);
+
         for(Voxel fluff : fluffs){
+            fluff.material.setUniform3f("u_WindDirection", new Vector3f(1, 0, 1).normalize());
+            fluff.material.setUniformf("u_WindStrength", windSpeed);
+            fluff.material.setUniform3f("u_AmbientLight", new Vector3f(1, 1, 1));
             fluff.render();
         }
     }

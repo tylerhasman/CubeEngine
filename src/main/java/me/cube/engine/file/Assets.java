@@ -123,9 +123,7 @@ public class Assets {
 
         VoxelFile voxelFile = loadVoxelData(path, false);
 
-        SimpleVoxelMesh model = new SimpleVoxelMesh(voxelFile.toVoxelColorArray(), voxelFile.width(), voxelFile.height(), voxelFile.length());
-
-        model.pivot.set(voxelFile.pivot());
+        SimpleVoxelMesh model = new SimpleVoxelMesh(voxelFile.toVoxelColorArray(), voxelFile.width(), voxelFile.height(), voxelFile.length(), voxelFile.pivot());
 
         models.put(path, model);
 

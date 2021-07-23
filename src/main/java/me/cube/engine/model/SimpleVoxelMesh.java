@@ -11,23 +11,25 @@ public class SimpleVoxelMesh extends VoxelMesh {
         this(cubes, width, height, length, true);
     }
 
-    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, boolean center){
+    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, Vector3f pivot){
         super(width, height, length);
+
+        this.pivot.set(pivot);
 
         FloatArray vertices = new FloatArray(1024);
         FloatArray colors = new FloatArray(1024);
         FloatArray normals = new FloatArray(1024);
 
-        if(!center){
-            pivot.set(width / 2f, height / 2f, length / 2f);
-        }
-
-        generate(cubes, vertices, colors, normals, width, height, length, center);
+        generate(cubes, vertices, colors, normals, width, height, length);
 
         initialize(vertices.toArray(), colors.toArray(), normals.toArray());
     }
 
-    private void generate(int[][][] cubes, FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length, boolean center) {
+    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, boolean center){
+        this(cubes, width, height, length, (center ? new Vector3f(width, height, length).mul(1f / 2f) : new Vector3f()));
+    }
+
+    private void generate(int[][][] cubes, FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length) {
 
         Cube cube = new Cube();
 
@@ -46,11 +48,9 @@ public class SimpleVoxelMesh extends VoxelMesh {
                         cube.y = j;
                         cube.z = k;
 
-                        if(center){
-                            cube.x -= width / 2f;
-                            cube.y -= height / 2f;
-                            cube.z -= length / 2f;
-                        }
+                        cube.x -= pivot.x;
+                        cube.y -= pivot.y;
+                        cube.z -= pivot.z;
 
                         cube.top = getOrZero(cubes, width, height, length, i, j + 1, k) == 0;
                         cube.bottom = getOrZero(cubes, width, height, length, i, j - 1, k) == 0;
