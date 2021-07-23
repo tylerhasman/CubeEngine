@@ -13,6 +13,8 @@ import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Chunk {
 
+    public static final byte FLAG_NO_COLOR_BLEED = 1;
+
     private static final ScheduledExecutorService meshGeneratorExec = new ScheduledThreadPoolExecutor(2, (r) -> {
 
         Thread thread = new Thread(r, "ChunkMeshGenerator");
@@ -27,6 +29,7 @@ public class Chunk {
     public static final int CHUNK_HEIGHT = 128;
 
     public final int[][][] blocks;
+    public final byte[][][] blockFlags;
     protected final int chunkX, chunkZ;
 
     protected boolean requireMeshRefresh = false;
@@ -44,6 +47,7 @@ public class Chunk {
     protected Chunk(Terrain terrain, int x, int z, ChunkSave chunkSave){
         this.terrain = terrain;
         blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
+        blockFlags = new byte[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         this.chunkX = x;
         this.chunkZ = z;
         mesh = null;

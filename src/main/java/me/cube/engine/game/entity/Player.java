@@ -16,7 +16,7 @@ public class Player extends LivingEntity {
 
     public Player(World world) {
         super(world);
-        setMaxMoveSpeed(1000);
+        setMaxMoveSpeed(150);
 
     }
 

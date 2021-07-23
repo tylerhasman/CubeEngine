@@ -11,7 +11,7 @@ import java.util.Random;
  * @author Ken Perlin, Matthew A. Johnston (WarmWaffles)
  * 
  */
-public class PerlinNoise {
+public class PerlinNoise implements NoiseGenerator {
 	private int seed;
 	
 	private static final int P  = 8;
@@ -121,8 +121,9 @@ public class PerlinNoise {
 
 		return lerp(sz, c, d);
 	}
-	
-	public double noise(double x, double y) {
+
+	@Override
+	public float noise(float x, float y) {
 		int    bx0, bx1, by0, by1, b00, b10, b01, b11;
 		double rx0, rx1, ry0, ry1, sx, sy, a, b, t, u, v, q[];
 		int    i, j;
@@ -162,7 +163,7 @@ public class PerlinNoise {
 		v = rx1 * q[0] + ry1 * q[1];
 		b = lerp(sx, u, v);
 
-		return lerp(sy, a, b);
+		return (float) Math.max(lerp(sy, a, b), 0f);
 	}
 	
 	public double noise(double x) {

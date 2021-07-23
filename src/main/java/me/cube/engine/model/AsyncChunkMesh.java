@@ -42,6 +42,7 @@ public class AsyncChunkMesh extends VoxelMesh {
                 for(int k = 0;k < CHUNK_WIDTH;k++){
 
                     int color = chunk.blocks[i][j][k];
+                    byte flags = chunk.blockFlags[i][j][k];
 
                     if(color != 0){
 
@@ -51,7 +52,11 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.green = ((color >> 8) & 255) / 255F;
                         cube.blue = (color & 255) / 255F;
 
-                        cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
+                        if((flags & Chunk.FLAG_NO_COLOR_BLEED) == Chunk.FLAG_NO_COLOR_BLEED){
+                            cube.neighbors = new int[3][3][3];
+                        }else{
+                            cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
+                        }
 
                         cube.x = i;
                         cube.y = j;

@@ -1,16 +1,18 @@
 package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.Chunk;
+import me.cube.engine.util.CubicNoise;
+import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
 
 import java.awt.*;
 
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
-    private static final PerlinNoise terrainHeightNoise = new PerlinNoise(423807);//Randomly chosen
-    private static final PerlinNoise biomeNoise = new PerlinNoise(213213);//Randomly chosen
-    private static final PerlinNoise colorNoise = new PerlinNoise(342121);//Randomly chosen
-    private static final PerlinNoise tempNoise = new PerlinNoise(423555);//Randomly chosen
+    private static final NoiseGenerator terrainHeightNoise = new PerlinNoise(423807);//Randomly chosen
+    private static final NoiseGenerator biomeNoise = new PerlinNoise(213213);//Randomly chosen
+    private static final NoiseGenerator colorNoise = new PerlinNoise(342121);//Randomly chosen
+    private static final NoiseGenerator tempNoise = new PerlinNoise(423555);//Randomly chosen
     private static final float LARGE_NUMBER = 10_000;
 
     public Biome biomeAt(int x, int z){
@@ -47,6 +49,11 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         }
 
         height += 15;
+
+        if(height < 0){
+            throw new IllegalArgumentException("Height is "+height+" at "+genCoordX+" "+genCoordZ);
+        }
+
         return height;
     }
 
