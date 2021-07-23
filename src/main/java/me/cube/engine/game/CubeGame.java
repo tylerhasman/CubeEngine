@@ -47,7 +47,7 @@ public class CubeGame implements Game {
         Camera.cameraMatrix = new Matrix4f();
         //combined = new Matrix4f();
 
-        distanceFromTarget = 60;
+        distanceFromTarget = 6;
         visualDistanceFromTarget = distanceFromTarget;
         yaw = 0f;
         pitch = 45;
@@ -87,14 +87,14 @@ public class CubeGame implements Game {
 
         for(float f = 0f; f < visualDistanceFromTarget;f += 0.25f){
             forward.mul(f, p);
-            p.add(player.position.x, player.position.y + 10, player.position.z);
+            p.add(player.position.x, player.position.y + 2, player.position.z);
             if(world.getTerrain().isSolid(new Vector3f(p.x, p.y, p.z))){
                 break;
             }
         }
 
         Camera.cameraMatrix.identity().lookAt(p.x, p.y, p.z,
-                player.position.x, player.position.y + 10, player.position.z,
+                player.position.x, player.position.y + 2, player.position.z,
                 0, 1, 0);
 
 
@@ -158,11 +158,11 @@ public class CubeGame implements Game {
 
     @Override
     public void onMouseScroll(double delta) {
-        distanceFromTarget += -delta * 10;
-        if(distanceFromTarget < 20){
-            distanceFromTarget = 20;
-        }else if(distanceFromTarget > 150){
-            distanceFromTarget = 150;
+        distanceFromTarget += -delta * 1;
+        if(distanceFromTarget < 2){
+            distanceFromTarget = 2;
+        }else if(distanceFromTarget > 15){
+            distanceFromTarget = 15;
         }
     }
 

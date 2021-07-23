@@ -16,7 +16,7 @@ public class Player extends LivingEntity {
 
     public Player(World world) {
         super(world);
-        setMaxMoveSpeed(150);
+        setMaxMoveSpeed(15);
 
     }
 
@@ -50,7 +50,7 @@ public class Player extends LivingEntity {
 
         if(Input.isActionActive(ACTION_JUMP)){
             if(isOnGround()){
-                velocity.y = 100;
+                velocity.y = 10;
             }
         }
 

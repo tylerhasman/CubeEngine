@@ -25,7 +25,7 @@ public class World {
 
     private static final float ONE_DAY = 24 * 60;//Seconds
 
-    public static final float WORLD_SCALE = 10f;
+    public static final float WORLD_SCALE = 1f;
 
     private List<Entity> entities;
 
@@ -35,6 +35,8 @@ public class World {
 
     private float worldTime;
 
+    private List<LightSource> lightSources;
+
     public World(){
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
@@ -42,6 +44,8 @@ public class World {
         terrain = new Terrain(10, "test");
 
         worldTime = ONE_DAY / 2f;
+
+        lightSources = new ArrayList<>();
     }
 
     public List<Entity> getEntities() {

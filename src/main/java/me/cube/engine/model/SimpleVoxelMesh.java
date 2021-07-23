@@ -7,6 +7,8 @@ import java.util.List;
 
 public class SimpleVoxelMesh extends VoxelMesh {
 
+    private static final float DEFAULT_SCALE = 1/10f;
+
     public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length){
         this(cubes, width, height, length, true);
     }
@@ -30,6 +32,9 @@ public class SimpleVoxelMesh extends VoxelMesh {
     private void generate(int[][][] cubes, FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length, boolean center) {
 
         Cube cube = new Cube();
+        cube.scale = DEFAULT_SCALE;
+
+        pivot.mul(cube.scale);
 
         for(int i = 0; i < width;i++){
             for(int j = 0; j < height;j++){

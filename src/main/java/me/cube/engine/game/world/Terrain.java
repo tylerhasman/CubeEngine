@@ -215,7 +215,7 @@ public class Terrain {
             voxel.model = Assets.loadModel("flower.vxm");
 
             voxel.getTransform().identity()
-                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY + voxel.model.pivot.y, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE);
+                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE);
 
             fluffs.add(voxel);
         }
