@@ -129,7 +129,7 @@ public class World {
         return new Vector3f(sunX, sunY, 0);
     }
 
-    public void render(){
+    public void render(Vector3f fromPosition){
 
         Vector3f ambientColor = applyAmbientLighting(new Vector3f(1f, 1f, 1f));
         Vector3f skyColor = applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
@@ -160,7 +160,7 @@ public class World {
 
         glCullFace(GL_FRONT);
 
-        terrain.render();
+        terrain.render(new Vector3f(fromPosition));
 
         glDisable(GL_CULL_FACE);
 

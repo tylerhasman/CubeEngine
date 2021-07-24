@@ -190,7 +190,7 @@ public class EditorGame implements Game {
 
         glCullFace(GL_FRONT);
 
-        terrain.render();
+        terrain.render(new Vector3f(cameraPosition));
 
         glDisable(GL_CULL_FACE);
 

@@ -18,6 +18,9 @@ import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Terrain {
 
+    private static final float FLUFF_RENDER_DISTANCE = 25;
+    private static final float FLUFF_DESPAWN_DISTANCE = FLUFF_RENDER_DISTANCE + 5;
+
     private ChunkStorage chunkStorage;
     private TerrainGenerator terrainGenerator;
     private int viewDistance;
@@ -130,6 +133,31 @@ public class Terrain {
             }
         }
 
+        if(fluffs.size() < 100){
+
+            Random random = new Random();
+
+            while (fluffs.size() < 100) {
+                float spawnX = playerPosition.x + random.nextFloat() * FLUFF_RENDER_DISTANCE * 2 - FLUFF_RENDER_DISTANCE;
+                float spawnZ = playerPosition.z + random.nextFloat() * FLUFF_RENDER_DISTANCE * 2 - FLUFF_RENDER_DISTANCE;
+                float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
+
+                Voxel voxel = new Voxel();
+                voxel.model = Assets.loadModel("flower.vxm");
+
+                voxel.getTransform().identity()
+                        .translate(spawnX, spawnY, spawnZ)
+                        .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
+                        .scale(random.nextFloat() * 1.5f + 0.5f);
+
+                fluffs.add(voxel);
+
+            }
+
+        }else{
+            fluffs.removeIf(fluff -> fluff.getTransform().getPosition().distanceSquared(playerPosition) > FLUFF_DESPAWN_DISTANCE * FLUFF_DESPAWN_DISTANCE);
+        }
+
     }
 
     public TerrainGenerator getTerrainGenerator() {
@@ -200,35 +228,17 @@ public class Terrain {
             }
         }
 
-        Random random = new Random();
-
-        int fluffCount = random.nextInt(10);
-
-        for(int i = 0; i < fluffCount;i++){
-            float fluffX = random.nextFloat() * CHUNK_WIDTH;
-            float fluffZ = random.nextFloat() * CHUNK_WIDTH;
-            float fluffRotation = random.nextFloat() * MathUtil.PI2;
-
-            float fluffY = (heightAt((int) (x * CHUNK_WIDTH + fluffX), (int) (z * CHUNK_WIDTH + fluffZ) ) + 1) * WORLD_SCALE ;
-
-            Voxel voxel = new Voxel();
-            voxel.model = Assets.loadModel("flower.vxm");
-
-            voxel.getTransform().identity()
-                    .translate((x * CHUNK_WIDTH + fluffX) * WORLD_SCALE, fluffY + voxel.model.pivot.y, (z * CHUNK_WIDTH + fluffZ) * WORLD_SCALE);
-
-            fluffs.add(voxel);
-        }
-
 
     }
 
-    public void render() {
+    public void render(Vector3f playerPosition) {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
             chunk.render();
         }
         for(Voxel fluff : fluffs){
-            fluff.render();
+            if(fluff.getTransform().getPosition().distanceSquared(playerPosition) < FLUFF_RENDER_DISTANCE * FLUFF_RENDER_DISTANCE){
+                fluff.render();
+            }
         }
     }
 

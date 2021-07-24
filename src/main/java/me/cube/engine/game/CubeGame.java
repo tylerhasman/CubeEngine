@@ -129,7 +129,7 @@ public class CubeGame implements Game {
             glEnable(GL_MULTISAMPLE);
 
             {
-                world.render();
+                world.render(player.position);
             }
 
             glDisable(GL_MULTISAMPLE);
