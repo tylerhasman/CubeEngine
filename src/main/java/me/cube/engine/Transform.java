@@ -139,8 +139,9 @@ public class Transform {
         return toWorldFrame().getNormalizedRotation(new Quaternionf());
     }
 
-    public void setRotation(Quaternionf rotation){
+    public Transform setRotation(Quaternionf rotation){
         frame.rotate(getLocalRotation().invert()).rotate(rotation);
+        return this;
     }
 
     public Quaternionf getLocalRotation(){

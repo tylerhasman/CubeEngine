@@ -9,17 +9,13 @@ import me.cube.engine.game.particle.WeaponSwooshParticle;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 public abstract class LivingEntity extends Entity {
 
     private static final int ANIMATION_LAYER_BASE = 0;
     private static final int ANIMATION_LAYER_HAND = 1;
-
-    private AnimationController animationController;
 
     private float maxMoveSpeed;
     private float yaw, roll;
@@ -102,18 +98,6 @@ public abstract class LivingEntity extends Entity {
             position.set(100, 100, 100);
         }
 
-        if(rollTime > 0f){
-            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "rolling");
-        }else if(isOnGround()){
-            if((Math.abs(velocity.x) > 0 || Math.abs(velocity.z) > 0)){
-                animationController.transitionAnimation(ANIMATION_LAYER_BASE, "walking");
-            }else{
-                animationController.transitionAnimation(ANIMATION_LAYER_BASE, "idle");
-            }
-        }else{
-            animationController.setActiveAnimation(ANIMATION_LAYER_BASE, "falling");
-        }
-
         rotation.identity();
 
         if(velocity.x != 0 || velocity.z != 0){
@@ -138,72 +122,22 @@ public abstract class LivingEntity extends Entity {
 
         rotation.rotateAxis(yaw, 0, 1, 0).rotateAxis(roll, 0, 0, 1);
 
-        animationController.update(delta);
-
-        if(weaponOut){
-            weaponPutAwayTime -= delta;
-            if(weaponPutAwayTime <= 0){
-                putAwayWeapon();
-            }
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 0.1f);
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 0.1f);
-        }else{
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.LeftHand, 1);
-            animationController.setLayerWeight(ANIMATION_LAYER_BASE, Avatar.BodyPart.RightHand, 1);
-            animationController.transitionAnimation(ANIMATION_LAYER_HAND, "idle");
-        }
-
         if(rollTime > 0){
             rollTime -= delta;
             Voxel torso = root.getChild("torso");
-            torso.getTransform().rotateAxis(MathUtil.PI2 * rollTime * (1f / 0.4f), 1, 0, -0.2f);
+            Vector3f axis = new Vector3f(1, 0, -0.2f).normalize();
+            torso.getTransform().setRotation(new Quaternionf().identity()).rotateAxis(MathUtil.PI2 * rollTime * (1f / 0.4f), axis.x, axis.y, axis.z);
         }else{
             rollTime = 0;
         }
 
-        if(animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
-            if(attackTime > 0.1f && attackTime < 0.9f){
-
-                Voxel weapon = root.getChild("weapon");
-
-                Vector3f top = new Vector3f(0, weapon.model.height / 2f, 0);
-                Vector3f bottom = new Vector3f(0, 0, 0);
-
-                Transform transform = weapon.getTransform();
-
-                transform.transformPosition(top);
-                transform.transformPosition(bottom);
-
-                WeaponSwooshParticle particle = new WeaponSwooshParticle(top, bottom, lastSwooshParticle);
-
-                getWorld().getParticleEngine().addParticle(particle);
-
-                lastSwooshParticle = particle;
-            }
-        }else{
-            lastSwooshParticle = null;
-        }
-
         attackTime -= delta * attackSpeed;
 
-        if(attackTime <= 0){
-            animationController.setActiveAnimation(ANIMATION_LAYER_HAND, "prone");
-        }
-
-        if(!animationController.getCurrentAnimation(ANIMATION_LAYER_HAND).equals("swing")){
-            if(blocking){
-                animationController.transitionAnimation(ANIMATION_LAYER_HAND, "block");
-            }else if(weaponOut){
-                animationController.transitionAnimation(ANIMATION_LAYER_HAND, "prone");
-            }
-        }
 
     }
 
     public void attack(){
         if(attackTime <= 0f && rollTime <= 0f){
-            animationController.setActiveAnimation(ANIMATION_LAYER_HAND, "swing");
-
             weaponPutAwayTime = 10f;
             attackTime = 1f;
         }
@@ -271,17 +205,6 @@ public abstract class LivingEntity extends Entity {
                 .withRightLeg(root.getChild("right-foot"), 1)
                 .build();
 
-        animationController = new AnimationController(avatar);
-
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "idle", new IdleAnimation().setLooping(true));
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "walking", new WalkingAnimation().setLooping(true));
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "falling", new FallingAnimation().setLooping(false));
-        animationController.addAnimation(ANIMATION_LAYER_BASE, "rolling", new RollingAnimation().setTransitionSpeedBack(5f).setLooping(false));
-
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "prone", new WeaponProneAnimation().setLooping(true));
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "swing", new SwordSlashAnimation().setSpeed(attackSpeed).setTransitionSpeedBack(1f / 2f).setFadeOnFinish("prone").setLooping(true));
-        animationController.addAnimation(ANIMATION_LAYER_HAND, "block", new ShieldBlockAnimation().setLooping(false));
-
     }
 
     private void initAppearance(){
@@ -298,14 +221,14 @@ public abstract class LivingEntity extends Entity {
         Voxel torso = new Voxel("torso", torsoModel);
 
         Voxel head = new Voxel("head", headModel);
-        head.getTransform().translate(0, 10, 0);
+        head.getTransform().translate(0, 1, 0);
 
         Voxel leftHand = new Voxel("left-hand", handModel);
-        leftHand.getTransform().translate(-8, 0, 0);
+        leftHand.getTransform().translate(-0.8f, 0, 0);
         //leftHand.addChild(shield);
 
         Voxel rightHand = new Voxel("right-hand", handModel);
-        rightHand.getTransform().translate(8, 0, 0);
+        rightHand.getTransform().translate(0.8f, 0, 0);
 
         Voxel weapon = new Voxel("weapon", swordModel);
 
@@ -313,12 +236,12 @@ public abstract class LivingEntity extends Entity {
 
         Voxel leftFoot = new Voxel("left-foot", footModel);
 
-        leftFoot.getTransform().translate(-4, -6, 1);
+        leftFoot.getTransform().translate(-0.4f, -0.6f, 0.1f);
 
         Voxel rightFoot = new Voxel("right-foot", footModel);
-        rightFoot.getTransform().translate(4, -6, 1);
+        rightFoot.getTransform().translate(0.4f, -0.6f, 0.1f);
 
-        torso.getTransform().translate(0, 9.5f, 0);
+        torso.getTransform().translate(0, 0.95f, 0);
 
         root.getTransform().addChild(torso.getTransform());
 

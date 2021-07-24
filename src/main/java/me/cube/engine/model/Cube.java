@@ -5,6 +5,8 @@ import org.joml.Vector3f;
 
 public class Cube {
 
+    public float scale = 1f;
+
     public float red, green, blue;
     public int flags;
 
@@ -56,11 +58,17 @@ public class Cube {
 
         Vector3f color = new Vector3f(red, green, blue);
 
+        float size = 1f * scale;
+
+        float x = this.x * scale;
+        float y = this.y * scale;
+        float z = this.z * scale;
+
         if(north){
             vertOut.add(x, y, z);
-            vertOut.add(x + 1, y, z);
-            vertOut.add(x + 1, y + 1, z);
-            vertOut.add(x, y + 1, z);
+            vertOut.add(x + size, y, z);
+            vertOut.add(x + size, y + size, z);
+            vertOut.add(x, y + size, z);
 
             norOut.addRepeat(new float[] {0, 0, -1}, 4);
 
@@ -84,10 +92,10 @@ public class Cube {
         }
 
         if(south){
-            vertOut.add(x, y, z + 1);
-            vertOut.add(x, y + 1, z + 1);
-            vertOut.add(x + 1, y + 1, z + 1);
-            vertOut.add(x + 1, y, z + 1);
+            vertOut.add(x, y, z + size);
+            vertOut.add(x, y + size, z + size);
+            vertOut.add(x + size, y + size, z + size);
+            vertOut.add(x + size, y, z + size);
 
             norOut.addRepeat(new float[] {0, 0, 1}, 4);
 
@@ -109,10 +117,10 @@ public class Cube {
         }
 
         if(top){
-            vertOut.add(x, y + 1, z);
-            vertOut.add(x + 1, y + 1, z);
-            vertOut.add(x + 1, y + 1, z + 1);
-            vertOut.add(x, y + 1, z + 1);
+            vertOut.add(x, y + size, z);
+            vertOut.add(x + size, y + size, z);
+            vertOut.add(x + size, y + size, z + size);
+            vertOut.add(x, y + size, z + size);
 
             norOut.addRepeat(new float[] {0, 1, 0}, 4);
 
@@ -136,9 +144,9 @@ public class Cube {
         if(bottom){
 
             vertOut.add(x, y, z);
-            vertOut.add(x, y, z + 1);
-            vertOut.add(x + 1, y, z + 1);
-            vertOut.add(x + 1, y, z);
+            vertOut.add(x, y, z + size);
+            vertOut.add(x + size, y, z + size);
+            vertOut.add(x + size, y, z);
 
             norOut.addRepeat(new float[] {0, -1, 0}, 4);
             colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
@@ -147,9 +155,9 @@ public class Cube {
 
         if(east){
             vertOut.add(x, y, z);
-            vertOut.add(x, y + 1, z);
-            vertOut.add(x, y + 1, z + 1);
-            vertOut.add(x, y, z + 1);
+            vertOut.add(x, y + size, z);
+            vertOut.add(x, y + size, z + size);
+            vertOut.add(x, y, z + size);
 
             norOut.addRepeat(new float[] {1, 0, 0}, 4);
 
@@ -171,10 +179,10 @@ public class Cube {
         }
 
         if(west){
-            vertOut.add(x + 1, y, z);
-            vertOut.add(x + 1, y, z + 1);
-            vertOut.add(x + 1, y + 1, z + 1);
-            vertOut.add(x + 1, y + 1, z);
+            vertOut.add(x + size, y, z);
+            vertOut.add(x + size, y, z + size);
+            vertOut.add(x + size, y + size, z + size);
+            vertOut.add(x + size, y + size, z);
 
             norOut.addRepeat(new float[] {-1, 0, 0}, 4);
 
