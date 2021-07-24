@@ -76,8 +76,8 @@ public abstract class Entity {
 
             if(getWorld().getTerrain().isColliding(boundingBox)){
 
-                boundingBox.minY += 10;
-                boundingBox.maxY += 10;
+                boundingBox.minY += 1;
+                boundingBox.maxY += 1;
 
                 if(getWorld().getTerrain().isColliding(boundingBox)){
                     position.x = beforePosition.x;
@@ -94,8 +94,8 @@ public abstract class Entity {
                 /*position.z = beforePosition.z;
                 //velocity.z = 0;*/
 
-                boundingBox.minY += 10;
-                boundingBox.maxY += 10;
+                boundingBox.minY += 1;
+                boundingBox.maxY += 1;
 
                 if(getWorld().getTerrain().isColliding(boundingBox)){
                     position.z = beforePosition.z;
@@ -115,7 +115,7 @@ public abstract class Entity {
             }
 
             if(pushUp){
-                position.add(0, 1000 * delta, 0);
+                position.add(0, 100 * delta, 0);
             }
         }
 
@@ -124,7 +124,7 @@ public abstract class Entity {
 
     private void updateBoundingBox(){
         position.sub(0, 0, 0, bbMin);
-        position.add(0, 24, 0, bbMax);
+        position.add(0, 2.4f, 0, bbMax);
 
         boundingBox.setMin(bbMin);
         boundingBox.setMax(bbMax);

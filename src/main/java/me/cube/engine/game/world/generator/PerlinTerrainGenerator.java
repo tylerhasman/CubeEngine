@@ -38,7 +38,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         float genCoordZ = z / 400f;
         int height = (int) (terrainHeightNoise.noise(genCoordX, genCoordZ) * Chunk.CHUNK_HEIGHT) + 1;
         Biome biome = biomeAt(x, z);
-        float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
+        float tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
         if(biome == Biome.PLAINS) {
 
@@ -66,9 +66,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         float genCoordX = x / 400f;
         float genCoordZ = z / 400f;
         float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.1);
-        float coloring2 = (float) ((colorNoise.noise(genCoordZ * 2, genCoordX * 2) - 0.5f) * 0.1f);
-        float coloring3 = (float) ((colorNoise.noise(-genCoordZ * 2, -genCoordX * 2) - 0.5f) * 0.1f);
-        float tempurature = (float) tempNoise.noise(genCoordX, genCoordZ);
+        float coloring2 = (colorNoise.noise(genCoordZ * 2, genCoordX * 2) - 0.5f) * 0.1f;
+        float coloring3 = (colorNoise.noise(-genCoordZ * 2, -genCoordX * 2) - 0.5f) * 0.1f;
+        float tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
         if(biome == Biome.PLAINS || biome == Biome.FOREST){
 

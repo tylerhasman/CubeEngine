@@ -18,8 +18,7 @@ import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Terrain {
 
-    private static final float FLUFF_RENDER_DISTANCE = 25;
-    private static final float FLUFF_DESPAWN_DISTANCE = FLUFF_RENDER_DISTANCE + 5;
+    private static final float FLUFF_RENDER_DISTANCE = 150;
 
     private ChunkStorage chunkStorage;
     private TerrainGenerator terrainGenerator;
@@ -133,31 +132,6 @@ public class Terrain {
             }
         }
 
-        if(fluffs.size() < 100){
-
-            Random random = new Random();
-
-            while (fluffs.size() < 100) {
-                float spawnX = playerPosition.x + random.nextFloat() * FLUFF_RENDER_DISTANCE * 2 - FLUFF_RENDER_DISTANCE;
-                float spawnZ = playerPosition.z + random.nextFloat() * FLUFF_RENDER_DISTANCE * 2 - FLUFF_RENDER_DISTANCE;
-                float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
-
-                Voxel voxel = new Voxel();
-                voxel.model = Assets.loadModel("flower.vxm");
-
-                voxel.getTransform().identity()
-                        .translate(spawnX, spawnY, spawnZ)
-                        .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
-                        .scale(random.nextFloat() * 1.5f + 0.5f);
-
-                fluffs.add(voxel);
-
-            }
-
-        }else{
-            fluffs.removeIf(fluff -> fluff.getTransform().getPosition().distanceSquared(playerPosition) > FLUFF_DESPAWN_DISTANCE * FLUFF_DESPAWN_DISTANCE);
-        }
-
     }
 
     public TerrainGenerator getTerrainGenerator() {
@@ -209,7 +183,6 @@ public class Terrain {
             chunkPopulator.populateChunk(this, chunk);
         }
 
-
         chunk.generateMesh();
 
         chunkStorage.addChunk(chunk);
@@ -228,6 +201,30 @@ public class Terrain {
             }
         }
 
+        Random random = new Random();
+        int fluffCount = random.nextInt(10);
+
+        for(int i = 0; i < fluffCount;i++){
+            float spawnX = x * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
+            float spawnZ = z * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
+            float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
+
+            Voxel voxel = new Voxel();
+
+            if(random.nextInt(20) == 0){
+                voxel.model = Assets.loadModel("flower.vxm");
+            }else{
+                voxel.model = Assets.loadModel("grass.vxm");
+            }
+
+            voxel.getTransform().identity()
+                    .translate(spawnX, spawnY + 1, spawnZ)
+                    .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
+                    .scale(random.nextFloat() * 1.5f + 0.5f);
+
+            fluffs.add(voxel);
+
+        }
 
     }
 
