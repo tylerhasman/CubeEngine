@@ -159,7 +159,7 @@ public class Cube {
             vertOut.add(x, y + size, z + size);
             vertOut.add(x, y, z + size);
 
-            norOut.addRepeat(new float[] {1, 0, 0}, 4);
+            norOut.addRepeat(new float[] {-1, 0, 0}, 4);
 
             Vector3f color1 = calculateColor(0, 1, 0, 1, 0, 1);
             Vector3f color2 = calculateColor(0, 1, 1, 2, 1, 2);
@@ -184,7 +184,7 @@ public class Cube {
             vertOut.add(x + size, y + size, z + size);
             vertOut.add(x + size, y + size, z);
 
-            norOut.addRepeat(new float[] {-1, 0, 0}, 4);
+            norOut.addRepeat(new float[] {1, 0, 0}, 4);
 
 
             Vector3f color1 = calculateColor(1, 2, 0, 1, 0, 1);
