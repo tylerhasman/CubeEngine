@@ -3,13 +3,11 @@ package me.cube.engine.game.world;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.ChunkSave;
 import me.cube.engine.model.AsyncChunkMesh;
+import org.joml.Vector3f;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-
-import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Chunk {
 
@@ -85,7 +83,7 @@ public class Chunk {
         }
     }
 
-    public void render(){
+    public void render(Vector3f ambientLight, List<DiffuseLight> diffuseLights){
         if(disposed){
             return;
         }
@@ -117,7 +115,13 @@ public class Chunk {
         }
 
         if(mesh != null){
-
+            for(int i = 0; i < diffuseLights.size();i++){
+                DiffuseLight light = diffuseLights.get(i);
+                mesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
+                mesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
+                mesh.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", light.intensity);
+            }
+            mesh.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
             mesh.render();
         }
     }

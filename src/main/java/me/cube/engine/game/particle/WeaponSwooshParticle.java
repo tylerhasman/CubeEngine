@@ -1,11 +1,6 @@
 package me.cube.engine.game.particle;
 
-import me.cube.engine.game.CubeGame;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glVertex3f;
 
 public class WeaponSwooshParticle extends Particle {
 
@@ -24,7 +19,7 @@ public class WeaponSwooshParticle extends Particle {
 
     @Override
     public void render() {
-        if(last != null){
+/*        if(last != null){
             float norLife = life / 0.15f;
             glColor4f(0.8f, 0.8f, 0.8f, 0.7f - (1f - norLife) * 0.2f);
 
@@ -33,7 +28,7 @@ public class WeaponSwooshParticle extends Particle {
 
             glVertex3f(last.top.x, last.top.y, last.top.z);
             glVertex3f(top.x, top.y, top.z);
-        }
+        }*/
     }
 
     @Override

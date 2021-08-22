@@ -53,7 +53,7 @@ public class VxmFile implements VoxelFile {
 
     @Override
     public Vector3f pivot(){
-        return new Vector3f(pivX, pivY, pivZ).mul(width, height, length).sub(width / 2f, height / 2f, length / 2f);
+        return new Vector3f(pivX, pivY, pivZ).mul(width, height, length);
     }
 
     public int width(){

@@ -54,7 +54,7 @@ public class CubeGame implements Game {
 
         player = new Player(world);
 
-        player.position.set(0, 50, 0);
+        player.position.set(0, 150, 0);
 
         world.addEntity(player);
 

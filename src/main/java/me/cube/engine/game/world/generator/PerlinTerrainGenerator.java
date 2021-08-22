@@ -11,12 +11,12 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
     private static final NoiseGenerator terrainHeightNoise = new PerlinNoise(423807);//Randomly chosen
     private static final NoiseGenerator biomeNoise = new PerlinNoise(213213);//Randomly chosen
-    private static final NoiseGenerator colorNoise = new PerlinNoise(342121);//Randomly chosen
+    private static final NoiseGenerator colorNoise = new CubicNoise(342121, 6);//Randomly chosen
     private static final NoiseGenerator tempNoise = new PerlinNoise(423555);//Randomly chosen
     private static final float LARGE_NUMBER = 10_000;
 
     public Biome biomeAt(int x, int z){
-        float genCoordX = x / 300f;
+/*        float genCoordX = x / 300f;
         float genCoordZ = z / 300f;
 
         double noise = biomeNoise.noise(genCoordX, genCoordZ);
@@ -30,7 +30,8 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             return Biome.PLAINS;
         }
 
-        return Biome.MOUNTAINS;
+        return Biome.MOUNTAINS;*/
+        return Biome.FOREST;
     }
 
     public int heightAt(int x, int z){
@@ -48,7 +49,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         }
 
-        height += 15;
+        //height += 15;
 
         if(height < 0){
             throw new IllegalArgumentException("Height is "+height+" at "+genCoordX+" "+genCoordZ);
@@ -65,9 +66,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         float genCoordX = x / 400f;
         float genCoordZ = z / 400f;
-        float coloring = (float) ((colorNoise.noise(genCoordX * 2, genCoordZ * 2) - 0.5f) * 0.1);
-        float coloring2 = (colorNoise.noise(genCoordZ * 2, genCoordX * 2) - 0.5f) * 0.1f;
-        float coloring3 = (colorNoise.noise(-genCoordZ * 2, -genCoordX * 2) - 0.5f) * 0.1f;
+        float coloring = (float) ((colorNoise.noise(genCoordX * 100, genCoordZ * 100) - 0.5f) * 0.1);
+        float coloring2 = (colorNoise.noise(genCoordZ * 50, genCoordX * 50) - 0.5f) * 0.1f;
+        float coloring3 = (colorNoise.noise(-genCoordZ * 50, -genCoordX * 50) - 0.5f) * 0.1f;
         float tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
         if(biome == Biome.PLAINS || biome == Biome.FOREST){

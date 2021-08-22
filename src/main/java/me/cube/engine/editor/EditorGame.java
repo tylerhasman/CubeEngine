@@ -11,6 +11,7 @@ import org.joml.*;
 import org.joml.Math;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static me.cube.engine.Input.*;
@@ -190,7 +191,7 @@ public class EditorGame implements Game {
 
         glCullFace(GL_FRONT);
 
-        terrain.render(new Vector3f(cameraPosition));
+        terrain.render(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
 
         glDisable(GL_CULL_FACE);
 

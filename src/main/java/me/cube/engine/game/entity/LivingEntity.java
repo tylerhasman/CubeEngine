@@ -3,6 +3,7 @@ package me.cube.engine.game.entity;
 import me.cube.engine.Transform;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
+import me.cube.engine.game.particle.CubeParticle;
 import me.cube.engine.game.world.World;
 import me.cube.engine.game.animation.*;
 import me.cube.engine.game.particle.WeaponSwooshParticle;
@@ -11,6 +12,8 @@ import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
+
+import java.awt.*;
 
 public abstract class LivingEntity extends Entity {
 
@@ -35,6 +38,8 @@ public abstract class LivingEntity extends Entity {
     private float movingSpeed;
     private final Vector2f desiredDirection = new Vector2f();
 
+    private float particleKickupTimer;
+
     public LivingEntity(World world) {
         super(world);
         maxMoveSpeed = 90f;
@@ -48,6 +53,7 @@ public abstract class LivingEntity extends Entity {
         roll = 0;
         physics = true;
         life = 20;
+        particleKickupTimer = 0;
     }
 
     public boolean isDead(){
@@ -87,6 +93,8 @@ public abstract class LivingEntity extends Entity {
 
         velocity.x = desiredDirection.x * movingSpeed;
         velocity.z = desiredDirection.y * movingSpeed;
+
+
 
     }
 
@@ -133,6 +141,38 @@ public abstract class LivingEntity extends Entity {
 
         attackTime -= delta * attackSpeed;
 
+        if(isOnGround() && velocity.length() > 0){
+            particleKickupTimer -= delta;
+            if(particleKickupTimer < 0){
+                particleKickupTimer = 0.125f;
+
+                Vector3f hit = getWorld().getTerrain().rayTrace(position, new Vector3f(0, -1, 0), 1.5f);
+
+                int color = getWorld().getTerrain().getCube((int) Math.floor(hit.x), (int) hit.y-1, (int) Math.floor(hit.z));
+
+                if(color != 0){
+                    Color c = new Color(color);
+
+                    Random random = new Random();
+
+                    float scale = 2f + random.nextFloat() * 1.5f;
+                    float velocityModX = random.nextFloat() * 1.5f + 1.5f;
+                    float velocityModZ = random.nextFloat() * 1.5f + 1.5f;
+                    float velY = random.nextFloat() * 3 + 2f;
+
+                    CubeParticle particle = new CubeParticle(1, position, new Vector3f(scale), new Quaternionf(), new Vector3f(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f));
+
+                    Vector3f direction = velocity.normalize(new Vector3f());
+
+                    direction.rotateAxis(random.nextFloat() * 90 - 45, 0, 1, 0);
+
+                    particle.velocity.set(-direction.x * velocityModX, velY, -direction.z * velocityModZ);
+
+                    getWorld().getParticleEngine().addParticle(particle);
+                }
+
+            }
+        }
 
     }
 

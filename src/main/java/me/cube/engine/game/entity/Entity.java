@@ -133,6 +133,8 @@ public abstract class Entity {
     public void update(float delta){
         life += delta;
 
+
+
     }
 
 }

@@ -41,7 +41,6 @@ public class StructurePopulator implements ChunkPopulator {
                                 pasteIntoChunk(chunk, structure, x, y + structure.getSpawnYOffset(), z);
                             }
 
-
                         }
                     }
 

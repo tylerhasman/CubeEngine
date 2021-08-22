@@ -1,24 +1,13 @@
 package me.cube.engine.game.world;
 
-import me.cube.engine.Camera;
-import me.cube.engine.Voxel;
-import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.*;
 import me.cube.engine.game.particle.ParticleEngine;
-import me.cube.engine.model.Mesh;
-import me.cube.engine.model.VoxelMesh;
-import me.cube.engine.shader.Material;
 import me.cube.engine.util.MathUtil;
-import org.joml.AABBf;
 import org.joml.Math;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
-import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static org.lwjgl.opengl.GL11.*;
 
 public class World {
@@ -35,17 +24,25 @@ public class World {
 
     private float worldTime;
 
-    private List<LightSource> lightSources;
+    private List<DiffuseLight> diffuseLights;
 
     public World(){
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
-        terrain = new Terrain(10, "test");
+        terrain = new Terrain(8, "test");
 
         worldTime = ONE_DAY / 2f;
 
-        lightSources = new ArrayList<>();
+        diffuseLights = new ArrayList<>();
+    }
+
+    public DiffuseLight createLight(){
+        DiffuseLight diffuseLight = new DiffuseLight();
+
+        diffuseLights.add(diffuseLight);
+
+        return diffuseLight;
     }
 
     public List<Entity> getEntities() {
@@ -72,10 +69,12 @@ public class World {
             entity.update(delta);
         }
 
-        worldTime += delta;
+        /*worldTime += delta;
         if(worldTime >= ONE_DAY){
             worldTime -= ONE_DAY;
         }
+*/
+        diffuseLights.removeIf(DiffuseLight::isRemoved);
 
         //worldTime = 60 * 12;
 
@@ -136,7 +135,8 @@ public class World {
     public void render(Vector3f fromPosition){
 
         Vector3f ambientColor = applyAmbientLighting(new Vector3f(1f, 1f, 1f));
-        Vector3f skyColor = applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
+
+        Vector3f skyColor = new Vector3f(0 / 255f,191 / 255f,255 / 255f);//applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
         Vector3f sunPosition = getSunMoonPosition();
 
         Vector3f sunDirection = sunPosition.normalize(new Vector3f());
@@ -148,9 +148,18 @@ public class World {
 
             entity.root.getTransform().set(entity.position, entity.rotation, entity.scale);
             if(!entity.root.getTransform().hasParent()){
-                entity.root.material.setUniform3f("u_AmbientLight", ambientColor);
-                entity.root.material.setUniform3f("u_LightDirection", sunDirection);
-                entity.root.material.setUniform3f("u_LightColor", ambientColor);
+
+                entity.root.getMaterial().setUniform3f("u_AmbientLight", ambientColor);
+                entity.root.getMaterial().setUniform3f("u_LightDirection", sunDirection);
+                entity.root.getMaterial().setUniform3f("u_LightColor", ambientColor);
+
+                for(int i = 0; i < diffuseLights.size();i++){
+                    DiffuseLight light = diffuseLights.get(i);
+                    entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
+                    entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
+                    entity.root.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", 0);
+                }
+
                 entity.root.render();
             }
 
@@ -164,11 +173,11 @@ public class World {
 
         glCullFace(GL_FRONT);
 
-        terrain.render(new Vector3f(fromPosition));
+        terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
 
         glDisable(GL_CULL_FACE);
 
-//        particleEngine.render();
+        particleEngine.render(ambientColor, diffuseLights);
 
     }
 /*

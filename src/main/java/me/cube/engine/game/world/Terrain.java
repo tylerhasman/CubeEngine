@@ -82,7 +82,7 @@ public class Terrain {
             accum.add(direction);
         }
 
-        return out;
+        return out.sub(direction);
     }
 
     public void updateTerrain(Vector3f playerPosition){
@@ -124,12 +124,25 @@ public class Terrain {
             generateChunk(chunkToLoad.x, chunkToLoad.z);
         }
 
+        boolean unloaded = false;
+
         for(Chunk loaded : chunkStorage.getLoadedChunks()){
             int dst2 = loaded.dst2(centerX, centerZ);
             if(dst2 > viewDistance * viewDistance + 4 * 4){
                 loaded.dispose();
                 chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
+                unloaded = true;
             }
+        }
+
+        if(unloaded){
+            fluffs.removeIf(fluff -> {
+                Vector3f position = fluff.getTransform().getPosition();
+                int chunkX = (int) Math.floor(position.x / CHUNK_WIDTH);
+                int chunkZ = (int) Math.floor(position.z / CHUNK_WIDTH);
+
+                return !chunkStorage.isLoaded(chunkX, chunkZ);
+            });
         }
 
     }
@@ -218,7 +231,7 @@ public class Terrain {
             }
 
             voxel.getTransform().identity()
-                    .translate(spawnX, spawnY + 1, spawnZ)
+                    .translate(spawnX, spawnY + 1.5f, spawnZ)
                     .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
                     .scale(random.nextFloat() * 1.5f + 0.5f);
 
@@ -228,12 +241,14 @@ public class Terrain {
 
     }
 
-    public void render(Vector3f playerPosition) {
+    public void render(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f playerPosition) {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
-            chunk.render();
+            chunk.render(ambientLight, diffuseLights);
         }
         for(Voxel fluff : fluffs){
             if(fluff.getTransform().getPosition().distanceSquared(playerPosition) < FLUFF_RENDER_DISTANCE * FLUFF_RENDER_DISTANCE){
+                fluff.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
+
                 fluff.render();
             }
         }

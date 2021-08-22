@@ -15,6 +15,8 @@ import java.util.List;
 
 public class Assets {
 
+    private static int dynamicMeshCount = 0;
+
     private static Map<String, SimpleVoxelMesh> models = new HashMap<>();
     private static Map<String, Material> materials = new HashMap<>();
     private static Map<String, CubeFont> fonts = new HashMap<>();
@@ -45,16 +47,17 @@ public class Assets {
 
     public static Material loadMaterial(String path){
         if(materials.containsKey(path)){
-            return materials.get(path);
+            return new Material(materials.get(path));
         }
-        Material material = null;
+        Material material;
         try {
             material = Material.loadMaterialFromFile("assets/materials/"+path);
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
         materials.put(path, material);
-        return material;
+        return new Material(material);
     }
 
     //TODO: This is really shitty because loadVoxelData assumes the file is in the path assets/models/XXXX
@@ -130,6 +133,10 @@ public class Assets {
         models.put(path, model);
 
         return model;
+    }
+
+    public static void registerModel(SimpleVoxelMesh mesh){
+        models.put("DynamicMesh"+(dynamicMeshCount++), mesh);
     }
 
 }

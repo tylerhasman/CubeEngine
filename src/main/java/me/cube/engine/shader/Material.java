@@ -25,11 +25,23 @@ public class Material {
     private Map<String, Matrix4f> fMUniforms = new HashMap<>();
     private Map<String, Matrix3f> fM3Uniforms = new HashMap<>();
 
+    private final boolean copy;
+
+    public Material(Material m){
+        shader = m.shader;
+        fUniforms.putAll(m.fUniforms);
+        f3Uniforms.putAll(m.f3Uniforms);
+        fMUniforms.putAll(m.fMUniforms);
+        fM3Uniforms.putAll(m.fM3Uniforms);
+        copy = true;
+    }
+
     public Material(ShaderProgram shader){
         if(shader == null) {
             throw new IllegalArgumentException("shader cannot be null");
         }
         this.shader = shader;
+        copy = false;
     }
 
     //TODO: Move this to Assets.java
@@ -113,7 +125,9 @@ public class Material {
     }
 
     public void dispose(){
-        shader.cleanup();
+        if(!copy){
+            shader.cleanup();
+        }
     }
 
     public void bind(){

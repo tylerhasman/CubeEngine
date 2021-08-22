@@ -1,6 +1,8 @@
 package me.cube.engine.game.particle;
 
 import me.cube.engine.game.CubeGame;
+import me.cube.engine.game.world.DiffuseLight;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +37,23 @@ public class ParticleEngine {
         }
     }
 
-    public void render(){
+    public void render(Vector3f ambientLight, List<DiffuseLight> lights){
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_QUADS);
-        {
-            for(int i = 0; i < particles.size();i++){
-                particles.get(i).render();
+        for(int i = 0; i < particles.size();i++){
+
+            Particle particle = particles.get(i);
+
+            particle.material.setUniform3f("u_AmbientLight", ambientLight);
+
+            for(int j = 0; j < lights.size();j++){
+                DiffuseLight light = lights.get(j);
+                particle.material.setUniform3f("DiffuseLight"+i+"_Position", light.position);
+                particle.material.setUniform3f("DiffuseLight"+i+"_Color", light.color);
+                particle.material.setUniformf("DiffuseLight"+i+"_Intensity", 0);
             }
+
+            particles.get(i).render();
         }
-        glEnd();
 
     }
 

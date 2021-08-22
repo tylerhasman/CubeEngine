@@ -72,17 +72,17 @@ public class AsyncChunkMesh extends VoxelMesh {
                         if(cube.isVisible()){
                             float adjacent = countAdjacentCoveringBlocks(terrain, chunk, i, j, k, 3);
 
-                            cube.red *= (1f - (adjacent) / 196f);
+                            /*cube.red *= (1f - (adjacent) / 196f);
                             cube.green *= (1f - (adjacent) / 196f);
-                            cube.blue *= (1f - (adjacent) / 196f);
+                            cube.blue *= (1f - (adjacent) / 196f);*/
 
-                            if(cube.top){
+                            /*if(cube.top){
                                 int above = countAboveBlocks(terrain, chunk, i, j, k, 12);
 
                                 cube.red *= (1f - (above) / 16f);
                                 cube.green *= (1f - (above) / 16f);
                                 cube.blue *= (1f - (above) / 16f);
-                            }
+                            }*/
 
                             cube.generate(vertices, normals, colors);
                         }

@@ -6,6 +6,7 @@ import me.cube.engine.file.Assets;
 import me.cube.engine.file.CubeFont;
 import me.cube.engine.game.CubeGame;
 import me.cube.engine.Input;
+import me.cube.engine.game.world.DiffuseLight;
 import me.cube.engine.game.world.World;
 import org.joml.*;
 import org.joml.Math;
@@ -14,15 +15,21 @@ import static me.cube.engine.Input.*;
 
 public class Player extends LivingEntity {
 
+    private DiffuseLight light;
+
     public Player(World world) {
         super(world);
         setMaxMoveSpeed(15);
-
+        light = world.createLight();
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
+
+        light.position.set(position.x, position.y + 2.5f, position.z);
+        light.color.set(1, 1, 1);
+        light.intensity = 0.2f;
 
         Vector3f forward = CubeGame.game.getCameraForward().mul(1, 0, 1).normalize();
 

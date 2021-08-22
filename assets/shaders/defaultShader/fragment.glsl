@@ -11,21 +11,27 @@ in vec3 v_ViewPos;
 
 out vec4 out_Color;
 
+uniform vec3 DiffuseLight0_Position, DiffuseLight0_Color;
+uniform float DiffuseLight0_Intensity;
+
+uniform vec3 DiffuseLight1_Position, DiffuseLight1_Color;
+uniform float DiffuseLight1_Intensity;
+
+uniform vec3 u_Hue;
+
+vec3 diffuse(vec3 position, vec3 color, float intensity){
+    vec3 lightDir = normalize(position - v_Position);
+    float diff = max(dot(normalize(v_Normal), lightDir), 0.0);
+
+    return diff * v_Color * color * intensity;
+}
+
 void main(){
 
-    /*vec3 lightDir = u_LightDirection;
+    vec3 d0 = diffuse(DiffuseLight0_Position, DiffuseLight0_Color, DiffuseLight0_Intensity);
+    vec3 d1 = diffuse(DiffuseLight1_Position, DiffuseLight1_Color, DiffuseLight1_Intensity);
 
-    float diff = max(dot(v_Normal, lightDir), 0.0);
+    vec3 ambient = u_AmbientLight * v_Color * u_Hue;
 
-    vec3 viewDir = normalize(v_ViewPos - v_Position);
-    vec3 reflectDir = reflect(-u_LightDirection, v_Normal);
-
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-
-    vec3 specular = spec * u_LightColor;
-    vec3 diffuse = diff * v_Color * u_LightColor;*/
-    vec3 ambient = u_AmbientLight * v_Color;
-
-    //out_Color = vec4(clamp(diffuse + ambient + specular, 0.0, 1.0), 1.0);
-    out_Color = vec4(clamp(ambient, 0.0, 1.0), 1.0);
+    out_Color = vec4(clamp(d0 + d1 + ambient, 0.0, 1.0), 1.0);
 }

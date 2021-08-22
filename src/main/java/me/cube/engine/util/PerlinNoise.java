@@ -163,7 +163,11 @@ public class PerlinNoise implements NoiseGenerator {
 		v = rx1 * q[0] + ry1 * q[1];
 		b = lerp(sx, u, v);
 
-		return (float) Math.max(lerp(sy, a, b), 0f);
+
+		//sqrt(n) / 2 where n is the dimensions (in this case 2)
+		float range = (float) (Math.sqrt(2) / 2);
+
+		return (float) ((lerp(sy, a, b) + range) / (range * 2));
 	}
 	
 	public double noise(double x) {

@@ -33,7 +33,7 @@ public class Cube {
                     if(color != 0){
                         legit++;
                         if(k != 1){
-                            outputColor.add(rgbToVector(color).mul(0.5f));
+                            outputColor.add(rgbToVector(color).mul(0.25f));
                         }else{
                             outputColor.add(rgbToVector(color));
 
@@ -80,13 +80,13 @@ public class Cube {
             Vector3f color3 = calculateColor(0, 1, 1, 2, 0, 1);
             Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
 
-            colorOut.add(color1);
+            colorOut.add(color1.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color2);
+            colorOut.add(color2.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color3);
+            colorOut.add(color3.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color4);
+            colorOut.add(color4.mul(0.8f));
             colorOut.add(1f);
 
         }
@@ -105,13 +105,13 @@ public class Cube {
             Vector3f color3 = calculateColor(0, 1, 1, 2, 1, 2);
             Vector3f color4 = calculateColor(1, 2, 0, 1, 1, 2);
 
-            colorOut.add(color1);
+            colorOut.add(color1.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color2);
+            colorOut.add(color2.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color3);
+            colorOut.add(color3.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color4);
+            colorOut.add(color4.mul(0.8f));
             colorOut.add(1f);
 
         }
@@ -128,7 +128,6 @@ public class Cube {
             Vector3f color2 = calculateColor(1, 2, 1, 2, 0, 1);
             Vector3f color3 = calculateColor(1, 2,1, 2, 1, 2);
             Vector3f color4 = calculateColor(0, 1, 1, 2, 1, 2);
-
 
             colorOut.add(color1);
             colorOut.add(1f);
@@ -149,7 +148,7 @@ public class Cube {
             vertOut.add(x + size, y, z);
 
             norOut.addRepeat(new float[] {0, -1, 0}, 4);
-            colorOut.addRepeat(new float[] {color.x, color.y, color.z, 1f}, 4);
+            colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 4);
 
         }
 
@@ -167,13 +166,13 @@ public class Cube {
             Vector3f color3 = calculateColor(0, 1, 1, 2, 1, 2);
             Vector3f color4 = calculateColor(0, 1, 0, 1, 0, 1);
 
-            colorOut.add(color1);
+            colorOut.add(color1.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color2);
+            colorOut.add(color2.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color3);
+            colorOut.add(color3.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color4);
+            colorOut.add(color4.mul(0.8f));
             colorOut.add(1f);
 
         }
@@ -193,13 +192,13 @@ public class Cube {
             Vector3f color3 = calculateColor(1, 2, 1, 2, 1, 2);
             Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
 
-            colorOut.add(color1);
+            colorOut.add(color1.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color2);
+            colorOut.add(color2.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color3);
+            colorOut.add(color3.mul(0.8f));
             colorOut.add(1f);
-            colorOut.add(color4);
+            colorOut.add(color4.mul(0.8f));
             colorOut.add(1f);
 
         }

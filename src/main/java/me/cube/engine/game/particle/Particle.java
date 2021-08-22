@@ -11,7 +11,7 @@ public abstract class Particle {
 
     public Particle(float life){
         this.life = life;
-        material = Assets.loadMaterial("default.json");
+        material = Assets.defaultMaterial();
     }
 
     public boolean isRemoved(){

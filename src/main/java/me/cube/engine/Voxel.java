@@ -1,32 +1,21 @@
 package me.cube.engine;
 
 import me.cube.engine.file.Assets;
-import me.cube.engine.game.CubeGame;
 import me.cube.engine.model.VoxelMesh;
 import me.cube.engine.shader.Material;
 import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Voxel {
 
-    //private Voxel parent;
-
     public final String name;
-/*    public final Vector3f position, scale;
-    public final Quaternionf rotation;
-    public final Vector3f origin;*/
+
     public VoxelMesh model;
-    //private final Map<String, Voxel> children;
 
     private Transform transform;
 
-    //TODO: Allow materials to be changed dynamically...
-    public final Material material;
+    private Material material;
+
+    private VoxelMesh coordinateModel;
 
     public Voxel(){
         this("unnamed");
@@ -37,20 +26,16 @@ public class Voxel {
     }
 
     public Voxel(String name, VoxelMesh model){
-        this(name, model, Assets.defaultMaterial());
+        this(name, model, null);
     }
 
     public Voxel(String name, VoxelMesh model, Material material){
-        if(material == null){
-            throw new IllegalArgumentException("material cannot be null");
-        }
         this.name = name;
         this.model = model;
-/*        if(model != null){
-           origin.set(model.pivot);
-        }*/
+
         this.material = material;
         this.transform = new Transform(this);
+        this.coordinateModel = Assets.loadModel("coordinates.vxm");
     }
 
     public Transform getTransform() {
@@ -83,24 +68,35 @@ public class Voxel {
     public void render(){
         if(model != null){
 
-            material.setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
-            material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
+            getMaterial().setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
+            getMaterial().setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
 
-            material.setUniformMat4f("ModelMatrix", transform.getTransformation());
+            getMaterial().setUniformMat4f("ModelMatrix", transform.getTransformation());
 
             Matrix3f normalMatrix = new Matrix3f(transform.getTransformation().transpose().invert());
 
-            material.setUniformMat3f("NormalMatrix", normalMatrix);
+            getMaterial().setUniformMat3f("NormalMatrix", normalMatrix);
 
-            material.bind();
+            getMaterial().bind();
 
             model.render();
 
-            material.unbind();
+            getMaterial().unbind();
         }
 
         for(Transform child : transform.getChildren()){
             child.voxel.render();
         }
+    }
+
+    public Material getMaterial() {
+        if(material == null){
+            if(transform.hasParent()){
+                return transform.getParent().voxel.getMaterial();
+            }else{
+                material = Assets.defaultMaterial();
+            }
+        }
+        return material;
     }
 }

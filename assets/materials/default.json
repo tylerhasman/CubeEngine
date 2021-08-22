@@ -3,7 +3,16 @@
   "shader": "assets/shaders/defaultShader",
   "uniforms": {
     "u_AmbientLight": "v3: 0.1, 0.1, 0.1",
-    "u_LightPos0": "v3: 0, 1000, 0"
+    "u_LightPos0": "v3: 0, 1000, 0",
+
+    "DiffuseLight0_Position": "v3: 0.0, 0.0, 0.0",
+    "DiffuseLight0_Color": "v3: 0, 0, 0",
+    "DiffuseLight0_Intensity": "f: 0",
+
+    "DiffuseLight1_Position": "v3: 0.0, 0.0, 0.0",
+    "DiffuseLight1_Color": "v3: 0, 0, 0",
+    "DiffuseLight1_Intensity": "f: 0",
+    "u_Hue": "v3: 1, 1, 1"
   }
 
 }
