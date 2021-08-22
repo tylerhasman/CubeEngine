@@ -1,0 +1,26 @@
+{
+  "model": "torso.vxm",
+  "part" : "Torso",
+  "connectors":[
+    {
+        "part": "Head",
+        "position": "5 11.5 5"
+    },
+    {
+      "part" : "LeftHand",
+      "position" : "0 7 5"
+    },
+    {
+      "part" : "RightHand",
+      "position" : "15 7 5"
+    },
+    {
+      "part" : "RightLeg",
+      "position" : "10 0 6"
+    },
+    {
+      "part" : "LeftLeg",
+      "position" : "5 0 6"
+    }
+  ]
+}

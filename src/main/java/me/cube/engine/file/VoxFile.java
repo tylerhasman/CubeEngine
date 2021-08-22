@@ -95,7 +95,7 @@ public class VoxFile implements VoxelFile {
 
     @Override
     public Vector3f pivot() {
-        return new Vector3f();
+        return new Vector3f(width / 2f, height / 2f, length / 2f);
     }
 
     private void load(ByteBuffer buffer) throws IOException {

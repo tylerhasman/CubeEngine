@@ -43,7 +43,12 @@ public class VxmFile implements VoxelFile {
                     if(voxels[i][j][k] == 255){
                         continue;
                     }
-                    v[i][j][k] = colorPallete[voxels[i][j][k]];
+                    int val = voxels[i][j][k];
+                    if (val < 0) {
+                        v[i][j][k] = 1;
+                        continue;
+                    }
+                    v[i][j][k] = colorPallete[val];
                 }
             }
         }

@@ -7,13 +7,13 @@ import java.util.List;
 
 public class SimpleVoxelMesh extends VoxelMesh {
 
-    private static final float DEFAULT_SCALE = 1/10f;
+    private static final float DEFAULT_SCALE = 1f;
 
     public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length){
-        this(cubes, width, height, length, true);
+        this(cubes, width, height, length, new Vector3f());
     }
 
-    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, boolean center){
+/*    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, boolean center){
         super(width, height, length);
 
         FloatArray vertices = new FloatArray(1024);
@@ -24,12 +24,26 @@ public class SimpleVoxelMesh extends VoxelMesh {
             pivot.set(width / 2f, height / 2f, length / 2f);
         }
 
-        generate(cubes, vertices, colors, normals, width, height, length, center);
+        generate(cubes, vertices, colors, normals, width, height, length, center ? );
+
+        initialize(vertices.toArray(), colors.toArray(), normals.toArray());
+    }*/
+
+    public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, Vector3f pivot){
+        super(width, height, length);
+
+        FloatArray vertices = new FloatArray(1024);
+        FloatArray colors = new FloatArray(1024);
+        FloatArray normals = new FloatArray(1024);
+
+        this.pivot.set(pivot);
+
+        generate(cubes, vertices, colors, normals, width, height, length, pivot);
 
         initialize(vertices.toArray(), colors.toArray(), normals.toArray());
     }
 
-    private void generate(int[][][] cubes, FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length, boolean center) {
+    private void generate(int[][][] cubes, FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length, Vector3f pivot) {
 
         Cube cube = new Cube();
         cube.scale = DEFAULT_SCALE;
@@ -51,11 +65,9 @@ public class SimpleVoxelMesh extends VoxelMesh {
                         cube.y = j;
                         cube.z = k;
 
-                        if(center){
-                            cube.x -= width / 2f;
-                            cube.y -= height / 2f;
-                            cube.z -= length / 2f;
-                        }
+                        cube.x -= pivot.x;
+                        cube.y -= pivot.y;
+                        cube.z -= pivot.z;
 
                         cube.top = getOrZero(cubes, width, height, length, i, j + 1, k) == 0;
                         cube.bottom = getOrZero(cubes, width, height, length, i, j - 1, k) == 0;

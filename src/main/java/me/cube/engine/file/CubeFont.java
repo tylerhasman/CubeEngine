@@ -3,6 +3,7 @@ package me.cube.engine.file;
 import me.cube.engine.Voxel;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.model.VoxelMesh;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -119,7 +120,7 @@ public class CubeFont {
 
 
 
-        return new SimpleVoxelMesh(cubes, width, height, 1, true);
+        return new SimpleVoxelMesh(cubes, width, height, 1, new Vector3f(width / 2f, height / 2f, 0.5f));
     }
 
     public void dispose() {

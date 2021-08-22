@@ -6,13 +6,10 @@ import me.cube.engine.Input;
 import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.Player;
 import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.Terrain;
 import me.cube.engine.game.world.World;
-import me.cube.engine.model.Mesh;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;
-import org.lwjgl.opengl.GL11;
 
 import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
