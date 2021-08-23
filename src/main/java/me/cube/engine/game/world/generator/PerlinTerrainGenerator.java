@@ -6,56 +6,67 @@ import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
-    private static final NoiseGenerator terrainHeightNoise = new PerlinNoise(423807);//Randomly chosen
     private static final NoiseGenerator biomeNoise = new PerlinNoise(213213);//Randomly chosen
     private static final NoiseGenerator colorNoise = new CubicNoise(342121, 6);//Randomly chosen
     private static final NoiseGenerator tempNoise = new PerlinNoise(423555);//Randomly chosen
     private static final float LARGE_NUMBER = 10_000;
 
+    private Map<Biome, Float> biomeWeightsAt(int x, int z){
+        float genCoordX = x / 400f;
+        float genCoordZ = z / 400f;
+
+        float noise = biomeNoise.noise(genCoordX, genCoordZ);
+
+        return Biome.calculateWeights(genCoordX, genCoordZ);
+    }
+
     public Biome biomeAt(int x, int z){
-/*        float genCoordX = x / 300f;
-        float genCoordZ = z / 300f;
 
-        double noise = biomeNoise.noise(genCoordX, genCoordZ);
+        Map<Biome, Float> weights = biomeWeightsAt(x, z);
 
+        Biome best = null;
+        float weight = 0;
 
-        if(noise < 0.4f){
-            return Biome.FOREST;
+        for(Biome biome : weights.keySet()){
+            if(best == null){
+                best = biome;
+                weight = weights.get(biome);
+            }else if(weights.get(biome) > weight){
+                best= biome;
+                weight = weights.get(biome);
+            }
         }
 
-        if(noise < 0.2f){
-            return Biome.PLAINS;
+        if(best == null){
+            throw new IllegalStateException("best cannot be null!");
         }
 
-        return Biome.MOUNTAINS;*/
-        return Biome.FOREST;
+        return best;
     }
 
     public int heightAt(int x, int z){
-        float genCoordX = x / 400f;
-        float genCoordZ = z / 400f;
-        int height = (int) (terrainHeightNoise.noise(genCoordX, genCoordZ) * Chunk.CHUNK_HEIGHT) + 1;
-        Biome biome = biomeAt(x, z);
-        float tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
-        if(biome == Biome.PLAINS) {
+        Map<Biome, Float> weights = biomeWeightsAt(x, z);
 
-            if (tempurature >= 0.1f) {
-                height--;
-            }
+        float height = 0;
 
+        for(Biome biome : weights.keySet()){
+            float weight = weights.get(biome);
+
+            height += biome.heightAt(x, z) * weight;//Square the weight for better results
         }
 
-        //height += 15;
+        double sumWeights = weights.values().stream().collect(Collectors.summingDouble(f -> f.doubleValue()));
 
-        if(height < 0){
-            throw new IllegalArgumentException("Height is "+height+" at "+genCoordX+" "+genCoordZ);
-        }
+        height /= sumWeights;
 
-        return height;
+        return (int) height;
     }
 
     @Override
@@ -80,6 +91,13 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 r = 50;
                 g = 150;
                 b = 80;
+            }
+
+            if(y < heightAt(Math.round(x), Math.round(z))){
+                //131,101,57
+                r = 131;
+                g = 101;
+                b = 57;
             }
 
         }else if(biome == Biome.MOUNTAINS){

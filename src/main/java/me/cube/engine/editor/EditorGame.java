@@ -5,6 +5,7 @@ import me.cube.engine.file.Assets;
 import me.cube.engine.file.VoxelFile;
 import me.cube.engine.game.world.Terrain;
 import me.cube.engine.game.world.World;
+import me.cube.engine.game.world.generator.Biome;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.model.VoxelMesh;
 import org.joml.*;
@@ -305,7 +306,11 @@ public class EditorGame implements Game {
 
     @Override
     public String getTitle() {
-        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "");
+
+
+        Biome biome = terrain == null ? Biome.FOREST : terrain.biomeAt((int) cameraPosition.x, (int) cameraPosition.z);
+
+        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "")+" "+biome.name();
     }
 
     @Override

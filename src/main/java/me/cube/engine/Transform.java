@@ -99,8 +99,9 @@ public class Transform {
         return this;
     }
 
-    public void scale(float xyz){
+    public Transform scale(float xyz){
         frame.scale(xyz);
+        return this;
     }
 
     public void scale(float x, float y, float z){

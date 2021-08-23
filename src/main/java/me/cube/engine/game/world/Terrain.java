@@ -68,7 +68,7 @@ public class Terrain {
 
         StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, rock));
 
-        populators.add(structurePopulator);
+//        populators.add(structurePopulator);
 
     }
 
@@ -233,7 +233,8 @@ public class Terrain {
             voxel.getTransform().identity()
                     .translate(spawnX, spawnY + 1.5f, spawnZ)
                     .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
-                    .scale(random.nextFloat() * 1.5f + 0.5f);
+                    .scale(random.nextFloat() * 1.5f + 0.5f)
+                    .scale(0.1f);
 
             fluffs.add(voxel);
 

@@ -7,6 +7,7 @@ import me.cube.engine.file.Assets;
 import me.cube.engine.game.entity.Player;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.World;
+import me.cube.engine.game.world.generator.Biome;
 import me.cube.engine.util.MathUtil;
 import org.joml.*;
 import org.joml.Math;

@@ -45,7 +45,7 @@ public class PerlinNoise implements NoiseGenerator {
 		init(seed);
 	}
 	
-	public double noise(double x, double y, double z) {
+	public float noise(double x, double y, double z) {
 
 		int bx, by, bz, b0, b1, b00, b10, b01, b11;
 		double rx0, rx1, ry0, ry1, rz, sx, sy, sz, a, b, c, d, u, v, q[];
@@ -119,7 +119,10 @@ public class PerlinNoise implements NoiseGenerator {
 		b = lerp(sx, u, v);
 		d = lerp(sy, a, b);
 
-		return lerp(sz, c, d);
+		//return lerp(sz, c, d);
+		float range = (float) (Math.sqrt(2) / 2);
+
+		return (float) ((lerp(sy, c, d) + range) / (range * 2));
 	}
 
 	@Override

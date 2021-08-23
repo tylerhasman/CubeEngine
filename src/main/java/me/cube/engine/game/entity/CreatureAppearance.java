@@ -22,7 +22,9 @@ public class CreatureAppearance {
         bodyParts.add(bodyPart);
     }
 
-    public Voxel compile(){
+    public CreatureAvatar compile(){
+
+        Map<CreatureAppearance.PartType, List<Voxel>> parts = new HashMap<>();
 
         List<BodyPart> remaining = new ArrayList<>(bodyParts);
 
@@ -40,8 +42,12 @@ public class CreatureAppearance {
 
         voxel.getTransform().scale(0.1f);
 
+        parts.put(PartType.Torso, Arrays.asList(voxel));
+
         for(PartType partType : torso.connectors.keySet()){
             List<Vector3f> connectors = torso.connectors.get(partType);
+
+            parts.put(partType, new ArrayList<>());
 
             for(Vector3f connector : connectors){
 
@@ -56,14 +62,15 @@ public class CreatureAppearance {
                 System.out.println(part.model);
                 Voxel vox = new Voxel(partType.name()+partIndex, Assets.loadModel(part.model));
                 voxel.getTransform().addChild(vox.getTransform());
-                vox.getTransform().setLocalPosition(connector.x - torsoMesh.pivot.x, connector.y - torsoMesh.pivot.y, connector.z - torsoMesh.pivot.z);
+                vox.getTransform().setLocalPosition(connector.x - torsoMesh.pivot.x, connector.y, connector.z - torsoMesh.pivot.z);
 
 
+                parts.get(partType).add(vox);
             }
 
         }
 
-        return voxel;
+        return new CreatureAvatar(parts);
     }
 
     private static int findFirst(List<BodyPart> bodyParts, PartType type){

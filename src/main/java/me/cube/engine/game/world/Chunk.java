@@ -75,11 +75,11 @@ public class Chunk {
                 mesh.model.dispose();
             }
             disposed = true;
-            try {
+            /*try {
                 chunkSave.save();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 
