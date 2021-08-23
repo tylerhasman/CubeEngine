@@ -14,6 +14,7 @@ import org.joml.Math;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static me.cube.engine.Input.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -43,14 +44,16 @@ public class EditorGame implements Game {
 
     private List<VoxelFile> placeableModels;
 
+    public EditorGame(){
+        cameraPosition = new Vector3f();
+    }
+
     @Override
     public void init() {
 
         placeableModels = Assets.loadVoxelDataFolder("editor/models/");
 
         editActions = new ArrayList<>(MAX_ACTION_MEMORY);
-
-        cameraPosition = new Vector3f();
 
         cameraPosition.y = 250;
 
@@ -307,10 +310,17 @@ public class EditorGame implements Game {
     @Override
     public String getTitle() {
 
+        float genCoordX = cameraPosition.x / 800f;
+        float genCoordZ = cameraPosition.z / 800f;
 
-        Biome biome = terrain == null ? Biome.FOREST : terrain.biomeAt((int) cameraPosition.x, (int) cameraPosition.z);
+        Map<Biome, Float> weights = Biome.calculateWeights(genCoordX, genCoordZ);
 
-        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "")+" "+biome.name();
+        String biome = "";
+        for(Biome b : weights.keySet()){
+            biome += b.name()+"="+weights.get(b)+" ";
+        }
+
+        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "")+" "+biome;
     }
 
     @Override

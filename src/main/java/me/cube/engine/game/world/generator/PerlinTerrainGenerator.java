@@ -15,13 +15,10 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     private static final NoiseGenerator biomeNoise = new PerlinNoise(213213);//Randomly chosen
     private static final NoiseGenerator colorNoise = new CubicNoise(342121, 6);//Randomly chosen
     private static final NoiseGenerator tempNoise = new PerlinNoise(423555);//Randomly chosen
-    private static final float LARGE_NUMBER = 10_000;
 
     private Map<Biome, Float> biomeWeightsAt(int x, int z){
-        float genCoordX = x / 400f;
-        float genCoordZ = z / 400f;
-
-        float noise = biomeNoise.noise(genCoordX, genCoordZ);
+        float genCoordX = x / 800f;
+        float genCoordZ = z / 800f;
 
         return Biome.calculateWeights(genCoordX, genCoordZ);
     }
@@ -62,11 +59,11 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             height += biome.heightAt(x, z) * weight;//Square the weight for better results
         }
 
-        double sumWeights = weights.values().stream().collect(Collectors.summingDouble(f -> f.doubleValue()));
+        double sumWeights = weights.values().stream().mapToDouble(Float::doubleValue).sum();
 
         height /= sumWeights;
 
-        return (int) height;
+        return (int) Math.max(height, 0) + 20;
     }
 
     @Override
@@ -77,34 +74,36 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         float genCoordX = x / 400f;
         float genCoordZ = z / 400f;
-        float coloring = (float) ((colorNoise.noise(genCoordX * 100, genCoordZ * 100) - 0.5f) * 0.1);
-        float coloring2 = (colorNoise.noise(genCoordZ * 50, genCoordX * 50) - 0.5f) * 0.1f;
-        float coloring3 = (colorNoise.noise(-genCoordZ * 50, -genCoordX * 50) - 0.5f) * 0.1f;
+        float coloring = (float) ((colorNoise.noise(genCoordX * 100, genCoordZ * 100) - 0.5f) * 0.025f);
+        float coloring2 = (colorNoise.noise(genCoordZ * 50, genCoordX * 50) - 0.5f) * 0.025f;
+        float coloring3 = (colorNoise.noise(-genCoordZ * 50, -genCoordX * 50) - 0.5f) * 0.025f;
         float tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
-        if(biome == Biome.PLAINS || biome == Biome.FOREST){
-
-            if(tempurature < 0.1f){
-                g = 0x80;
-                b = 0x1C;
-            }else{
-                r = 50;
-                g = 150;
-                b = 80;
-            }
-
-            if(y < heightAt(Math.round(x), Math.round(z))){
-                //131,101,57
-                r = 131;
-                g = 101;
-                b = 57;
-            }
-
-        }else if(biome == Biome.MOUNTAINS){
-            r = 187;
-            g = 187;
-            b = 187;
+        if(tempurature < 0.1f){
+            g = 0x80;
+            b = 0x1C;
+        }else{
+            r = 50;
+            g = 150;
+            b = 80;
         }
+
+        if(y < heightAt(Math.round(x), Math.round(z))){
+            //131,101,57
+            r = 131;
+            g = 101;
+            b = 57;
+        }
+
+        if(biome == Biome.RIVER){
+            r = 0;
+            g = 0;
+            b = 255;
+            coloring = 0;
+            coloring2 = 0;
+            coloring3 = 0;
+        }
+
         float[] hslBuffer = new float[3];//Reuse
 
         Color.RGBtoHSB(r, g, b, hslBuffer);

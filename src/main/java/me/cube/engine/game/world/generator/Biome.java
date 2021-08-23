@@ -1,43 +1,38 @@
 package me.cube.engine.game.world.generator;
 
-import me.cube.engine.game.world.Chunk;
 import me.cube.engine.util.PerlinNoise;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public enum Biome {
 
     //seeds chosen randomly through button mashing
-    PLAINS(0x423789, 50, 10),
-    MOUNTAINS(0x921034, 50, 120),
-    FOREST(0x3216821, 50, 20);
+    ULTRA_PLAINS(0x423789, -40, 1f),
+    PLAINS(0x37429, -20, 1f),
+    MOUNTAINS(0x921034, 80, 1f),
+    RIVER(0x213129, -40, 1f);
 
-    private final PerlinNoise perlinNoise;
-    private final float stretch;//How much to stretch positions on the noise generator. Must be positive
+    private static final Biome[] GENERATED = new Biome[] {
+      Biome.ULTRA_PLAINS,
+      Biome.PLAINS,
+      Biome.MOUNTAINS
+    };
+
+    private final PerlinNoise perlinNoise, weightNoise;
     private final float heightMod;//How much to stretch terrain vertically. Must be positive
+    private final float weightMod;
 
-    Biome(int seed, float stretch, float heightMod){
-        if(stretch < 0){
-            throw new IllegalArgumentException("stretch must be >0");
-        }
-        if(heightMod < 0){
-            throw new IllegalArgumentException("heightMod must be >0");
-        }
+    Biome(int seed, float heightMod, float weightMod){
         perlinNoise = new PerlinNoise(seed);
-        this.stretch = stretch;
+        weightNoise = new PerlinNoise(seed >> 8);
         this.heightMod = heightMod;
-    }
-
-    public float biomeThreshold(){
-        return ((float) ordinal() / (float) values().length);
+        this.weightMod = weightMod;
     }
 
     public int heightAt(int x, int z){
-        float genCoordX = x / stretch;
-        float genCoordZ = z / stretch;
+        float genCoordX = x / 40f;
+        float genCoordZ = z / 40f;
 
         return (int) (perlinNoise.noise(genCoordX, genCoordZ) * heightMod);
     }
@@ -48,12 +43,47 @@ public enum Biome {
     public static Map<Biome, Float> calculateWeights(float x, float y){
         Map<Biome, Float> biomes = new HashMap<>();
 
-        for(Biome biome : values()){
-            biomes.put(biome, biome.perlinNoise.noise(x, y, biome.ordinal()));
-            //biomes.put(biome, 1f - Math.abs(biome.biomeThreshold() - noise));
+        for(Biome biome : GENERATED){
+            biomes.put(biome, biome.weightNoise.noise(x, y) * biome.weightMod);
+        }
+
+        if(biomes.size() > 1){
+            Map<Biome, Float> copy = new HashMap<>(biomes);
+
+            Biome top = calculateBiome(copy);
+            copy.remove(top);
+            Biome top2 = calculateBiome(copy);
+
+            float topWeight = biomes.get(top);
+            float top2Weight = biomes.get(top2);
+
+            if(Math.abs(topWeight - top2Weight) < 0.01f){
+                biomes.put(Biome.RIVER, 1f);
+            }
+
         }
 
         return biomes;
+    }
+
+    private static Biome calculateBiome(Map<Biome, Float> weights){
+        if (weights.size() == 0) {
+            throw new IllegalArgumentException("weights cannot be empty");
+        }
+        Biome best = null;
+        float weight = 0;
+
+        for(Biome biome : weights.keySet()){
+            if(best == null){
+                best = biome;
+                weight = weights.get(biome);
+            }else if(weights.get(biome) > weight){
+                best= biome;
+                weight = weights.get(biome);
+            }
+        }
+
+        return best;
     }
 
 }

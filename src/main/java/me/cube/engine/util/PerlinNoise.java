@@ -120,7 +120,7 @@ public class PerlinNoise implements NoiseGenerator {
 		d = lerp(sy, a, b);
 
 		//return lerp(sz, c, d);
-		float range = (float) (Math.sqrt(2) / 2);
+		float range = (float) (Math.sqrt(3) / 2);
 
 		return (float) ((lerp(sy, c, d) + range) / (range * 2));
 	}

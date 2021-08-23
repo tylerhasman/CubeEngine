@@ -56,18 +56,18 @@ public class Terrain {
 
         VoxelFile rockData = Assets.loadVoxelData("rock.vxm", false);
 
-        SpawnableStructure tree = new SpawnableStructure(treeData.toVoxelColorArray(), new Biome[] {
+   /*     SpawnableStructure tree = new SpawnableStructure(treeData.toVoxelColorArray(), new Biome[] {
                 Biome.FOREST
-        }, 1, 2, 0x3231) ;/*
+        }, 1, 2, 0x3231) ;*//*
         SpawnableStructure tree2 = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
                 Biome.FOREST
-        }, 10, 2, 0x1221) ;*/
+        }, 10, 2, 0x1221) ;*//*
         SpawnableStructure rock = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
                 Biome.MOUNTAINS
         }, 45, 3, 0x3125) ;
 
         StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, rock));
-
+*/
 //        populators.add(structurePopulator);
 
     }
