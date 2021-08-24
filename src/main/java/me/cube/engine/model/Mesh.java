@@ -97,6 +97,7 @@ public class Mesh {
             throw new IllegalStateException("Buffer size != expected size. "+size[0]+" != "+(normalBufferData.length * 4));
         }
 
+        indices = vertexBufferData.length / 3 * 4;
     }
 
     public void dispose(){
