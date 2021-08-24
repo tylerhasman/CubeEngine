@@ -1,8 +1,6 @@
 #version 440
 
 uniform vec3 u_AmbientLight;
-uniform vec3 u_LightDirection;
-uniform vec3 u_LightColor;
 
 in vec3 v_Position;
 in vec4 v_Color;

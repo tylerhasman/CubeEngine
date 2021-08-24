@@ -178,9 +178,9 @@ public class Terrain {
 
         File chunkFile = new File(levelDataFolder, "chunk-"+x+"-"+z+".dat");
 
-        ChunkSave chunkSave = new ChunkSave(chunkFile);
+        //ChunkSave chunkSave = new ChunkSave(chunkFile);
 
-        Chunk chunk = new Chunk(this, x, z, chunkSave);
+        Chunk chunk = new Chunk(this, x, z, null);
 
         long time = System.currentTimeMillis();
 
@@ -188,9 +188,9 @@ public class Terrain {
 
         //System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk "+x+" "+z);
 
-        if(chunkSave.hasChanges()){
+  /*      if(chunkSave.hasChanges()){
             chunkSave.applyTo(chunk);
-        }
+        }*/
 
         for(ChunkPopulator chunkPopulator : populators){
             chunkPopulator.populateChunk(this, chunk);
@@ -255,17 +255,17 @@ public class Terrain {
         }
     }
 
-    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f playerPosition) {
+    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f cameraPosition) {
 
         List<Chunk> sorted = chunkStorage.getLoadedChunks();
         sorted.sort((c1, c2) -> {
-            int pcx = (int) Math.floor(playerPosition.x / CHUNK_WIDTH);
-            int pcz = (int) Math.floor(playerPosition.z / CHUNK_WIDTH);
+            int pcx = (int) Math.floor(cameraPosition.x / CHUNK_WIDTH);
+            int pcz = (int) Math.floor(cameraPosition.z / CHUNK_WIDTH);
             return Integer.compare(c2.dst2(pcx, pcz), c1.dst2(pcx, pcz));
         });
 
         for(Chunk chunk : sorted){
-            chunk.renderTransparent(ambientLight, diffuseLights);
+            chunk.renderTransparent(ambientLight, diffuseLights, cameraPosition);
         }
     }
 

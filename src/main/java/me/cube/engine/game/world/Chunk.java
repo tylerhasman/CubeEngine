@@ -1,6 +1,7 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Voxel;
+import me.cube.engine.file.Assets;
 import me.cube.engine.file.ChunkSave;
 import me.cube.engine.model.AsyncChunkMesh;
 import me.cube.engine.model.Mesh;
@@ -89,7 +90,7 @@ public class Chunk {
     }
 
 
-    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights) {
+    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f cameraPosition) {
         if(disposed){
             return;
         }
@@ -102,6 +103,8 @@ public class Chunk {
                 transparentMesh.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", light.intensity);
             }
             transparentMesh.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
+
+            transparentMesh.getMaterial().setUniform3f("u_CameraPosition", cameraPosition);
 
             transparentMesh.render();
         }
@@ -138,7 +141,7 @@ public class Chunk {
                     mesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
 
                     if(chunkMesh.hasTransparency()){
-                        transparentMesh = new Voxel("ChunkTrasparent"+chunkX+" "+chunkZ, chunkMesh.createTransparentMesh());
+                        transparentMesh = new Voxel("ChunkTrasparent"+chunkX+" "+chunkZ, chunkMesh.createTransparentMesh(), Assets.loadMaterial("transparent.json"));
                         transparentMesh.getTransform().scale(World.WORLD_SCALE);
                         transparentMesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
                     }

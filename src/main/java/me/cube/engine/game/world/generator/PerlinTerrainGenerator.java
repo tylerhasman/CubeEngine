@@ -24,11 +24,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     private float coloring, coloring2, coloring3, tempurature;
 
     private Map<Biome, Float> biomeWeightsAt(int x, int z){
-
-        float genCoordX = x / 800f;
-        float genCoordZ = z / 800f;
-
-        return Biome.calculateWeights(genCoordX, genCoordZ);
+        return Biome.calculateWeights(x, z);
     }
 
     public Biome biomeAt(int x, int z){
@@ -79,6 +75,10 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         height /= sumWeights;
 
+        if(weights.getOrDefault(Biome.RIVER, 0f) == 1){
+            return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max((height + 20) / 1.35f, 1);
+        }
+
         return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + 20, 1);
     }
 
@@ -115,15 +115,19 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 g = 101;
                 b = 57;
             }else{
-                r = 0;
-                g = 0;
-                b = 255;
-                a = 128;
+                r = 100;
+                g = 100;
+                b = 253;
+                a = 64;
                 coloring = 0;
                 coloring2 = 0;
                 coloring3 = 0;
             }
 
+        }else if(biome == Biome.MOUNTAINS){
+            r = 151;
+            g = 124;
+            b = 83;
         }
 
         float[] hslBuffer = new float[3];//Reuse

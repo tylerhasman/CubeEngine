@@ -1,23 +1,27 @@
 package me.cube.engine.game.world.generator;
 
+import me.cube.engine.game.world.BiomeMap;
 import me.cube.engine.util.PerlinNoise;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public enum Biome {
 
     //seeds chosen randomly through button mashing
-    ULTRA_PLAINS(0x423789, -40, 1f),
-    PLAINS(0x37429, -20, 1f),
-    MOUNTAINS(0x921034, 80, 1f),
+    ULTRA_PLAINS(0x423789, 5, 1f),
+    PLAINS(0x37429, 15, 1f),
+    MOUNTAINS(0x921034, 65, 1f),
     RIVER(0x213129, 0, 1f);
 
-    private static final Biome[] GENERATED = new Biome[] {
+    public static final Biome[] GENERATED = new Biome[] {
       Biome.ULTRA_PLAINS,
       Biome.PLAINS,
       Biome.MOUNTAINS
     };
+
+    private static final BiomeMap biomeMap = new BiomeMap(0x783912);
 
     private final PerlinNoise perlinNoise, weightNoise;
     private final float heightMod;//How much to stretch terrain vertically. Must be positive
@@ -40,13 +44,18 @@ public enum Biome {
     /**
      * Calculates the weights for all biomes
      */
-    public static Map<Biome, Float> calculateWeights(float x, float y){
-        Map<Biome, Float> biomes = new HashMap<>();
+    public static Map<Biome, Float> calculateWeights(float x, float z){
+        return biomeMap.calculateBiomeWeights((int) Math.floor(x), (int) Math.floor(z));
+/*        float sumOfSquares = 0f;
 
-        for(Biome biome : GENERATED){
-            biomes.put(biome, biome.weightNoise.noise(x, y) * biome.weightMod);
+        for(Biome biome : biomes.keySet()){
+            sumOfSquares += biomes.get(biome) * biomes.get(biome);
         }
 
+        for(Biome biome : biomes.keySet()){
+            biomes.put(biome, 1f - (biomes.get(biome) / sumOfSquares));
+        }*/
+/*
         if(biomes.size() > 1){
             Map<Biome, Float> copy = new HashMap<>(biomes);
 
@@ -61,9 +70,8 @@ public enum Biome {
                 biomes.put(Biome.RIVER, 1f);
             }
 
-        }
+        }*/
 
-        return biomes;
     }
 
     private static Biome calculateBiome(Map<Biome, Float> weights){
