@@ -30,7 +30,7 @@ public class World {
         entities = new ArrayList<>();
         particleEngine = new ParticleEngine(2000);
 
-        terrain = new Terrain(8, "test");
+        terrain = new Terrain(4, "test");
 
         worldTime = ONE_DAY / 2f;
 

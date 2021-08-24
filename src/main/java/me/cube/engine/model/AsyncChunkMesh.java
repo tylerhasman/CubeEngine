@@ -92,16 +92,20 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.west = !isOpaque(terrain, chunk, i+1, j, k);
 
                         if(cube.alpha < 1f){
-                            cube.top = !isSolid(terrain, chunk, i, j + 1, k);
+
+                            cube.top = true;
+                            cube.bottom = false;
+                            cube.north = false;
+                            cube.south = false;
+                            cube.east = false;
+                            cube.west = false;
+
+                            /*cube.top = !isSolid(terrain, chunk, i, j + 1, k);
                             cube.bottom = !isSolid(terrain, chunk, i, j - 1, k);
                             cube.north = !isSolid(terrain, chunk, i, j, k-1);
                             cube.south = !isSolid(terrain, chunk, i, j, k+1);
                             cube.east = !isSolid(terrain, chunk, i-1, j, k);
-                            cube.west = !isSolid(terrain, chunk, i+1, j, k);
-
-                   /*         if(chunk.getChunkX() == 3 && chunk.getChunkZ() == 1 && cube.isVisible()){
-                                System.out.println("Trouble?");
-                            }*/
+                            cube.west = !isSolid(terrain, chunk, i+1, j, k);*/
                         }
 
                         if(cube.isVisible()){
@@ -119,7 +123,7 @@ public class AsyncChunkMesh extends VoxelMesh {
             }
         }
 
-        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk mesh");
+        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk mesh "+chunk.getChunkX()+"/"+chunk.getChunkZ()+" "+(vertices.count() + tVertices.count())+" vertices");
     }
 
     private static int countAboveBlocks(Terrain terrain, Chunk chunk, int i, int j, int k, int max){
@@ -266,6 +270,9 @@ public class AsyncChunkMesh extends VoxelMesh {
         int worldZ = chunk.getChunkZ() * CHUNK_WIDTH + k;
 
         if(i < 0 || k < 0 || i >= CHUNK_WIDTH || k >= CHUNK_WIDTH){//Outside this chunk
+/*            if(!terrain.isLoaded(worldX, worldZ)){
+                return true;
+            }*/
             return terrain.isSolid(worldX, worldY, worldZ);
         }
 

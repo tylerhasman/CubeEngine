@@ -1,9 +1,6 @@
 package me.cube.engine.game.world;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ChunkStorage {
 
@@ -31,7 +28,7 @@ public class ChunkStorage {
         return chunks.get(coordinate);
     }
 
-    public Collection<Chunk> getLoadedChunks(){
+    public List<Chunk> getLoadedChunks(){
         return new ArrayList<>(chunks.values());//Not fast but shouldnt be a big problem
     }
 

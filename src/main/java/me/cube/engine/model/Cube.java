@@ -27,6 +27,10 @@ public class Cube {
     //And for horizontal sides of the cubes it can get really fucky
     private Vector3f calculateColor(int minX, int maxX, int minY, int maxY, int minZ, int maxZ){
 
+        if(alpha < 1){
+            return new Vector3f(red, green, blue);
+        }
+
         float legit = (maxX - minX) + (maxY - minY) + (maxZ - minZ);
         Vector3f outputColor = new Vector3f(red, green, blue).mul(legit);
 

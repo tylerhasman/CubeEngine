@@ -186,7 +186,7 @@ public class Terrain {
 
         terrainGenerator.generateChunk(chunk);
 
-        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk "+x+" "+z);
+        //System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk "+x+" "+z);
 
         if(chunkSave.hasChanges()){
             chunkSave.applyTo(chunk);
@@ -208,7 +208,7 @@ public class Terrain {
 
                 Chunk other = chunkStorage.getChunk(i + x, j + z);
                 if(other != null){
-                    //other.requireMeshRefresh = true;
+                    other.requireMeshRefresh = true;
                 }
 
             }
@@ -256,7 +256,15 @@ public class Terrain {
     }
 
     public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f playerPosition) {
-        for(Chunk chunk : chunkStorage.getLoadedChunks()){
+
+        List<Chunk> sorted = chunkStorage.getLoadedChunks();
+        sorted.sort((c1, c2) -> {
+            int pcx = (int) Math.floor(playerPosition.x / CHUNK_WIDTH);
+            int pcz = (int) Math.floor(playerPosition.z / CHUNK_WIDTH);
+            return Integer.compare(c2.dst2(pcx, pcz), c1.dst2(pcx, pcz));
+        });
+
+        for(Chunk chunk : sorted){
             chunk.renderTransparent(ambientLight, diffuseLights);
         }
     }
@@ -315,6 +323,18 @@ public class Terrain {
             chunk.setBlock(x - chunkX * CHUNK_WIDTH, y, z - chunkZ * CHUNK_WIDTH, cube);
         }
 
+    }
+
+    /**
+     * Checks if a chunk is loaded using world coordinates
+     * @param worldX world x
+     * @param worldZ world z
+     */
+    public boolean isLoaded(int worldX, int worldZ){
+        int chunkX = Chunk.worldToChunk(worldX);
+        int chunkZ = Chunk.worldToChunk(worldZ);
+
+        return chunkStorage.isLoaded(chunkX, chunkZ);
     }
 
     public int getCube(int x, int y, int z) {

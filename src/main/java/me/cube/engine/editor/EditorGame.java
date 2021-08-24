@@ -191,6 +191,7 @@ public class EditorGame implements Game {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
 
+
         glEnable(GL_CULL_FACE);
 
         glCullFace(GL_FRONT);
@@ -200,6 +201,7 @@ public class EditorGame implements Game {
         glDisable(GL_CULL_FACE);
 
         terrain.renderTransparent(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
+
 
 /*        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
             *//*glEnable(GL_CULL_FACE);
