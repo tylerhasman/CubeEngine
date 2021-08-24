@@ -3,6 +3,7 @@ package me.cube.engine.editor;
 import me.cube.engine.*;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.VoxelFile;
+import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.Terrain;
 import me.cube.engine.game.world.World;
 import me.cube.engine.game.world.generator.Biome;
@@ -45,7 +46,7 @@ public class EditorGame implements Game {
     private List<VoxelFile> placeableModels;
 
     public EditorGame(){
-        cameraPosition = new Vector3f();
+        cameraPosition = new Vector3f(3 * Chunk.CHUNK_WIDTH, 50, 1 * Chunk.CHUNK_WIDTH);
     }
 
     @Override
@@ -314,7 +315,7 @@ public class EditorGame implements Game {
     @Override
     public String getTitle() {
 
-        float genCoordX = cameraPosition.x / 800f;
+     /*   float genCoordX = cameraPosition.x / 800f;
         float genCoordZ = cameraPosition.z / 800f;
 
         Map<Biome, Float> weights = Biome.calculateWeights(genCoordX, genCoordZ);
@@ -323,8 +324,8 @@ public class EditorGame implements Game {
         for(Biome b : weights.keySet()){
             biome += b.name()+"="+weights.get(b)+" ";
         }
-
-        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "")+" "+biome;
+*/
+        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "");
     }
 
     @Override

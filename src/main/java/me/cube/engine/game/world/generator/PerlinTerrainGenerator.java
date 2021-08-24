@@ -118,7 +118,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 r = 0;
                 g = 0;
                 b = 255;
-                a = 10;
+                a = 128;
                 coloring = 0;
                 coloring2 = 0;
                 coloring3 = 0;

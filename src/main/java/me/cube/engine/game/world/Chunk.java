@@ -126,6 +126,7 @@ public class Chunk {
 
                     if(transparentMesh != null && transparentMesh.model != null){
                         transparentMesh.model.dispose();
+                        transparentMesh = null;
                     }
 
 

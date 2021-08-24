@@ -92,20 +92,12 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.west = !isOpaque(terrain, chunk, i+1, j, k);
 
                         if(cube.alpha < 1f){
-
-                            cube.top = true;
-                            cube.bottom = false;
-                            cube.north = false;
-                            cube.south = false;
-                            cube.east = false;
-                            cube.west = false;
-
-                            /*cube.top = !isSolid(terrain, chunk, i, j + 1, k);
+                            cube.top = !isSolid(terrain, chunk, i, j + 1, k);
                             cube.bottom = !isSolid(terrain, chunk, i, j - 1, k);
                             cube.north = !isSolid(terrain, chunk, i, j, k-1);
                             cube.south = !isSolid(terrain, chunk, i, j, k+1);
                             cube.east = !isSolid(terrain, chunk, i-1, j, k);
-                            cube.west = !isSolid(terrain, chunk, i+1, j, k);*/
+                            cube.west = !isSolid(terrain, chunk, i+1, j, k);
                         }
 
                         if(cube.isVisible()){
@@ -123,7 +115,20 @@ public class AsyncChunkMesh extends VoxelMesh {
             }
         }
 
-        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk mesh "+chunk.getChunkX()+"/"+chunk.getChunkZ()+" "+(vertices.count() + tVertices.count())+" vertices");
+        //I have absolutely no clue why but
+        //If we try to render meshes that are small glDrawArrays segfaults
+        //This is a mystery for another day :^)
+        if(tVertices.count() < 256) {
+            tVertices.addRepeat(0, 256);
+            tColors.addRepeat(0, 256 / 3 * 4);
+            tNormals.addRepeat(0, 256);
+        }
+
+/*        if(hasTransparency){
+            System.out.println(tVertices.count()+" "+tNormals.count()+" "+tColors.count());
+        }*/
+
+        //System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk mesh "+chunk.getChunkX()+"/"+chunk.getChunkZ()+" "+(vertices.count() + tVertices.count())+" vertices");
     }
 
     private static int countAboveBlocks(Terrain terrain, Chunk chunk, int i, int j, int k, int max){
