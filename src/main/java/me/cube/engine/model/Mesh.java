@@ -15,7 +15,7 @@ public class Mesh {
 
     private int indices;
     private int vertexHandle, colorHandle, normalHandle;
-    private boolean initialized = false;
+    private boolean initialized = false, disposed = false;
 
     /**
      *         GL_POINTS         = 0x0
@@ -31,7 +31,12 @@ public class Mesh {
      */
     private final int mode;
 
+    private int quads, colors, normals;
+
     protected Mesh(int mode){
+        if(mode != GL11.GL_QUADS){
+            throw new IllegalArgumentException(mode+" is not implemented");
+        }
         this.mode = mode;
     }
 
@@ -49,6 +54,14 @@ public class Mesh {
         if(initialized)
             throw new IllegalStateException("Mesh already initialized.");
 
+        quads = vertexBufferData.length / 3;
+        colors = colorBufferData.length / 4;
+        normals = normalBufferData.length / 3;
+
+        if(quads != colors || quads != normals){
+            throw new IllegalStateException(quads+" "+colors+" "+normals);
+        }
+
         initialized = true;
 
         vertexHandle = glGenBuffers();
@@ -58,20 +71,48 @@ public class Mesh {
         glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
         glBufferData(GL_ARRAY_BUFFER, vertexBufferData, GL_STATIC_DRAW);
 
+        int[] size = new int[1];
+
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, size);
+
+        if(size[0] != vertexBufferData.length * 4){
+            throw new IllegalStateException("Buffer size != expected size. "+size[0]+" != "+(vertexBufferData.length * 4));
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER, colorHandle);
         glBufferData(GL_ARRAY_BUFFER, colorBufferData, GL_STATIC_DRAW);
+
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, size);
+
+        if(size[0] != colorBufferData.length * 4){
+            throw new IllegalStateException("Buffer size != expected size. "+size[0]+" != "+(colorBufferData.length * 4));
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
         glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
 
-        indices = vertexBufferData.length / 3;
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, size);
+
+        if(size[0] != normalBufferData.length * 4){
+            throw new IllegalStateException("Buffer size != expected size. "+size[0]+" != "+(normalBufferData.length * 4));
+        }
+
     }
 
     public void dispose(){
-        glDeleteBuffers(new int[] {vertexHandle, colorHandle, normalHandle});
+        if(!disposed){
+            glDeleteBuffers(new int[] {vertexHandle, colorHandle, normalHandle});
+            disposed = true;
+        }else{
+            throw new IllegalStateException("Mesh has already been disposed");
+        }
     }
 
     public void render(){
+
+        if(disposed){
+            throw new IllegalStateException("Mesh cannot be rendered anymore.");
+        }
 
         if(initialized){
             glEnableClientState(GL_VERTEX_ARRAY);
