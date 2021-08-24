@@ -66,7 +66,6 @@ public class StructurePopulator implements ChunkPopulator {
                     if(chunk.isWithinChunk(x, z)){
                         if( chunk.blocks[x - chunk.getChunkX() * Chunk.CHUNK_WIDTH][y][z - chunk.getChunkZ() * Chunk.CHUNK_WIDTH] == 0){
                             chunk.blocks[x - chunk.getChunkX() * Chunk.CHUNK_WIDTH][y][z - chunk.getChunkZ() * Chunk.CHUNK_WIDTH] = structure.getCube(i, j, k);
-                            chunk.blockFlags[x - chunk.getChunkX() * Chunk.CHUNK_WIDTH][y][z - chunk.getChunkZ() * Chunk.CHUNK_WIDTH] |= Chunk.FLAG_NO_COLOR_BLEED;
                         }
                     }
 

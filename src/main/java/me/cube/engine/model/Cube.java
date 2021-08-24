@@ -3,11 +3,13 @@ package me.cube.engine.model;
 import me.cube.engine.util.FloatArray;
 import org.joml.Vector3f;
 
+import java.awt.*;
+
 public class Cube {
 
     public float scale = 1f;
 
-    public float red, green, blue;
+    public float red, green, blue, alpha;
     public int flags;
 
     public boolean top, bottom, south, north, west, east;
@@ -20,25 +22,31 @@ public class Cube {
         return top || bottom || south || north || west || east;
     }
 
+    //TODO: This method is really fucked
+    //It is supposed to calculate the color each vertex of the cube should be but it gets fucked when there are underground blocks
+    //And for horizontal sides of the cubes it can get really fucky
     private Vector3f calculateColor(int minX, int maxX, int minY, int maxY, int minZ, int maxZ){
 
-        Vector3f outputColor = new Vector3f(red, green, blue);
-        float legit = 1f;
+        float legit = (maxX - minX) + (maxY - minY) + (maxZ - minZ);
+        Vector3f outputColor = new Vector3f(red, green, blue).mul(legit);
 
         for(int i = minX;i <= maxX;i++){
             for(int k = minY; k <= maxY;k++){
                 for(int j = minZ;j <= maxZ;j++){
                     int color = neighbors[i][k][j];
 
-                    if(color != 0){
-                        legit++;
-                        if(k != 1){
-                            outputColor.add(rgbToVector(color).mul(0.25f));
-                        }else{
-                            outputColor.add(rgbToVector(color));
+                    if(i == 1 && j == 1 && k == 1)
+                        continue;
 
+                    if(color != 0 && (((color >> 24)) & 0xFF) == 0xFF){
+                        legit++;
+                        if(k == 1){
+                            outputColor.add(rgbToVector(color));
+                        }else{
+                            outputColor.add(new Vector3f(0.1f));
                         }
                     }
+
                 }
             }
         }
@@ -81,13 +89,13 @@ public class Cube {
             Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
 
             colorOut.add(color1.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color2.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color3.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color4.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
 
         }
 
@@ -106,13 +114,13 @@ public class Cube {
             Vector3f color4 = calculateColor(1, 2, 0, 1, 1, 2);
 
             colorOut.add(color1.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color2.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color3.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color4.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
 
         }
 
@@ -130,13 +138,13 @@ public class Cube {
             Vector3f color4 = calculateColor(0, 1, 1, 2, 1, 2);
 
             colorOut.add(color1);
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color2);
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color3);
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color4);
-            colorOut.add(1f);
+            colorOut.add(alpha);
 
         }
 
@@ -148,7 +156,7 @@ public class Cube {
             vertOut.add(x + size, y, z);
 
             norOut.addRepeat(new float[] {0, -1, 0}, 4);
-            colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, 1f}, 4);
+            colorOut.addRepeat(new float[] {color.x * 0.8f, color.y * 0.8f, color.z * 0.8f, alpha}, 4);
 
         }
 
@@ -167,13 +175,13 @@ public class Cube {
             Vector3f color4 = calculateColor(0, 1, 0, 1, 0, 1);
 
             colorOut.add(color1.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color2.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color3.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color4.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
 
         }
 
@@ -193,13 +201,13 @@ public class Cube {
             Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
 
             colorOut.add(color1.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color2.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color3.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
             colorOut.add(color4.mul(0.8f));
-            colorOut.add(1f);
+            colorOut.add(alpha);
 
         }
     }

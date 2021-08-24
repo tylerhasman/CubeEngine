@@ -3,20 +3,30 @@ package me.cube.engine.model;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.Terrain;
 import me.cube.engine.util.FloatArray;
-import org.joml.Vector3f;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
+import static org.lwjgl.opengl.GL11C.GL_QUADS;
 
 public class AsyncChunkMesh extends VoxelMesh {
 
+    //Opaque mesh
     private FloatArray vertices, colors, normals;
 
+    //Transparent mesh
+    private FloatArray tVertices, tColors, tNormals;
+    private boolean hasTransparency;
+
     public AsyncChunkMesh(Terrain terrain, Chunk chunk){
-        super(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH);
+        super();
         vertices = new FloatArray(4096);
         colors = new FloatArray(4096);
         normals = new FloatArray(4096);
+
+        tVertices = new FloatArray(4096);
+        tColors = new FloatArray(4096);
+        tNormals = new FloatArray(4096);
+        hasTransparency = false;
 
         generate(terrain, chunk);
     }
@@ -29,6 +39,20 @@ public class AsyncChunkMesh extends VoxelMesh {
         vertices = null;
         colors = null;
         normals = null;
+    }
+
+    public VoxelMesh createTransparentMesh(){
+        VoxelMesh mesh = new VoxelMesh();
+        mesh.initialize(tVertices.toArray(), tColors.toArray(), tNormals.toArray());
+        tVertices = null;
+        tColors = null;
+        tNormals = null;
+        hasTransparency = false;
+        return mesh;
+    }
+
+    public boolean hasTransparency(){
+        return hasTransparency;
     }
 
     private void generate(Terrain terrain, Chunk chunk){
@@ -48,43 +72,45 @@ public class AsyncChunkMesh extends VoxelMesh {
 
                         cube.flags = 0;
 
+                        cube.alpha = ((color >> 24) & 255) / 255f;
+
                         cube.red = ((color >> 16) & 255) / 255F;
                         cube.green = ((color >> 8) & 255) / 255F;
                         cube.blue = (color & 255) / 255F;
 
-                        if((flags & Chunk.FLAG_NO_COLOR_BLEED) == Chunk.FLAG_NO_COLOR_BLEED){
-                            cube.neighbors = new int[3][3][3];
-                        }else{
-                            cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
-                        }
+                        cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
 
                         cube.x = i;
                         cube.y = j;
                         cube.z = k;
 
-                        cube.top = !isSolid(terrain, chunk, i, j + 1, k);
-                        cube.bottom = !isSolid(terrain, chunk, i, j - 1, k);
-                        cube.north = !isSolid(terrain, chunk, i, j, k-1);
-                        cube.south = !isSolid(terrain, chunk, i, j, k+1);
-                        cube.east = !isSolid(terrain, chunk, i-1, j, k);
-                        cube.west = !isSolid(terrain, chunk, i+1, j, k);
+                        cube.top = !isOpaque(terrain, chunk, i, j + 1, k);
+                        cube.bottom = !isOpaque(terrain, chunk, i, j - 1, k);
+                        cube.north = !isOpaque(terrain, chunk, i, j, k-1);
+                        cube.south = !isOpaque(terrain, chunk, i, j, k+1);
+                        cube.east = !isOpaque(terrain, chunk, i-1, j, k);
+                        cube.west = !isOpaque(terrain, chunk, i+1, j, k);
+
+                        if(cube.alpha < 1f){
+                            cube.top = !isSolid(terrain, chunk, i, j + 1, k);
+                            cube.bottom = !isSolid(terrain, chunk, i, j - 1, k);
+                            cube.north = !isSolid(terrain, chunk, i, j, k-1);
+                            cube.south = !isSolid(terrain, chunk, i, j, k+1);
+                            cube.east = !isSolid(terrain, chunk, i-1, j, k);
+                            cube.west = !isSolid(terrain, chunk, i+1, j, k);
+
+                   /*         if(chunk.getChunkX() == 3 && chunk.getChunkZ() == 1 && cube.isVisible()){
+                                System.out.println("Trouble?");
+                            }*/
+                        }
 
                         if(cube.isVisible()){
-                            float adjacent = countAdjacentCoveringBlocks(terrain, chunk, i, j, k, 3);
-
-                            /*cube.red *= (1f - (adjacent) / 196f);
-                            cube.green *= (1f - (adjacent) / 196f);
-                            cube.blue *= (1f - (adjacent) / 196f);*/
-
-                            /*if(cube.top){
-                                int above = countAboveBlocks(terrain, chunk, i, j, k, 12);
-
-                                cube.red *= (1f - (above) / 16f);
-                                cube.green *= (1f - (above) / 16f);
-                                cube.blue *= (1f - (above) / 16f);
-                            }*/
-
-                            cube.generate(vertices, normals, colors);
+                            if(cube.alpha == 1) {
+                                cube.generate(vertices, normals, colors);
+                            }else{
+                                cube.generate(tVertices, tNormals, tColors);
+                                hasTransparency = true;
+                            }
                         }
 
                     }
@@ -204,6 +230,29 @@ public class AsyncChunkMesh extends VoxelMesh {
         }
 
         return chunk.blocks[chunkX][worldY][chunkZ];
+    }
+
+    private static boolean isOpaque(Terrain terrain, Chunk chunk, int i, int worldY, int k){
+        if(worldY < 0){//Under the world
+            return true;
+        }
+        if(worldY >= CHUNK_HEIGHT){
+            return false;
+        }
+        int worldX = chunk.getChunkX() * CHUNK_WIDTH + i;
+        int worldZ = chunk.getChunkZ() * CHUNK_WIDTH + k;
+
+        int color;
+
+        if(i < 0 || k < 0 || i >= CHUNK_WIDTH || k >= CHUNK_WIDTH){//Outside this chunk
+            color = terrain.getCube(worldX, worldY, worldZ);
+        }else{
+            color = chunk.blocks[i][worldY][k];
+        }
+
+        int alpha = (color >> 24) & 0xFF;
+
+        return alpha == 255;
     }
 
     private static boolean isSolid(Terrain terrain, Chunk chunk, int i, int worldY, int k){

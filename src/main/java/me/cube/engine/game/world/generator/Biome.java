@@ -11,7 +11,7 @@ public enum Biome {
     ULTRA_PLAINS(0x423789, -40, 1f),
     PLAINS(0x37429, -20, 1f),
     MOUNTAINS(0x921034, 80, 1f),
-    RIVER(0x213129, -40, 1f);
+    RIVER(0x213129, 0, 1f);
 
     private static final Biome[] GENERATED = new Biome[] {
       Biome.ULTRA_PLAINS,

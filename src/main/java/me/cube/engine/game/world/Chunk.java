@@ -3,15 +3,17 @@ package me.cube.engine.game.world;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.ChunkSave;
 import me.cube.engine.model.AsyncChunkMesh;
+import me.cube.engine.model.Mesh;
+import me.cube.engine.model.VoxelMesh;
 import org.joml.Vector3f;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class Chunk {
+import static org.lwjgl.opengl.GL11C.GL_QUADS;
 
-    public static final byte FLAG_NO_COLOR_BLEED = 1;
+public class Chunk {
 
     private static final ScheduledExecutorService meshGeneratorExec = new ScheduledThreadPoolExecutor(2, (r) -> {
 
@@ -32,7 +34,7 @@ public class Chunk {
 
     protected boolean requireMeshRefresh = false;
 
-    private Voxel mesh;
+    private Voxel mesh, transparentMesh;
 
     private final Terrain terrain;
 
@@ -74,12 +76,34 @@ public class Chunk {
             if(mesh != null && mesh.model != null){
                 mesh.model.dispose();
             }
+            if(transparentMesh != null && transparentMesh.model != null){
+                transparentMesh.model.dispose();
+            }
             disposed = true;
             /*try {
                 chunkSave.save();
             } catch (IOException e) {
                 e.printStackTrace();
             }*/
+        }
+    }
+
+
+    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights) {
+        if(disposed){
+            return;
+        }
+
+        if(transparentMesh != null){
+            for(int i = 0; i < diffuseLights.size();i++){
+                DiffuseLight light = diffuseLights.get(i);
+                transparentMesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
+                transparentMesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
+                transparentMesh.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", light.intensity);
+            }
+            transparentMesh.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
+
+            transparentMesh.render();
         }
     }
 
@@ -100,12 +124,23 @@ public class Chunk {
                         mesh.model.dispose();
                     }
 
+                    if(transparentMesh != null && transparentMesh.model != null){
+                        transparentMesh.model.dispose();
+                    }
+
+
                     AsyncChunkMesh chunkMesh = meshGeneratedFuture.get();
                     chunkMesh.initialize();
 
                     mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, chunkMesh);
                     mesh.getTransform().scale(World.WORLD_SCALE);
                     mesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
+
+                    if(chunkMesh.hasTransparency()){
+                        transparentMesh = new Voxel("ChunkTrasparent"+chunkX+" "+chunkZ, chunkMesh.createTransparentMesh());
+                        transparentMesh.getTransform().scale(World.WORLD_SCALE);
+                        transparentMesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }finally{
@@ -175,6 +210,7 @@ public class Chunk {
     public static int worldToChunk(int worldCoord){
         return (int) Math.floor((float) worldCoord / (float) CHUNK_WIDTH);
     }
+
 
 /*    protected void setBlockWorldCoords(int x, int y, int z, int color){
         x -= chunkX * Chunk.CHUNK_WIDTH;

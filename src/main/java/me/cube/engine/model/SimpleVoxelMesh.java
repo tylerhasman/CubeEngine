@@ -30,7 +30,7 @@ public class SimpleVoxelMesh extends VoxelMesh {
     }*/
 
     public SimpleVoxelMesh(int[][][] cubes, int width, int height, int length, Vector3f pivot){
-        super(width, height, length);
+        super();
 
         FloatArray vertices = new FloatArray(1024);
         FloatArray colors = new FloatArray(1024);

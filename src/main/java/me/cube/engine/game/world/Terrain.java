@@ -128,7 +128,7 @@ public class Terrain {
 
         for(Chunk loaded : chunkStorage.getLoadedChunks()){
             int dst2 = loaded.dst2(centerX, centerZ);
-            if(dst2 > viewDistance * viewDistance + 4 * 4){
+            if(dst2 > viewDistance * viewDistance + 64){
                 loaded.dispose();
                 chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
                 unloaded = true;
@@ -208,7 +208,7 @@ public class Terrain {
 
                 Chunk other = chunkStorage.getChunk(i + x, j + z);
                 if(other != null){
-                    other.requireMeshRefresh = true;
+                    //other.requireMeshRefresh = true;
                 }
 
             }
@@ -252,6 +252,12 @@ public class Terrain {
 
                 fluff.render();
             }
+        }
+    }
+
+    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f playerPosition) {
+        for(Chunk chunk : chunkStorage.getLoadedChunks()){
+            chunk.renderTransparent(ambientLight, diffuseLights);
         }
     }
 

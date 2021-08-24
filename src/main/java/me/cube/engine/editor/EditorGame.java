@@ -199,9 +199,11 @@ public class EditorGame implements Game {
 
         glDisable(GL_CULL_FACE);
 
-        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
-            /*glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);*/
+        terrain.renderTransparent(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
+
+/*        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
+            *//*glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);*//*
             Voxel voxel = new Voxel("Cursor", selectedModelMesh);
             voxel.getTransform().scale(World.WORLD_SCALE);
 
@@ -213,7 +215,7 @@ public class EditorGame implements Game {
 
             voxel.render();
             //glDisable(GL_CULL_FACE);
-        }
+        }*/
 
         glDisable(GL_MULTISAMPLE);
         glDisable(GL_DEPTH_TEST);
@@ -288,7 +290,7 @@ public class EditorGame implements Game {
             }
         }
 
-        if(button == GLFW_MOUSE_BUTTON_1){
+/*        if(button == GLFW_MOUSE_BUTTON_1){
             if(action == GLFW_PRESS){
                 Vector3f worldGridPosition = new Vector3f(mouseWorldProjection).mul(1f / World.WORLD_SCALE);
 
@@ -303,7 +305,7 @@ public class EditorGame implements Game {
                 executeAction(new PasteStructureAction(model, pasteX, pasteY, pasteZ));
 
             }
-        }
+        }*/
 
     }
 
