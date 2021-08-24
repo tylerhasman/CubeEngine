@@ -64,7 +64,7 @@ public class Mesh {
         glBindBuffer(GL_ARRAY_BUFFER, normalHandle);
         glBufferData(GL_ARRAY_BUFFER, normalBufferData, GL_STATIC_DRAW);
 
-        indices = vertexBufferData.length;
+        indices = vertexBufferData.length / 3;
     }
 
     public void dispose(){
