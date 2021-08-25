@@ -115,15 +115,18 @@ public class Terrain {
                     ChunkSnapshot chunkSnapshot = future.get();
 
                     Chunk chunk = chunkStorage.getChunk(chunkSnapshot.x, chunkSnapshot.z);
-                    for(int i = 0; i < CHUNK_WIDTH;i++){
-                        for(int j = 0; j < CHUNK_HEIGHT;j++){
-                            for(int k = 0; k < CHUNK_WIDTH;k++){
-                                chunk.blocks[i][j][k] = chunkSnapshot.blocks[i][j][k];
+                    if(chunk != null){
+                        for(int i = 0; i < CHUNK_WIDTH;i++){
+                            for(int j = 0; j < CHUNK_HEIGHT;j++){
+                                for(int k = 0; k < CHUNK_WIDTH;k++){
+                                    chunk.blocks[i][j][k] = chunkSnapshot.blocks[i][j][k];
+                                }
                             }
                         }
+
+                        initializeChunk(chunk);
                     }
 
-                    initializeChunk(chunk);
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -292,7 +295,7 @@ public class Terrain {
 
             time = System.currentTimeMillis() - time;
 
-            System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
+            //System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
 
             //TODO: Populate chunks with structures and whatnot
 

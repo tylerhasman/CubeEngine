@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.cube.engine.game.world.generator.Biome.LAKE;
+import static me.cube.engine.game.world.generator.Biome.RIVER;
 
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
@@ -35,6 +36,12 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     }
 
     private int waterHeightAt(Map<Biome, Float> weights){
+        if(weights.getOrDefault(LAKE, 0f) > 0f){
+            return 20;
+        }
+        if(weights.getOrDefault(RIVER, 0f) > 0f){
+            return 30;
+        }
         return 20;
     }
 
@@ -59,10 +66,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         height /= sumWeights;
 
         int groundHeight = 20;
-
-        if(weights.getOrDefault(LAKE, 0f) == 1){
-            //groundHeight -= 10 * weights.get(LAKE) / sumWeights;
-        }
 
         return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + groundHeight, 1);
     }
@@ -89,6 +92,12 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             r = 131;
             g = 101;
             b = 57;
+        }
+
+        if(biome == LAKE && y < 19){
+            r = 194;
+            g = 178;
+            b = 128;
         }
 
         if(biome == Biome.MOUNTAINS){
@@ -139,8 +148,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         hslBuffer[0] += coloring3;
 
         int outColor = Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
-
-        //TODO: Generating liquids
 
         return (0xFF << 24) | (outColor & 0x00FFFFFF);
     }

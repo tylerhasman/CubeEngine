@@ -6,11 +6,11 @@ import me.cube.engine.util.PerlinNoise;
 public enum Biome {
 
     //seeds chosen randomly through button mashing
-    ULTRA_PLAINS(0x423789, 5, 0.4f, 64),
-    PLAINS(0x37429, 15, 1, 64),
-    MOUNTAINS(0x921034, 40, 0.8f, 64),
-    RIVER(0x213129, 0, 0, 0),
-    LAKE(0x432423, -10, 0.25f, -32);
+    ULTRA_PLAINS(0x423789, 5, 0.4f, 48, 1f),
+    PLAINS(0x37429, 15, 1, 48, 1f),
+    MOUNTAINS(0x921034, 40, 0.8f, 48, 1.5f),
+    RIVER(0x213129, 0, 0, 0, 1f),
+    LAKE(0x432423, -20, 1f, 16, 1f);
 
     public static final Biome[] GENERATED = new Biome[] {
             Biome.ULTRA_PLAINS,
@@ -33,23 +33,21 @@ public enum Biome {
     private final float heightMod;//How much to stretch terrain vertically. Must be positive
     private final float spawnWeight;//Higher value increases chance this biome will spawn
     public final float blendDistance;
+    public final float horizontalStretch;
 
-    Biome(int seed, float heightMod, float spawnWeight, float blendDistance){
+    Biome(int seed, float heightMod, float spawnWeight, float blendDistance, float horizontalStretch){
         perlinNoise = new PerlinNoise(seed);
         this.heightMod = heightMod;
         this.spawnWeight = spawnWeight;
         this.blendDistance = blendDistance;
-    }
-
-    public float getSpawnWeight() {
-        return spawnWeight;
+        this.horizontalStretch = horizontalStretch;
     }
 
     public int heightAt(int x, int z){
         float genCoordX = x / 40f;
         float genCoordZ = z / 40f;
 
-        return (int) (perlinNoise.noise(genCoordX, genCoordZ) * heightMod);
+        return (int) (perlinNoise.noise(genCoordX / horizontalStretch, genCoordZ / horizontalStretch) * heightMod);
     }
 
     /**

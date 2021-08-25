@@ -1,14 +1,16 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.game.world.generator.Biome;
+import me.cube.engine.util.CubicNoise;
+import me.cube.engine.util.NoiseGenerator;
+import me.cube.engine.util.PerlinNoise;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 import java.util.*;
 
 public class BiomeMap {
 
-    public static final int BIOME_CELL_SIZE = 14;
+    public static final int BIOME_CELL_SIZE = 16;
     //private static final float BLEND_DISTANCE = 64;
     private static final float RIVER_THRESHOLD = 8;
 
@@ -63,6 +65,19 @@ public class BiomeMap {
         List<Float> keys = new ArrayList<>(distances.keySet());
         keys.sort(Float::compare);
 
+/*        float top = keys.get(1);
+        Biome topBiome = distances.get(top);
+
+        weights.put(topBiome, 1f);*/
+
+/*        for(int i = 1; i < keys.size();i++){
+            Biome other = distances.get(keys.get(i));
+
+            weights.put(other, 1f / (i+1));
+        }*/
+
+
+        //Shading with 'definite' biomes
         float top = keys.get(0);
         Biome closest = distances.get(top);
         weights.put(closest, 1f);
@@ -75,18 +90,12 @@ public class BiomeMap {
 
             float blendDistance = (closest.blendDistance + closest2.blendDistance) / 2f;
 
-            if(Math.abs(top - top2) < blendDistance){
-                outValue += 1f - Math.abs(top - top2) / (blendDistance);
-            }
+            blendDistance = (float) Math.min(blendDistance, Math.sqrt(Chunk.CHUNK_WIDTH * BIOME_CELL_SIZE));
 
-/*
-            if(closest != closest2){
-                if(Math.abs(top - top2) < RIVER_THRESHOLD){
-                    closest2 = Biome.RIVER;
-                    outValue = 100f;
-                }
+            if(Math.abs(top - top2) < blendDistance){
+                float a = Math.abs(top - top2);
+                outValue += 1f - Math.sqrt(a / blendDistance);
             }
-*/
 
             if(outValue > 0)
                 weights.put(closest2, outValue);
@@ -96,8 +105,8 @@ public class BiomeMap {
     }
 
     public Map<Float, Biome> calculateBiomeDistances(int worldX, int worldZ){
-        int chunkX = worldX / Chunk.CHUNK_WIDTH;
-        int chunkZ = worldZ / Chunk.CHUNK_WIDTH;
+        int chunkX = Math.floorDiv(worldX, Chunk.CHUNK_WIDTH);
+        int chunkZ = Math.floorDiv(worldZ, Chunk.CHUNK_WIDTH);
 
         int cellX = Math.floorDiv(chunkX, BIOME_CELL_SIZE);
         int cellZ = Math.floorDiv(chunkZ, BIOME_CELL_SIZE);
