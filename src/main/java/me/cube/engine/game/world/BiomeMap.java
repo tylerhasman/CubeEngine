@@ -66,12 +66,17 @@ public class BiomeMap {
         Biome closest = distances.get(top);
         weights.put(closest, 1f);
 
-        for(int i = 1; i < 2;i++){
+        for(int i = 1; i < keys.size();i++){
             float top2 = keys.get(i);
             Biome closest2 = distances.get(top2);
+
+            float outValue = weights.getOrDefault(closest2, 0f);
+
             if(Math.abs(top - top2) < BLEND_DISTANCE){
-                weights.put(closest2, 1f - Math.abs(top - top2) / BLEND_DISTANCE);
+                outValue += 1f - Math.abs(top - top2) / BLEND_DISTANCE;
             }
+
+            weights.put(closest2, outValue);
         }
 
         return weights;
