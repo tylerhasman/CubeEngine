@@ -1,9 +1,12 @@
 package me.cube.engine.game.world.generator;
 
+import me.cube.engine.game.world.BiomeMap;
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.util.CubicNoise;
 import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -23,8 +26,10 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     //TODO
     private float coloring, coloring2, coloring3, tempurature;
 
+    private BiomeMap biomeMap = new BiomeMap(0x4324823);
+
     private Map<Biome, Float> biomeWeightsAt(int x, int z){
-        return Biome.calculateWeights(x, z);
+        return biomeMap.calculateBiomeWeights(x, z);
     }
 
     public Biome biomeAt(int x, int z){
@@ -82,16 +87,14 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + 20, 1);
     }
 
-    @Override
-    public int colorAt(float x, float y, float z) {
+    private Vector3f colorAtBiome(Biome biome, float x, float y, float z){
         int groundHeight = heightAt((int) Math.floor(x), (int) Math.floor(z));
 
         if(y > groundHeight){
-            return 0;
+            return null;
         }
-        int r = 0, g = 0, b = 0, a = 0xFF;
 
-        Biome biome = biomeAt(Math.round(x), Math.round(z));
+        int r = 0, g = 0, b = 0, a = 0xFF;
 
         if(tempurature < 0.1f){
             g = 0x80;
@@ -129,6 +132,37 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             g = 124;
             b = 83;
         }
+        return new Vector3f(r, g, b);
+    }
+
+    @Override
+    public int colorAt(float x, float y, float z) {
+
+        Map<Biome, Float> biomeWeights = biomeWeightsAt((int) Math.floor(x), (int) Math.floor(z));
+
+        Vector3f colorSum = new Vector3f();
+
+        float totalWeight = 0;
+
+        for(Biome biome : biomeWeights.keySet()){
+            float weight = biomeWeights.get(biome);
+
+            if (weight > 0){
+                Vector3f color = colorAtBiome(biome, x, y, z);
+
+                if(color != null){
+                    colorSum.add(color.mul(weight));
+                    totalWeight += weight;
+                }
+            }
+
+        }
+
+        colorSum.mul(1f / totalWeight);
+
+        int r = (int) colorSum.x;
+        int g = (int) colorSum.y;
+        int b = (int) colorSum.z;
 
         float[] hslBuffer = new float[3];//Reuse
 
@@ -140,7 +174,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         int outColor = Color.HSBtoRGB(hslBuffer[0], hslBuffer[1], hslBuffer[2]);
 
-        return (a << 24) | (outColor & 0x00FFFFFF);
+        //TODO: Generating liquids
+
+        return (0xFF << 24) | (outColor & 0x00FFFFFF);
     }
 
     private void clearCaches(){

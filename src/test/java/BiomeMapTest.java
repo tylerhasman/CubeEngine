@@ -38,7 +38,6 @@ public class BiomeMapTest {
                // Map<Float, Biome> distances = map.calculateBiomeDistances(i, j);
                 Map<Biome, Float> weights = map.calculateBiomeWeights(i, j);
 
-
                 float r = 0, g = 0, b = 0;
                 float sumOfWeights = 0f;
 
