@@ -8,8 +8,9 @@ import java.util.*;
 
 public class BiomeMap {
 
-    public static final int BIOME_CELL_SIZE = 16;
-    private static final float BLEND_DISTANCE = 32;
+    public static final int BIOME_CELL_SIZE = 14;
+    //private static final float BLEND_DISTANCE = 64;
+    private static final float RIVER_THRESHOLD = 8;
 
     private final long seed;
 
@@ -48,10 +49,10 @@ public class BiomeMap {
     }
 
     //Returns biome of a cell
-    private Biome biomeAt(int x, int z){
+    private Biome biomeAt(int x, int z) {
         Random random = getRandom(x, z);
 
-        return Biome.GENERATED[random.nextInt(Biome.GENERATED.length)];
+        return Biome.fromWeight(random.nextFloat());
     }
 
     public Map<Biome, Float> calculateBiomeWeights(int worldX, int worldZ){
@@ -72,11 +73,23 @@ public class BiomeMap {
 
             float outValue = weights.getOrDefault(closest2, 0f);
 
-            if(Math.abs(top - top2) < BLEND_DISTANCE){
-                outValue += 1f - Math.abs(top - top2) / BLEND_DISTANCE;
+            float blendDistance = (closest.blendDistance + closest2.blendDistance) / 2f;
+
+            if(Math.abs(top - top2) < blendDistance){
+                outValue += 1f - Math.abs(top - top2) / (blendDistance);
             }
 
-            weights.put(closest2, outValue);
+/*
+            if(closest != closest2){
+                if(Math.abs(top - top2) < RIVER_THRESHOLD){
+                    closest2 = Biome.RIVER;
+                    outValue = 100f;
+                }
+            }
+*/
+
+            if(outValue > 0)
+                weights.put(closest2, outValue);
         }
 
         return weights;

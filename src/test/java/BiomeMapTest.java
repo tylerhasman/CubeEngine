@@ -29,6 +29,8 @@ public class BiomeMapTest {
         colors.put(Biome.PLAINS, Color.GREEN);
         colors.put(Biome.ULTRA_PLAINS, Color.yellow);
         colors.put(Biome.MOUNTAINS, Color.gray);
+        colors.put(Biome.RIVER, Color.blue);
+        colors.put(Biome.LAKE, Color.cyan);
 
         Graphics graphics = bufferedImage.getGraphics();
 

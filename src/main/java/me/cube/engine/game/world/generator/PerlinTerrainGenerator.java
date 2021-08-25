@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static me.cube.engine.game.world.generator.Biome.LAKE;
+
 public class PerlinTerrainGenerator implements TerrainGenerator{
 
     private static final NoiseGenerator colorNoise = new CubicNoise(342121, 6);//Randomly chosen
@@ -32,35 +34,11 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return biomeMap.calculateBiomeWeights(x, z);
     }
 
-    public Biome biomeAt(int x, int z){
-
-        if(biomeCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] != null){
-            return biomeCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)];
-        }
-
-        Map<Biome, Float> weights = biomeWeightsAt(x, z);
-
-        Biome best = null;
-        float weight = 0;
-
-        for(Biome biome : weights.keySet()){
-            if(best == null){
-                best = biome;
-                weight = weights.get(biome);
-            }else if(weights.get(biome) > weight){
-                best= biome;
-                weight = weights.get(biome);
-            }
-        }
-
-        if(best == null){
-            throw new IllegalStateException("best cannot be null!");
-        }
-
-        return biomeCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = best;
+    private int waterHeightAt(Map<Biome, Float> weights){
+        return 20;
     }
 
-    public int heightAt(int x, int z){
+    private int heightAt(int x, int z){
 
         if(heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] != 0){
             return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)];
@@ -80,11 +58,13 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         height /= sumWeights;
 
-        if(weights.getOrDefault(Biome.RIVER, 0f) == 1){
-            return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max((height + 20) / 1.35f, 1);
+        int groundHeight = 20;
+
+        if(weights.getOrDefault(LAKE, 0f) == 1){
+            //groundHeight -= 10 * weights.get(LAKE) / sumWeights;
         }
 
-        return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + 20, 1);
+        return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + groundHeight, 1);
     }
 
     private Vector3f colorAtBiome(Biome biome, float x, float y, float z){
@@ -111,34 +91,20 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             b = 57;
         }
 
-        if(biome == Biome.RIVER){
-
-            if(y < groundHeight - 8){
-                r = 131;
-                g = 101;
-                b = 57;
-            }else{
-                r = 100;
-                g = 100;
-                b = 253;
-                a = 64;
-                coloring = 0;
-                coloring2 = 0;
-                coloring3 = 0;
-            }
-
-        }else if(biome == Biome.MOUNTAINS){
+        if(biome == Biome.MOUNTAINS){
             r = 151;
             g = 124;
             b = 83;
         }
+
         return new Vector3f(r, g, b);
     }
 
-    @Override
-    public int colorAt(float x, float y, float z) {
+    private int waterColorAt(Map<Biome, Float> weights, int i, int y, int i1){
+        return 0x0A0000FF;
+    }
 
-        Map<Biome, Float> biomeWeights = biomeWeightsAt((int) Math.floor(x), (int) Math.floor(z));
+    private int colorAt(Map<Biome, Float> biomeWeights, float x, float y, float z) {
 
         Vector3f colorSum = new Vector3f();
 
@@ -189,32 +155,40 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     }
 
     @Override
-    public void generateChunk(Chunk chunk) {
+    public void generateChunk(int chunkX, int chunkZ, int[][][] blocks) {
 
         clearCaches();
 
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
 
-                int height = heightAt(chunk.getChunkX() * Chunk.CHUNK_WIDTH + i, chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j);
+                int height = heightAt(chunkX * Chunk.CHUNK_WIDTH + i, chunkZ * Chunk.CHUNK_WIDTH + j);
 
-                float genCoordX = (chunk.getChunkX() * Chunk.CHUNK_WIDTH + i) / 400f;
-                float genCoordZ = (chunk.getChunkZ() * Chunk.CHUNK_WIDTH + j) / 400f;
+                float genCoordX = (chunkX * Chunk.CHUNK_WIDTH + i) / 400f;
+                float genCoordZ = (chunkZ * Chunk.CHUNK_WIDTH + j) / 400f;
 
                 coloring = (colorNoise.noise(genCoordX * 100, genCoordZ * 100) - 0.5f) * 0.025f;
                 coloring2 = (colorNoise.noise(genCoordZ * 50, genCoordX * 50) - 0.5f) * 0.025f;
                 coloring3 = (colorNoise.noise(-genCoordZ * 50, -genCoordX * 50) - 0.5f) * 0.025f;
                 tempurature = tempNoise.noise(genCoordX, genCoordZ);
 
+                Map<Biome, Float> weights = biomeWeightsAt(i + chunkX * Chunk.CHUNK_WIDTH, j + chunkZ * Chunk.CHUNK_WIDTH);
 
                 height = Math.max(1, height);
-                for(int y = 0; y < Chunk.CHUNK_HEIGHT;y++){
-                    if(y <= height){
-                        int argb = colorAt(i + chunk.getChunkX() * Chunk.CHUNK_WIDTH, y, j + chunk.getChunkZ() * Chunk.CHUNK_WIDTH);
+                for(int y = 0; y <= height;y++){
+                    int argb = colorAt(weights,i + chunkX * Chunk.CHUNK_WIDTH, y, j + chunkZ * Chunk.CHUNK_WIDTH);
 
-                        chunk.blocks[i][y][j] = argb;
-                    }
+                    blocks[i][y][j] = argb;
                 }
+
+                int waterHeight = waterHeightAt(weights);
+
+                for(int y = height+1; y < waterHeight;y++){
+                    int argb = waterColorAt(weights,i + chunkX * Chunk.CHUNK_WIDTH, y, j + chunkZ * Chunk.CHUNK_WIDTH);
+
+                    blocks[i][y][j] = argb;
+                }
+
             }
         }
     }

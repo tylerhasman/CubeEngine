@@ -11,12 +11,25 @@ import org.joml.Vector3f;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
 import static me.cube.engine.game.world.World.WORLD_SCALE;
 
 public class Terrain {
+
+    private static final ScheduledExecutorService terrainGeneratorExec = new ScheduledThreadPoolExecutor(2, (r) -> {
+
+        Thread thread = new Thread(r, "TerrainGenerator");
+
+        thread.setDaemon(true);
+
+        return thread;
+    });
 
     private static final float FLUFF_RENDER_DISTANCE = 150;
 
@@ -29,6 +42,8 @@ public class Terrain {
     private List<ChunkPopulator> populators;
 
     private List<Voxel> fluffs;
+
+    private List<Future<ChunkSnapshot>> chunkLoadFutures;
 
     public Terrain(int viewDistance){
         this(viewDistance, "none");
@@ -45,6 +60,8 @@ public class Terrain {
         levelDataFolder.mkdir();
 
         fluffs = new ArrayList<>();
+
+        chunkLoadFutures = new ArrayList<>();
 
         initializeStructures();
     }
@@ -85,7 +102,84 @@ public class Terrain {
         return out.sub(direction);
     }
 
+    private void checkChunkLoads(){
+        Iterator<Future<ChunkSnapshot>> iterator = chunkLoadFutures.iterator();
+
+        while(iterator.hasNext()){
+            Future<ChunkSnapshot> future = iterator.next();
+
+            if(future.isDone()){
+                iterator.remove();
+
+                try {
+                    ChunkSnapshot chunkSnapshot = future.get();
+
+                    Chunk chunk = chunkStorage.getChunk(chunkSnapshot.x, chunkSnapshot.z);
+                    for(int i = 0; i < CHUNK_WIDTH;i++){
+                        for(int j = 0; j < CHUNK_HEIGHT;j++){
+                            for(int k = 0; k < CHUNK_WIDTH;k++){
+                                chunk.blocks[i][j][k] = chunkSnapshot.blocks[i][j][k];
+                            }
+                        }
+                    }
+
+                    initializeChunk(chunk);
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    private void initializeChunk(Chunk chunk){
+        chunk.generateMesh();
+
+        for(int i = -1; i <= 1;i++){
+            for(int j = -1; j <= 1;j++){
+                if(i == 0 && j == 0){
+                    continue;
+                }
+
+                Chunk other = chunkStorage.getChunk(i + chunk.getChunkX(), j + chunk.getChunkZ());
+                if(other != null){
+                    other.requireMeshRefresh = true;
+                }
+
+            }
+        }
+/*
+        Random random = new Random();
+        int fluffCount = random.nextInt(10);
+
+        for(int i = 0; i < fluffCount;i++){
+            float spawnX = chunk.getChunkX() * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
+            float spawnZ = chunk.getChunkZ() * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
+            float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
+
+            Voxel voxel = new Voxel();
+
+            if(random.nextInt(20) == 0){
+                voxel.model = Assets.loadModel("flower.vxm");
+            }else{
+                voxel.model = Assets.loadModel("grass.vxm");
+            }
+
+            voxel.getTransform().identity()
+                    .translate(spawnX, spawnY + 1.5f, spawnZ)
+                    .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
+                    .scale(random.nextFloat() * 1.5f + 0.5f)
+                    .scale(0.1f);
+
+            fluffs.add(voxel);
+
+        }*/
+    }
+
     public void updateTerrain(Vector3f playerPosition){
+
+        checkChunkLoads();
 
         playerPosition.mul(1f / WORLD_SCALE);
 
@@ -126,9 +220,11 @@ public class Terrain {
 
         boolean unloaded = false;
 
+        float unloadDistance = viewDistance * 2;
+
         for(Chunk loaded : chunkStorage.getLoadedChunks()){
             int dst2 = loaded.dst2(centerX, centerZ);
-            if(dst2 > viewDistance * viewDistance + 64){
+            if(dst2 > unloadDistance * unloadDistance){
                 loaded.dispose();
                 chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
                 unloaded = true;
@@ -166,6 +262,7 @@ public class Terrain {
         return -1;
     }
 
+/*
     public Biome biomeAt(int x, int z){
         return terrainGenerator.biomeAt(x, z);
     }
@@ -173,72 +270,39 @@ public class Terrain {
     public int heightAt(int x, int z){
         return terrainGenerator.heightAt(x, z);
     }
+*/
 
-    private void generateChunk(int x, int z){
+    private void generateChunk(final int x, final int z){
 
-        File chunkFile = new File(levelDataFolder, "chunk-"+x+"-"+z+".dat");
-
-        //ChunkSave chunkSave = new ChunkSave(chunkFile);
-
-        Chunk chunk = new Chunk(this, x, z, null);
-
-        long time = System.currentTimeMillis();
-
-        terrainGenerator.generateChunk(chunk);
-
-        //System.out.println("Took "+(System.currentTimeMillis()-time)+"ms to generate chunk "+x+" "+z);
-
-  /*      if(chunkSave.hasChanges()){
-            chunkSave.applyTo(chunk);
-        }*/
-
-        for(ChunkPopulator chunkPopulator : populators){
-            chunkPopulator.populateChunk(this, chunk);
-        }
-
-        chunk.generateMesh();
+        Chunk chunk = new Chunk(this, x, z);
 
         chunkStorage.addChunk(chunk);
 
-        for(int i = -1; i <= 1;i++){
-            for(int j = -1; j <= 1;j++){
-                if(i == 0 && j == 0){
-                    continue;
-                }
+        Future<ChunkSnapshot> future = terrainGeneratorExec.submit(() -> {
 
-                Chunk other = chunkStorage.getChunk(i + x, j + z);
-                if(other != null){
-                    other.requireMeshRefresh = true;
-                }
+            long time = System.currentTimeMillis();
 
-            }
-        }
+            ChunkSnapshot snapshot = new ChunkSnapshot(x, z);
 
-        Random random = new Random();
-        int fluffCount = random.nextInt(10);
 
-        for(int i = 0; i < fluffCount;i++){
-            float spawnX = x * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
-            float spawnZ = z * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
-            float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
+            //TODO: Just have this be thread safe so we can use terrainGenerator
+            PerlinTerrainGenerator perlinTerrainGenerator = new PerlinTerrainGenerator();
 
-            Voxel voxel = new Voxel();
+            perlinTerrainGenerator.generateChunk(x, z, snapshot.blocks);
 
-            if(random.nextInt(20) == 0){
-                voxel.model = Assets.loadModel("flower.vxm");
-            }else{
-                voxel.model = Assets.loadModel("grass.vxm");
-            }
+            time = System.currentTimeMillis() - time;
 
-            voxel.getTransform().identity()
-                    .translate(spawnX, spawnY + 1.5f, spawnZ)
-                    .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
-                    .scale(random.nextFloat() * 1.5f + 0.5f)
-                    .scale(0.1f);
+            System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
 
-            fluffs.add(voxel);
+            //TODO: Populate chunks with structures and whatnot
 
-        }
+            return snapshot;
+
+        });
+
+
+        chunkLoadFutures.add(future);
+
 
     }
 
@@ -293,10 +357,6 @@ public class Terrain {
 
         return getCube(x, y, z) != 0;
     }
-
-/*    public static int convertWorldToChunk(int xz) {
-        return (int) Math.floor((float) xz / (float) CHUNK_WIDTH);
-    }*/
 
     //TODO: Optimize this function!
     public boolean isColliding(AABBf boundingBox) {

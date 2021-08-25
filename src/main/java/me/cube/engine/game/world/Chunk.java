@@ -17,7 +17,6 @@ import static org.lwjgl.opengl.GL11C.GL_QUADS;
 public class Chunk {
 
     private static final ScheduledExecutorService meshGeneratorExec = new ScheduledThreadPoolExecutor(2, (r) -> {
-
         Thread thread = new Thread(r, "ChunkMeshGenerator");
 
         thread.setDaemon(true);
@@ -25,9 +24,8 @@ public class Chunk {
         return thread;
     });
 
-
     public static final int CHUNK_WIDTH = 32;
-    public static final int CHUNK_HEIGHT = 128;
+    public static final int CHUNK_HEIGHT = 64;
 
     public final int[][][] blocks;
     public final byte[][][] blockFlags;
@@ -43,9 +41,7 @@ public class Chunk {
 
     private boolean disposed;
 
-    private ChunkSave chunkSave;
-
-    protected Chunk(Terrain terrain, int x, int z, ChunkSave chunkSave){
+    protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
         blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         blockFlags = new byte[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
@@ -53,7 +49,6 @@ public class Chunk {
         this.chunkZ = z;
         mesh = null;
         disposed = false;
-        this.chunkSave = chunkSave;
     }
 
     public int getChunkX() {
@@ -81,11 +76,6 @@ public class Chunk {
                 transparentMesh.model.dispose();
             }
             disposed = true;
-            /*try {
-                chunkSave.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
         }
     }
 
@@ -189,10 +179,6 @@ public class Chunk {
     protected void setBlock(int x, int y, int z, int color){
         if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
             return;
-        }
-
-        if(blocks[x][y][z] != color){
-            chunkSave.modify(x, y, z, color);
         }
 
         blocks[x][y][z] = color;

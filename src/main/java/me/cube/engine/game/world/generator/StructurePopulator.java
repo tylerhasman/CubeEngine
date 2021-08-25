@@ -17,6 +17,7 @@ public class StructurePopulator implements ChunkPopulator {
 
     @Override
     public void populateChunk(Terrain terrain, Chunk chunk) {
+        /*
         for(SpawnableStructure structure : spawnableStructures){
 
             for(int i = -structure.getSpawnRadius(); i <= structure.getSpawnRadius();i++){
@@ -47,7 +48,7 @@ public class StructurePopulator implements ChunkPopulator {
                 }
             }
 
-        }
+        }*/
 
     }
 

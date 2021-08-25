@@ -58,7 +58,7 @@ public class EditorGame implements Game {
 
         cameraPosition.y = 250;
 
-        terrain = new Terrain(5, "test");
+        terrain = new Terrain(10, "test");
 
         Camera.projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);
