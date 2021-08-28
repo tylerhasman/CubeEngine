@@ -5,12 +5,13 @@ import me.cube.engine.util.CubicNoise;
 import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.*;
 
 public class BiomeMap {
 
-    public static final int BIOME_CELL_SIZE = 16;
+    public static final int BIOME_CELL_SIZE = 8;
     //private static final float BLEND_DISTANCE = 64;
     private static final float RIVER_THRESHOLD = 8;
 
@@ -52,7 +53,16 @@ public class BiomeMap {
 
     //Returns biome of a cell
     private Biome biomeAt(int x, int z) {
-        Random random = getRandom(x, z);
+
+        Vector2f epicenter = new Vector2f(x / 4f + x / 8f, z / 4f + z / 2f);
+        Random random;
+
+        if((x & 1) == 1){
+            random = getRandom((int) epicenter.distance(x, z), x / 4 + z / 4);
+        }else{
+            random = getRandom(x / 4 + z / 4, (int) epicenter.distance(x, z));
+        }
+
 
         return Biome.fromWeight(random.nextFloat());
     }
@@ -104,7 +114,7 @@ public class BiomeMap {
         return weights;
     }
 
-    public Map<Float, Biome> calculateBiomeDistances(int worldX, int worldZ){
+    private Map<Float, Biome> calculateBiomeDistances(int worldX, int worldZ){
         int chunkX = Math.floorDiv(worldX, Chunk.CHUNK_WIDTH);
         int chunkZ = Math.floorDiv(worldZ, Chunk.CHUNK_WIDTH);
 
@@ -119,9 +129,9 @@ public class BiomeMap {
                 Vector2f center = biomeCenter(cellX + i, cellZ + j);
 
                 //Manhattan Distance
-                //float distance = Math.abs(worldX - center.x) + Math.abs(worldZ - center.y);
+                float distance = Math.abs(worldX - center.x) + Math.abs(worldZ - center.y);
 
-                float distance = center.distance(worldX, worldZ);
+                //float distance = center.distance(worldX, worldZ);
 
                 biomes.put(distance, biome);
             }

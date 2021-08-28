@@ -22,7 +22,7 @@ public class BiomeMapTest {
 
         BiomeMap map = new BiomeMap(0x43783);
 
-        BufferedImage bufferedImage = new BufferedImage(1024, 1024, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bufferedImage = new BufferedImage(2048, 2048, BufferedImage.TYPE_INT_RGB);
 
         Map<Biome, Color> colors = new HashMap<>();
 
@@ -68,7 +68,7 @@ public class BiomeMapTest {
 
             }
         }
-/*
+
         for(int i = 0; i < bufferedImage.getWidth();i += BiomeMap.BIOME_CELL_SIZE * Chunk.CHUNK_WIDTH){
             for(int j = 0; j < bufferedImage.getHeight();j += BiomeMap.BIOME_CELL_SIZE * Chunk.CHUNK_WIDTH){
                 Vector2f biomeCenter = map.findBiomeCenter(i, j);
@@ -76,7 +76,7 @@ public class BiomeMapTest {
                 graphics.setColor(Color.BLACK);
                 graphics.fillOval((int) biomeCenter.x - 8, (int) biomeCenter.y - 8, 16, 16);
             }
-        }*/
+        }
 
         ImageIO.write(bufferedImage, "PNG", new File("biomeTest.png"));
 

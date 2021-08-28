@@ -28,7 +28,13 @@ public class AsyncChunkMesh extends VoxelMesh {
         tNormals = new FloatArray(4096);
         hasTransparency = false;
 
+        long time = System.currentTimeMillis();
+
         generate(terrain, chunk);
+
+        time = System.currentTimeMillis() - time;
+
+        System.out.println("Chunk mesh took "+time+"ms");
     }
 
     /**
@@ -78,7 +84,7 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.green = ((color >> 8) & 255) / 255F;
                         cube.blue = (color & 255) / 255F;
 
-                        cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
+                        //cube.neighbors = calculateNeighbors(terrain, chunk, i, j, k);
 
                         cube.x = i;
                         cube.y = j;
@@ -99,6 +105,8 @@ public class AsyncChunkMesh extends VoxelMesh {
                             cube.east = !isSolid(terrain, chunk, i-1, j, k);
                             cube.west = !isSolid(terrain, chunk, i+1, j, k);
                         }
+
+                        cube.adjacentBlockGetFunction = (x, y, z) -> colorOf(terrain, chunk, x, y, z);
 
                         if(cube.isVisible()){
                             if(cube.alpha == 1) {

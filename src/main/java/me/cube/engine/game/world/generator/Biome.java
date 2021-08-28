@@ -8,7 +8,7 @@ public enum Biome {
     //seeds chosen randomly through button mashing
     ULTRA_PLAINS(0x423789, 5, 0.4f, 48, 1f),
     PLAINS(0x37429, 15, 1, 48, 1f),
-    MOUNTAINS(0x921034, 40, 0.8f, 48, 1.5f),
+    MOUNTAINS(0x921034, 40, 0.8f, 128, 1f),
     RIVER(0x213129, 0, 0, 0, 1f),
     LAKE(0x432423, -20, 1f, 16, 1f);
 

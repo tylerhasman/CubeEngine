@@ -3,8 +3,6 @@ package me.cube.engine.model;
 import me.cube.engine.util.FloatArray;
 import org.joml.Vector3f;
 
-import java.awt.*;
-
 public class Cube {
 
     public float scale = 1f;
@@ -16,10 +14,21 @@ public class Cube {
 
     public float x, y, z;
 
-    public int[][][] neighbors = new int[3][3][3];
+    public BlockGetter adjacentBlockGetFunction = (x, y, z) -> 0;
+
+    //public int[][][] neighbors = new int[3][3][3];
 
     public boolean isVisible(){
         return top || bottom || south || north || west || east;
+    }
+
+
+    private int getNeighbor(int x, int y, int z, int nX, int nY, int nZ){
+        int aX = x + nX - 1;
+        int aY = y + nY - 1;
+        int aZ = z + nZ - 1;
+
+        return adjacentBlockGetFunction.colorOf(aX, aY, aZ);
     }
 
     //TODO: This method is really fucked
@@ -34,10 +43,14 @@ public class Cube {
         float legit = (maxX - minX) + (maxY - minY) + (maxZ - minZ);
         Vector3f outputColor = new Vector3f(red, green, blue).mul(legit);
 
+        int iX = (int) x;
+        int iY = (int) y;
+        int iZ = (int) z;
+
         for(int i = minX;i <= maxX;i++){
             for(int k = minY; k <= maxY;k++){
                 for(int j = minZ;j <= maxZ;j++){
-                    int color = neighbors[i][k][j];
+                    int color = getNeighbor(iX, iY, iZ, i, k, j);
 
                     if(i == 1 && j == 1 && k == 1)
                         continue;
@@ -216,5 +229,8 @@ public class Cube {
         }
     }
 
+    public static interface BlockGetter {
+        int colorOf(int x, int y, int z);
+    }
 
 }
