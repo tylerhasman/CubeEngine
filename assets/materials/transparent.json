@@ -11,7 +11,11 @@
     "DiffuseLight1_Position": "v3: 0.0, 0.0, 0.0",
     "DiffuseLight1_Color": "v3: 0, 0, 0",
     "DiffuseLight1_Intensity": "f: 0",
-    "u_Hue": "v3: 1, 1, 1"
+    "u_Hue": "v3: 1, 1, 1",
+
+
+    "u_FogStart": "f: 300.0",
+    "u_FogColor": "v3: 0.8, 0.8, 0.8"
   }
 
 }

@@ -19,7 +19,7 @@ void main(){
     v_Position = vec3(ModelMatrix * vec4(a_Position, 1.0));
     v_Color = a_Color;
 
-    v_ViewPos = vec3(ViewMatrix * vec4(0.0, 0.0, 0.0, 1.0));
+    v_ViewPos = vec3(inverse(ViewMatrix) * vec4(0.0, 0.0, 0.0, 1.0));
 
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(a_Position, 1.0);
 }

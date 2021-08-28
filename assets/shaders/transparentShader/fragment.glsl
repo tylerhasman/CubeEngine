@@ -23,6 +23,9 @@ uniform vec3 u_Hue;
 
 uniform vec3 u_CameraPosition;
 
+uniform float u_FogStart;
+uniform vec3 u_FogColor;
+
 vec3 diffuse(vec3 position, vec3 color, float intensity){
     vec3 lightDir = normalize(position - v_Position);
     float diff = max(dot(normalize(v_Normal), lightDir), 0.0);
@@ -47,5 +50,14 @@ void main(){
 
     float intensity = 1.0 - angle / PI;
 
-    out_Color = vec4(clamp(d0 + d1 + ambient, 0.0, 1.0), mix(v_Color.a, 1.0, intensity));
+    float distanceFromCamera = length(v_Position - v_ViewPos);
+
+    float fogIntensity = distanceFromCamera < u_FogStart ? 0.0 : (distanceFromCamera - u_FogStart) / u_FogStart;
+
+    fogIntensity = min(1.0, fogIntensity);
+
+    vec3 withLight = clamp(d0 + d1 + ambient, 0.0, 1.0);
+
+    out_Color = vec4(mix(withLight, u_FogColor, fogIntensity), mix(v_Color.a, 1.0, intensity));
+
 }
