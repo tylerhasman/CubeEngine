@@ -57,6 +57,9 @@ public class EditorGame implements Game {
         editActions = new ArrayList<>(MAX_ACTION_MEMORY);
 
         cameraPosition.y = 250;
+        cameraPosition.x = 1000;
+        cameraPosition.z = 1000;
+
 
         terrain = new Terrain(10, "test");
 

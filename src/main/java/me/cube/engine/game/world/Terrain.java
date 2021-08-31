@@ -63,7 +63,8 @@ public class Terrain {
 
         chunkLoadFutures = new ArrayList<>();
 
-        populators.add(new StickStructurePopulator(0x4237890));
+        populators.add(new StickStructurePopulator());
+        //populators.add(new ForestTreePopulator());
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
@@ -101,14 +102,7 @@ public class Terrain {
                             }
                         }
 
-                        long time = System.currentTimeMillis();
-
-                        for(ChunkPopulator populator : populators){
-                            populator.populateChunk(this, chunk);
-                        }
-
-                        if(System.currentTimeMillis()-time > 10)
-                            System.out.println("Populating chunk "+chunk.getChunkX()+"/"+chunk.getChunkZ()+" took "+(System.currentTimeMillis()-time)+"ms");
+                        chunk.setBiome(chunkSnapshot.biome);
 
                         initializeChunk(chunk);
                     }
@@ -261,6 +255,19 @@ public class Terrain {
     }
 */
 
+    public Biome biomeAt(int x, int z){
+        int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
+        int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
+
+        if(chunkStorage.isLoaded(chunkX, chunkZ)){
+            Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
+
+            return chunk.getBiome();
+        }
+
+        return terrainGenerator.chunkBiome(chunkX, chunkZ);
+    }
+
     public int groundHeightAt(int x, int z){
         /*int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
         int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
@@ -291,13 +298,16 @@ public class Terrain {
 
             ChunkSnapshot snapshot = new ChunkSnapshot(x, z);
 
-
             //TODO: Just have this be thread safe so we can use terrainGenerator
             PerlinTerrainGenerator perlinTerrainGenerator = new PerlinTerrainGenerator();
 
-            perlinTerrainGenerator.generateChunk(x, z, snapshot.blocks);
+            perlinTerrainGenerator.generateChunk(x, z, snapshot);
 
             time = System.currentTimeMillis() - time;
+
+            for(ChunkPopulator populator : populators){
+                populator.populateChunk(this, snapshot);
+            }
 
             //System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
 

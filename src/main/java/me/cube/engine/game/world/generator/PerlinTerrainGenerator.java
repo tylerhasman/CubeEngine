@@ -2,6 +2,7 @@ package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.BiomeMap;
 import me.cube.engine.game.world.Chunk;
+import me.cube.engine.game.world.ChunkSnapshot;
 import me.cube.engine.util.CubicNoise;
 import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
@@ -29,7 +30,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     //TODO
     private float coloring, coloring2, coloring3, tempurature;
 
-    private final BiomeMap biomeMap = new BiomeMap(0x4324823);
+    private final BiomeMap biomeMap = new BiomeMap();
 
     private Map<Biome, Float> biomeWeightsAt(int x, int z){
         return biomeMap.calculateBiomeWeights(x, z);
@@ -42,7 +43,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         if(weights.getOrDefault(RIVER, 0f) > 0f){
             return 30;
         }
-        return 20;
+        return 10;
     }
 
     private boolean isCacheValidFor(int worldX, int worldZ){
@@ -165,8 +166,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return (0xFF << 24) | (outColor & 0x00FFFFFF);
     }
 
-
-
     private void clearCaches(){
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
@@ -174,14 +173,44 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             }
         }
     }
-    
+
+    private Biome strongestBiome(Map<Biome, Float> biomes){
+
+        if(biomes.size() == 0){
+            throw new IllegalArgumentException("biomes size == 0");
+        }
+
+        Biome best = null;
+        float f = 0;
+
+        for(Biome b : biomes.keySet()){
+            if(best == null){
+                best = b;
+                f = biomes.get(b);
+            }else if(biomes.get(b) > f){
+                best = b;
+                f = biomes.get(b);
+            }
+        }
+
+        return best;
+    }
+
     @Override
-    public void generateChunk(int chunkX, int chunkZ, int[][][] blocks) {
+    public Biome chunkBiome(int chunkX, int chunkZ) {
+        Map<Biome, Float> weights = biomeWeightsAt(chunkX * Chunk.CHUNK_WIDTH, chunkZ * Chunk.CHUNK_WIDTH);
+        return strongestBiome(weights);
+    }
+
+    @Override
+    public void generateChunk(int chunkX, int chunkZ, ChunkSnapshot chunk) {
 
         clearCaches();
 
         cacheChunkX = chunkX;
         cacheChunkZ = chunkZ;
+
+        Map<Biome, Float> totals = new HashMap<>();
 
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
@@ -198,11 +227,15 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
                 Map<Biome, Float> weights = biomeWeightsAt(i + chunkX * Chunk.CHUNK_WIDTH, j + chunkZ * Chunk.CHUNK_WIDTH);
 
+                for(Biome b : weights.keySet()){
+                    totals.put(b, totals.getOrDefault(b, 0f) + weights.get(b));
+                }
+
                 height = Math.max(1, height);
                 for(int y = 0; y <= height;y++){
                     int argb = colorAt(weights,i + chunkX * Chunk.CHUNK_WIDTH, y, j + chunkZ * Chunk.CHUNK_WIDTH);
 
-                    blocks[i][y][j] = argb;
+                    chunk.blocks[i][y][j] = argb;
                 }
 
                 int waterHeight = waterHeightAt(weights);
@@ -210,10 +243,12 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
                 for(int y = height+1; y < waterHeight;y++){
                     int argb = waterColorAt(weights,i + chunkX * Chunk.CHUNK_WIDTH, y, j + chunkZ * Chunk.CHUNK_WIDTH);
 
-                    blocks[i][y][j] = argb;
+                    chunk.blocks[i][y][j] = argb;
                 }
 
             }
         }
+
+        chunk.biome = strongestBiome(totals);
     }
 }

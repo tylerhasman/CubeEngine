@@ -20,7 +20,7 @@ public class BiomeMapTest {
     @Test
     public void biomeMapTest() throws IOException {
 
-        BiomeMap map = new BiomeMap(0x43783);
+        BiomeMap map = new BiomeMap();
 
         BufferedImage bufferedImage = new BufferedImage(2048, 2048, BufferedImage.TYPE_INT_RGB);
 

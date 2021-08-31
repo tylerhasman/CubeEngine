@@ -15,14 +15,14 @@ public class BiomeMap {
     //private static final float BLEND_DISTANCE = 64;
     private static final float RIVER_THRESHOLD = 8;
 
-    private final long seed;
+    public BiomeMap(){
 
-    public BiomeMap(long seed){
-        this.seed = seed;
     }
 
     private Random getRandom(int x, int z){
-        return new Random(MathUtil.hash(x, z));
+        long seed = MathUtil.hash(x * 31, z * 13);
+
+        return new Random(seed);
     }
 
     public Vector2f findBiomeCenter(int worldX, int worldZ){
