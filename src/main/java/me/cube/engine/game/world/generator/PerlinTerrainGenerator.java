@@ -21,8 +21,8 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     private static final NoiseGenerator colorNoise = new CubicNoise(342121, 6);//Randomly chosen
     private static final NoiseGenerator tempNoise = new PerlinNoise(423555);//Randomly chosen
 
-    private Biome[][] biomeCache = new Biome[Chunk.CHUNK_WIDTH][Chunk.CHUNK_WIDTH];
-    private int[][] heightCache = new int[Chunk.CHUNK_WIDTH][Chunk.CHUNK_WIDTH];
+    private final int[][] heightCache = new int[Chunk.CHUNK_WIDTH][Chunk.CHUNK_WIDTH];
+    private int cacheChunkX, cacheChunkZ;
 
     //Speeds up calculating colors in the same vertical strip.
     //There are better ways of getting these from the generate method to the colorAt method but this works well for now.
@@ -45,10 +45,19 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return 20;
     }
 
+    private boolean isCacheValidFor(int worldX, int worldZ){
+        worldX -= cacheChunkX * Chunk.CHUNK_WIDTH;
+        worldZ -= cacheChunkZ * Chunk.CHUNK_WIDTH;
+
+        return worldX >= 0 && worldZ >= 0 && worldX < Chunk.CHUNK_WIDTH && worldZ < Chunk.CHUNK_WIDTH;
+    }
+
     public int heightAt(int x, int z){
 
-        if(heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] != 0){
-            return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)];
+        int cachedHeight = heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)];
+
+        if(cachedHeight != 0 && isCacheValidFor(x, z)){
+            return cachedHeight;
         }
 
         Map<Biome, Float> weights = biomeWeightsAt(x, z);
@@ -67,7 +76,11 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
 
         int groundHeight = 20;
 
-        return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = (int) Math.max(height + groundHeight, 1);
+        int finalHeight = (int) Math.max(height + groundHeight, 1);
+
+        heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] = finalHeight;
+
+        return finalHeight;
     }
 
     private Vector3f colorAtBiome(Biome biome, float x, float y, float z){
@@ -155,7 +168,6 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     private void clearCaches(){
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
-                biomeCache[i][j] = null;
                 heightCache[i][j] = 0;
             }
         }
@@ -165,6 +177,9 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     public void generateChunk(int chunkX, int chunkZ, int[][][] blocks) {
 
         clearCaches();
+
+        cacheChunkX = chunkX;
+        cacheChunkZ = chunkZ;
 
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
