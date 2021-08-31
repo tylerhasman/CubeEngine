@@ -34,7 +34,7 @@ public class AsyncChunkMesh extends VoxelMesh {
 
         time = System.currentTimeMillis() - time;
 
-        System.out.println("Chunk mesh took "+time+"ms");
+        //System.out.println("Chunk mesh took "+time+"ms");
     }
 
     /**

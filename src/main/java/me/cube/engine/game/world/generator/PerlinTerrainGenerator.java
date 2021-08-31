@@ -29,7 +29,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     //TODO
     private float coloring, coloring2, coloring3, tempurature;
 
-    private BiomeMap biomeMap = new BiomeMap(0x4324823);
+    private final BiomeMap biomeMap = new BiomeMap(0x4324823);
 
     private Map<Biome, Float> biomeWeightsAt(int x, int z){
         return biomeMap.calculateBiomeWeights(x, z);
@@ -45,7 +45,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return 20;
     }
 
-    private int heightAt(int x, int z){
+    public int heightAt(int x, int z){
 
         if(heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)] != 0){
             return heightCache[Math.abs(x % Chunk.CHUNK_WIDTH)][Math.abs(z % Chunk.CHUNK_WIDTH)];

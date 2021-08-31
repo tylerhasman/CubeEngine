@@ -34,11 +34,13 @@ public class BiomeMapTest {
 
         Graphics graphics = bufferedImage.getGraphics();
 
+        long time = System.currentTimeMillis();
+
         for(int i = 0; i < bufferedImage.getWidth();i++){
             for(int j = 0; j < bufferedImage.getHeight();j++){
 
                // Map<Float, Biome> distances = map.calculateBiomeDistances(i, j);
-                Map<Biome, Float> weights = map.calculateBiomeWeights(i, j);
+                Map<Biome, Float> weights = map.calculateBiomeWeights(i - bufferedImage.getWidth() / 2, j - bufferedImage.getHeight() / 2);
 
                 float r = 0, g = 0, b = 0;
                 float sumOfWeights = 0f;
@@ -68,6 +70,8 @@ public class BiomeMapTest {
 
             }
         }
+
+        System.out.println("Took "+(System.currentTimeMillis()-time)+"ms");
 
         for(int i = 0; i < bufferedImage.getWidth();i += BiomeMap.BIOME_CELL_SIZE * Chunk.CHUNK_WIDTH){
             for(int j = 0; j < bufferedImage.getHeight();j += BiomeMap.BIOME_CELL_SIZE * Chunk.CHUNK_WIDTH){

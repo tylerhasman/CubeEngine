@@ -63,29 +63,7 @@ public class Terrain {
 
         chunkLoadFutures = new ArrayList<>();
 
-        initializeStructures();
-    }
-
-    private void initializeStructures(){
-
-        VoxelFile treeData = Assets.loadVoxelData("tree.vxm", false);
-        VoxelFile treeData2 = Assets.loadVoxelData("tree.vox", false);
-
-        VoxelFile rockData = Assets.loadVoxelData("rock.vxm", false);
-
-   /*     SpawnableStructure tree = new SpawnableStructure(treeData.toVoxelColorArray(), new Biome[] {
-                Biome.FOREST
-        }, 1, 2, 0x3231) ;*//*
-        SpawnableStructure tree2 = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
-                Biome.FOREST
-        }, 10, 2, 0x1221) ;*//*
-        SpawnableStructure rock = new SpawnableStructure(treeData2.toVoxelColorArray(), new Biome[] {
-                Biome.MOUNTAINS
-        }, 45, 3, 0x3125) ;
-
-        StructurePopulator structurePopulator = new StructurePopulator(Arrays.asList(tree, rock));
-*/
-//        populators.add(structurePopulator);
+        populators.add(new StickStructurePopulator(0x4237890));
 
     }
 
@@ -123,6 +101,15 @@ public class Terrain {
                                 }
                             }
                         }
+
+                        long time = System.currentTimeMillis();
+
+                        for(ChunkPopulator populator : populators){
+                            populator.populateChunk(this, chunk);
+                        }
+
+                        if(System.currentTimeMillis()-time > 10)
+                            System.out.println("Populating chunk "+chunk.getChunkX()+"/"+chunk.getChunkZ()+" took "+(System.currentTimeMillis()-time)+"ms");
 
                         initializeChunk(chunk);
                     }
@@ -275,6 +262,24 @@ public class Terrain {
     }
 */
 
+    public int groundHeightAt(int x, int z){
+        /*int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
+        int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
+
+        int xInChunk = x - chunkX * CHUNK_WIDTH;
+        int zInChunk = z - chunkZ * CHUNK_WIDTH;
+
+        if(chunkStorage.isLoaded(chunkX, chunkZ)){
+            Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
+
+            return chunk.firstEmptyBlock(xInChunk, zInChunk) - 1;
+        }
+
+        */
+
+        return terrainGenerator.heightAt(x, z);
+    }
+
     private void generateChunk(final int x, final int z){
 
         Chunk chunk = new Chunk(this, x, z);
@@ -296,8 +301,6 @@ public class Terrain {
             time = System.currentTimeMillis() - time;
 
             //System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
-
-            //TODO: Populate chunks with structures and whatnot
 
             return snapshot;
 

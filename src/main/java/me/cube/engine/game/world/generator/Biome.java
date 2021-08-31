@@ -27,8 +27,6 @@ public enum Biome {
         }
     }
 
-    private static final BiomeMap biomeMap = new BiomeMap(0x783912);
-
     private final PerlinNoise perlinNoise;
     private final float heightMod;//How much to stretch terrain vertically. Must be positive
     private final float spawnWeight;//Higher value increases chance this biome will spawn

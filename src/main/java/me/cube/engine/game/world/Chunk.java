@@ -173,7 +173,7 @@ public class Chunk {
         worldX -= chunkX * Chunk.CHUNK_WIDTH;
         worldZ -= chunkZ * Chunk.CHUNK_WIDTH;
 
-        return worldX >= 0 && worldZ >= 0 && worldX < blocks.length && worldZ < blocks[0][0].length;
+        return worldX >= 0 && worldZ >= 0 && worldX < CHUNK_WIDTH && worldZ < CHUNK_WIDTH;
     }
 
     protected void setBlock(int x, int y, int z, int color){
@@ -183,7 +183,6 @@ public class Chunk {
 
         blocks[x][y][z] = color;
         requireMeshRefresh = true;
-
     }
 
     public int getBlock(int x, int y, int z){
@@ -192,6 +191,15 @@ public class Chunk {
         }
 
         return blocks[x][y][z];
+    }
+
+    public int firstEmptyBlock(int x, int z){
+        for(int y = 0; y < CHUNK_HEIGHT;y++){
+            if(getBlock(x, y, z) == 0){
+                return y;
+            }
+        }
+        return CHUNK_HEIGHT-1;
     }
 
     /**

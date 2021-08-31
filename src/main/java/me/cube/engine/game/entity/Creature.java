@@ -20,7 +20,7 @@ public class Creature extends Entity {
 
     public Creature(World world) {
         super(world);
-        physics = false;
+        physics = true;
         timeAlive = 0;
         animationTime = 0;
     }

@@ -1,18 +1,13 @@
 package me.cube.engine.game.world.generator;
 
-import me.cube.engine.game.world.Chunk;
-
 public interface TerrainGenerator {
 
     void generateChunk(int chunkX, int chunkZ, int[][][] blocks);
 
-    //TODO: Remove all  these methods below this
-    //They do not need to be public and should not be either.
-
-/*    Biome biomeAt(int x, int z);
-
-    int colorAt(float x, float y, float z);
-
-    int heightAt(int x, int z);*/
+    /**
+     * I'm not a huge fan of this because it forces the generators to always know what the height of somewhere is.
+     * However its really useful to be able to get the height of something without generating an entire chunk.
+     */
+    int heightAt(int x, int z);
 
 }
