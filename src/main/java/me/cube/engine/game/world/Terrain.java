@@ -1,11 +1,7 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.Voxel;
-import me.cube.engine.file.Assets;
-import me.cube.engine.file.ChunkSave;
-import me.cube.engine.file.VoxelFile;
 import me.cube.engine.game.world.generator.*;
-import me.cube.engine.util.MathUtil;
 import org.joml.AABBf;
 import org.joml.Vector3f;
 
@@ -63,8 +59,11 @@ public class Terrain {
 
         chunkLoadFutures = new ArrayList<>();
 
-        populators.add(new StickStructurePopulator());
-        //populators.add(new ForestTreePopulator());
+        //populators.add(new StickStructurePopulator());
+        populators.add(new ForestTreePopulator(0x342179FAFAL));
+        populators.add(new RockPopulator(0x34, 120, 2));
+        populators.add(new RockPopulator(0x34, 350, 3));
+        populators.add(new RockPopulator(0x34, 500, 4));
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
@@ -98,6 +97,7 @@ public class Terrain {
                             for(int j = 0; j < CHUNK_HEIGHT;j++){
                                 for(int k = 0; k < CHUNK_WIDTH;k++){
                                     chunk.blocks[i][j][k] = chunkSnapshot.blocks[i][j][k];
+                                    chunk.blockFlags[i][j][k] = chunkSnapshot.flags[i][j][k];
                                 }
                             }
                         }
@@ -423,5 +423,12 @@ public class Terrain {
         }
 
         return 0;
+    }
+
+    public void unloadAll() {
+        for(Chunk loaded : chunkStorage.getLoadedChunks()){
+            loaded.dispose();
+            chunkStorage.removeChunk(loaded.getChunkX(), loaded.getChunkZ());
+        }
     }
 }

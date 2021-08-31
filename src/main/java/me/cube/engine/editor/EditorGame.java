@@ -56,9 +56,9 @@ public class EditorGame implements Game {
 
         editActions = new ArrayList<>(MAX_ACTION_MEMORY);
 
-        cameraPosition.y = 250;
-        cameraPosition.x = 1000;
-        cameraPosition.z = 1000;
+        cameraPosition.x = 1822;
+        cameraPosition.y = 59;
+        cameraPosition.z = 1457;
 
 
         terrain = new Terrain(10, "test");
@@ -127,7 +127,7 @@ public class EditorGame implements Game {
     }
 
     private void updateCamera(float delta){
-        float speed = 300f;
+        float speed = 150f;
 
         if(Input.isActionActive(ACTION_EDITOR_SPEED)){
             speed = 600f;
@@ -263,6 +263,11 @@ public class EditorGame implements Game {
         if(key == GLFW_KEY_Z && action == GLFW_PRESS && Input.isModifierActive(MODIFIER_CONTROL)){
             undo();
         }
+
+        if(key == GLFW_KEY_G){
+            terrain.unloadAll();
+        }
+
     }
 
     @Override
@@ -328,7 +333,7 @@ public class EditorGame implements Game {
             biome += b.name()+"="+weights.get(b)+" ";
         }
 */
-        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.toString() : "");
+        return "Cube Game Editor - "+(cameraPosition != null ? cameraPosition.x+" "+cameraPosition.y+" "+cameraPosition.z : "");
     }
 
     @Override

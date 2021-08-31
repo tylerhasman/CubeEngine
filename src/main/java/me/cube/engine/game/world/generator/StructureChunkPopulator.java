@@ -24,14 +24,20 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
     private Map<Long, GeneratedStructure> generated;
 
-    public StructureChunkPopulator(int cellSize){
+    private final long seed;
+
+    public StructureChunkPopulator(int cellSize, long seed){
         this.cellSize = cellSize;
+        this.seed = seed;
         this.generated = new HashMap<>();
     }
 
-
     private Random getRandom(int cellX, int cellZ){
-        return new Random(MathUtil.hash(cellX, cellZ));
+
+        int seedX = (int) (seed >> 32);
+        int seedZ = (int) seed;
+
+        return new Random(MathUtil.hash(cellX + seedX, cellZ + seedZ));
     }
 
     private Vector2f findStructurePosition(int cellX, int cellZ){
@@ -171,10 +177,16 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
     public static class GeneratedStructure {
 
-        private Map<Long, int[][][]> blocks;
+        private static final int AIR_BLOCK = -1;
+
+        private final Map<Long, int[][][]> blocks;
 
         public GeneratedStructure() {
             blocks = new HashMap<>();
+        }
+
+        public void setAir(int x, int y, int z){
+            setCube(x, y, z, AIR_BLOCK);
         }
 
         /**
@@ -250,10 +262,13 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
                         int color = selected[i][j][k];
 
-                        if(color == 0)
-                            continue;
+                        if(color == AIR_BLOCK){
+                            chunk.blocks[i][y][k] = 0;
+                        }else if(color != 0){
+                            chunk.blocks[i][y][k] = color;
+                            chunk.flags[i][y][k] |= Chunk.FLAG_NO_COLOR_BLEED;
+                        }
 
-                        chunk.blocks[i][y][k] = color;
                     }
                 }
             }

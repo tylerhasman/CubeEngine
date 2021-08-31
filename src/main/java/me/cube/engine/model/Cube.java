@@ -5,6 +5,8 @@ import org.joml.Vector3f;
 
 public class Cube {
 
+    public static final int FLAG_NO_COLOR_BLEED = 1;
+
     public float scale = 1f;
 
     public float red, green, blue, alpha;
@@ -22,8 +24,12 @@ public class Cube {
         return top || bottom || south || north || west || east;
     }
 
+    private int getNeighbor(int x, int y, int z){
 
-    private int getNeighbor(int x, int y, int z, int nX, int nY, int nZ){
+        return adjacentBlockGetFunction.colorOf((int) this.x + x, (int) this.y + y, (int) this.z + z);
+    }
+
+    private int getNeighborOLD(int x, int y, int z, int nX, int nY, int nZ){
         int aX = x + nX - 1;
         int aY = y + nY - 1;
         int aZ = z + nZ - 1;
@@ -36,7 +42,7 @@ public class Cube {
     //And for horizontal sides of the cubes it can get really fucky
     private Vector3f calculateColor(int minX, int maxX, int minY, int maxY, int minZ, int maxZ){
 
-        if(alpha < 1){
+        if(alpha < 1 || (flags & FLAG_NO_COLOR_BLEED) != 0){
             return new Vector3f(red, green, blue);
         }
 
@@ -50,7 +56,7 @@ public class Cube {
         for(int i = minX;i <= maxX;i++){
             for(int k = minY; k <= maxY;k++){
                 for(int j = minZ;j <= maxZ;j++){
-                    int color = getNeighbor(iX, iY, iZ, i, k, j);
+                    int color = getNeighborOLD(iX, iY, iZ, i, k, j);
 
                     if(i == 1 && j == 1 && k == 1)
                         continue;
@@ -58,7 +64,11 @@ public class Cube {
                     if(color != 0 && (((color >> 24)) & 0xFF) == 0xFF){
                         legit++;
                         if(k == 1){
-                            outputColor.add(rgbToVector(color));
+                            if((flags & FLAG_NO_COLOR_BLEED) == 0){
+                                outputColor.add(rgbToVector(color));
+                            }else{
+                                outputColor.add(new Vector3f(0.1f));
+                            }
                         }else{
                             outputColor.add(new Vector3f(0.1f));
                         }
@@ -104,6 +114,18 @@ public class Cube {
 
             Vector3f color3 = calculateColor(0, 1, 1, 2, 0, 1);
             Vector3f color4 = calculateColor(1, 2, 1, 2, 0, 1);
+
+            if((flags & FLAG_NO_COLOR_BLEED) != 0){
+
+                Vector3f topColor3 = calculateColor(0, 1, 1, 2, 0, 1);
+                Vector3f topColor4 = calculateColor(1, 2, 1, 2, 0, 1);
+
+                color1.set(red, green, blue);
+                color2.set(red, green, blue);
+
+                color3.set(red, green, blue).lerp(topColor3, 1);
+                color4.set(red, green, blue).lerp(topColor4, 1);
+            }
 
             colorOut.add(color1.mul(0.8f));
             colorOut.add(alpha);

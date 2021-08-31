@@ -25,6 +25,8 @@ public class Chunk {
         return thread;
     });
 
+    public static final byte FLAG_NO_COLOR_BLEED = 1;
+
     public static final int CHUNK_WIDTH = 32;
     public static final int CHUNK_HEIGHT = 128;
 

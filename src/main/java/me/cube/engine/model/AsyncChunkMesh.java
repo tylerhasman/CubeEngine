@@ -6,7 +6,6 @@ import me.cube.engine.util.FloatArray;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
-import static org.lwjgl.opengl.GL11C.GL_QUADS;
 
 public class AsyncChunkMesh extends VoxelMesh {
 
@@ -89,6 +88,10 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.x = i;
                         cube.y = j;
                         cube.z = k;
+
+                        if((flags & Chunk.FLAG_NO_COLOR_BLEED) != 0){
+                            cube.flags |= Cube.FLAG_NO_COLOR_BLEED;
+                        }
 
                         cube.top = !isOpaque(terrain, chunk, i, j + 1, k);
                         cube.bottom = !isOpaque(terrain, chunk, i, j - 1, k);

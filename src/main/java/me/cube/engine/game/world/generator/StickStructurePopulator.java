@@ -8,7 +8,7 @@ import java.util.Random;
  */
 public class StickStructurePopulator extends StructureChunkPopulator{
     public StickStructurePopulator() {
-        super(100);
+        super(100, 4328);
     }
 
     @Override
