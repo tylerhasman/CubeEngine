@@ -14,7 +14,7 @@
     "DiffuseLight1_Intensity": "f: 0",
     "u_Hue": "v3: 1, 1, 1",
 
-    "u_FogStart": "f: 250.0",
+    "u_FogStart": "f: 500.0",
     "u_FogColor": "v3: 0.8, 0.8, 0.8"
   }
 
