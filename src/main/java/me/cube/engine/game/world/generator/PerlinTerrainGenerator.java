@@ -165,6 +165,8 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
         return (0xFF << 24) | (outColor & 0x00FFFFFF);
     }
 
+
+
     private void clearCaches(){
         for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_WIDTH;j++){
@@ -172,7 +174,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
             }
         }
     }
-
+    
     @Override
     public void generateChunk(int chunkX, int chunkZ, int[][][] blocks) {
 

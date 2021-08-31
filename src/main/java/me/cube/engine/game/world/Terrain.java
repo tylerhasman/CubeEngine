@@ -64,7 +64,6 @@ public class Terrain {
         chunkLoadFutures = new ArrayList<>();
 
         populators.add(new StickStructurePopulator(0x4237890));
-
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){

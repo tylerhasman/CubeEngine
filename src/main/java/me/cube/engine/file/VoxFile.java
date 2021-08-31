@@ -146,7 +146,7 @@ public class VoxFile implements VoxelFile {
                     byte b = child.data.get();
                     byte a = child.data.get();
 
-                    int rgb = (r << 16) + (g << 8) + b;
+                    int rgb = (a << 24) + (r << 16) + (g << 8) + b;
 
                     colorPallete[i+1] = rgb;
                 }

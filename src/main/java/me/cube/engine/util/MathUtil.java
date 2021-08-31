@@ -68,4 +68,18 @@ public class MathUtil {
         }
         return f - Math.floor(f);
     }
+
+    //https://www.vertexfragment.com/ramblings/cantor-szudzik-pairing-functions/
+    private static int fixCantorNegative(int n){
+        return n >= 0 ? (n * 2) : (-n * 2 - 1);
+    }
+
+    public static long hash(int a, int b){
+        a = fixCantorNegative(a);
+        b = fixCantorNegative(b);
+
+        return ((a + b) * (a + b + 1)) / 2 + b;
+    }
+
+
 }

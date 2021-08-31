@@ -2,11 +2,14 @@ package me.cube.engine.game.world.generator;
 
 import me.cube.engine.game.world.Chunk;
 import me.cube.engine.game.world.Terrain;
+import me.cube.engine.util.MathUtil;
 import org.joml.Vector2f;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
 
 /**
  * Generates structures that can be larger than a single chunk.
@@ -29,23 +32,7 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
 
     private Random getRandom(int cellX, int cellZ){
-
-        if(cellX < 0){
-            cellX = Math.abs(cellX) + 100;
-        }
-
-        if(cellZ < 0){
-            cellZ = Math.abs(cellZ) + 432;
-        }
-
-        long biomeSeed = cellX;
-
-        biomeSeed = seed + ((biomeSeed << 32) | cellZ);
-
-        Random random = new Random(biomeSeed);
-        random.setSeed(random.nextLong());
-
-        return random;
+        return new Random(MathUtil.hash(cellX, cellZ));
     }
 
     private Vector2f findStructurePosition(int cellX, int cellZ){
@@ -73,21 +60,21 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
      */
     @Override
     public void populateChunk(Terrain terrain, Chunk chunk) {
-        int startCellX = Math.floorDiv(chunk.getChunkX() * Chunk.CHUNK_WIDTH, cellSize);
-        int startCellZ = Math.floorDiv(chunk.getChunkZ() * Chunk.CHUNK_WIDTH, cellSize);
+        int startCellX = Math.floorDiv(chunk.getChunkX() * CHUNK_WIDTH, cellSize);
+        int startCellZ = Math.floorDiv(chunk.getChunkZ() * CHUNK_WIDTH, cellSize);
 
 
         //This wont work entirely
         //It will miss the last intersecting chunks
         //TODO Fix ^^^^
 
-        if(Chunk.CHUNK_WIDTH < cellSize){
+        if(CHUNK_WIDTH < cellSize){
 
-            for(int i= 0; i < cellSize;i += Chunk.CHUNK_WIDTH){
-                for(int j = 0; j < cellSize;j += Chunk.CHUNK_WIDTH){
+            for(int i= -CHUNK_WIDTH; i < cellSize + CHUNK_WIDTH;i += CHUNK_WIDTH){
+                for(int j = -CHUNK_WIDTH; j < cellSize + CHUNK_WIDTH;j += CHUNK_WIDTH){
 
-                    int cellX = startCellX + i / Chunk.CHUNK_WIDTH;
-                    int cellZ = startCellZ + j / Chunk.CHUNK_WIDTH;
+                    int cellX = startCellX + i / CHUNK_WIDTH;
+                    int cellZ = startCellZ + j / CHUNK_WIDTH;
 
                     GeneratedStructure structure = loadStructure(cellX, cellZ);
 
@@ -102,9 +89,9 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
                 }
             }
 
-        }else if(Chunk.CHUNK_WIDTH > cellSize){
-            for(int i= 0; i < Chunk.CHUNK_WIDTH;i += cellSize){
-                for(int j = 0; j < Chunk.CHUNK_WIDTH;j += cellSize){
+        }else if(CHUNK_WIDTH > cellSize){
+            for(int i= -cellSize; i < CHUNK_WIDTH + cellSize;i += cellSize){
+                for(int j = -cellSize; j < CHUNK_WIDTH + cellSize;j += cellSize){
 
                     int cellX = startCellX + i / cellSize;
                     int cellZ = startCellZ + j / cellSize;
@@ -129,15 +116,13 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
     }
 
     private GeneratedStructure getStructure(int cellX, int cellZ){
-        long key = cellX;
-        key = (key << 32) | cellZ;
+        long key = MathUtil.hash(cellX, cellZ);
 
         return generated.get(key);
     }
 
     private void setStructure(int cellX, int cellZ, GeneratedStructure structure){
-        long key = cellX;
-        key = (key << 32) | cellZ;
+        long key = MathUtil.hash(cellX, cellZ);
 
         generated.put(key, structure);
     }
@@ -202,18 +187,18 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
                 return;
             }
 
-            int chunkX = Math.floorDiv(x, Chunk.CHUNK_WIDTH);
-            int chunkZ = Math.floorDiv(z, Chunk.CHUNK_WIDTH);
+            int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
+            int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
 
             long key = chunkX;
             key = (key << 32) | chunkZ;
 
             if(!blocks.containsKey(key)){
-                blocks.put(key, new int[Chunk.CHUNK_WIDTH][Chunk.CHUNK_HEIGHT][Chunk.CHUNK_WIDTH]);
+                blocks.put(key, new int[CHUNK_WIDTH][Chunk.CHUNK_HEIGHT][CHUNK_WIDTH]);
             }
 
-            int xInChunk = x - chunkX * Chunk.CHUNK_WIDTH;
-            int zInChunk = z - chunkZ * Chunk.CHUNK_WIDTH;
+            int xInChunk = x - chunkX * CHUNK_WIDTH;
+            int zInChunk = z - chunkZ * CHUNK_WIDTH;
 
             blocks.get(key)[xInChunk][y][zInChunk] = color;
         }
@@ -223,8 +208,8 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
                 return 0;
             }
 
-            int chunkX = Math.floorDiv(x, Chunk.CHUNK_WIDTH);
-            int chunkZ = Math.floorDiv(z, Chunk.CHUNK_WIDTH);
+            int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
+            int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
 
             long key = chunkX;
             key = (key << 32) | chunkZ;
@@ -233,16 +218,16 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
                 return 0;
             }
 
-            int xInChunk = x - chunkX * Chunk.CHUNK_WIDTH;
-            int zInChunk = z - chunkX * Chunk.CHUNK_WIDTH;
+            int xInChunk = x - chunkX * CHUNK_WIDTH;
+            int zInChunk = z - chunkX * CHUNK_WIDTH;
 
             return blocks.get(key)[xInChunk][y][zInChunk];
         }
 
         public void pasteInto(Chunk chunk, int worldX, int worldY, int worldZ){
 
-            int centerChunkX = Math.floorDiv(worldX, Chunk.CHUNK_WIDTH);
-            int centerChunkZ = Math.floorDiv(worldZ, Chunk.CHUNK_WIDTH);
+            int centerChunkX = Math.floorDiv(worldX, CHUNK_WIDTH);
+            int centerChunkZ = Math.floorDiv(worldZ, CHUNK_WIDTH);
 
             int offsetX = chunk.getChunkX() - centerChunkX;
             int offsetZ = chunk.getChunkZ() - centerChunkZ;
@@ -256,9 +241,9 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
             int[][][] selected = blocks.get(key);
 
-            for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
+            for(int i = 0; i < CHUNK_WIDTH;i++){
                 for(int j = 0; j < Chunk.CHUNK_HEIGHT;j++){
-                    for(int k = 0; k < Chunk.CHUNK_WIDTH;k++){
+                    for(int k = 0; k < CHUNK_WIDTH;k++){
 
                         int x = worldX + i;
                         int y = worldY + j;

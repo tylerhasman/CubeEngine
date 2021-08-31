@@ -3,6 +3,7 @@ package me.cube.engine.game.world;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.file.ChunkSave;
+import me.cube.engine.game.world.generator.Biome;
 import me.cube.engine.model.AsyncChunkMesh;
 import me.cube.engine.model.Mesh;
 import me.cube.engine.model.VoxelMesh;
@@ -25,7 +26,7 @@ public class Chunk {
     });
 
     public static final int CHUNK_WIDTH = 32;
-    public static final int CHUNK_HEIGHT = 64;
+    public static final int CHUNK_HEIGHT = 128;
 
     public final int[][][] blocks;
     public final byte[][][] blockFlags;
@@ -41,6 +42,8 @@ public class Chunk {
 
     private boolean disposed;
 
+    private Biome biome;
+
     protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
         blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
@@ -49,6 +52,7 @@ public class Chunk {
         this.chunkZ = z;
         mesh = null;
         disposed = false;
+        biome = Biome.PLAINS;
     }
 
     public int getChunkX() {
@@ -167,6 +171,14 @@ public class Chunk {
         }
 
         meshGeneratedFuture = meshGeneratorExec.submit(() -> new AsyncChunkMesh(terrain, this));
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
+    }
+
+    public Biome getBiome() {
+        return biome;
     }
 
     public boolean isWithinChunk(int worldX, int worldZ){

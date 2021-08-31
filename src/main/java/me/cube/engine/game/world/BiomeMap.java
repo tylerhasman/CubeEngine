@@ -1,6 +1,7 @@
 package me.cube.engine.game.world;
 
 import me.cube.engine.game.world.generator.Biome;import me.cube.engine.util.CubicNoise;
+import me.cube.engine.util.MathUtil;
 import me.cube.engine.util.NoiseGenerator;
 import me.cube.engine.util.PerlinNoise;
 import org.joml.Vector2f;
@@ -16,31 +17,12 @@ public class BiomeMap {
 
     private final long seed;
 
-    private final Random random;
-
     public BiomeMap(long seed){
         this.seed = seed;
-        random = new Random();
     }
 
     private Random getRandom(int x, int z){
-
-        if(x < 0){
-            x = Math.abs(x) + 32;
-        }
-
-        if(z < 0){
-            z = Math.abs(z) + 320;
-        }
-
-        long biomeSeed = x;
-
-        biomeSeed = seed + ((biomeSeed << 32) | z);
-
-        random.setSeed(biomeSeed);
-        random.setSeed(random.nextLong());
-
-        return random;
+        return new Random(MathUtil.hash(x, z));
     }
 
     public Vector2f findBiomeCenter(int worldX, int worldZ){
