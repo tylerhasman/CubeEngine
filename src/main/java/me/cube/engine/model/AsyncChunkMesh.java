@@ -1,11 +1,11 @@
 package me.cube.engine.model;
 
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.Terrain;
+import me.cube.game.world.Chunk;
+import me.cube.game.world.Terrain;
 import me.cube.engine.util.FloatArray;
 
-import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
-import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
+import static me.cube.game.world.Chunk.CHUNK_HEIGHT;
+import static me.cube.game.world.Chunk.CHUNK_WIDTH;
 
 public class AsyncChunkMesh extends VoxelMesh {
 

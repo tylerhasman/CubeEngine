@@ -1,9 +1,9 @@
 package me.cube.engine.file;
 
 import me.cube.engine.SSAmbientOcclusion;
-import me.cube.engine.game.entity.CreatureAppearance;
-import me.cube.engine.game.entity.CreatureAppearance.BodyPart;
-import me.cube.engine.game.entity.CreatureAppearance.PartType;
+import me.cube.game.entity.CreatureAppearance;
+import me.cube.game.entity.CreatureAppearance.BodyPart;
+import me.cube.game.entity.CreatureAppearance.PartType;
 import me.cube.engine.model.Mesh;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.shader.Material;

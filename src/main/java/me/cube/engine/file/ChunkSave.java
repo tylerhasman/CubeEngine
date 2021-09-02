@@ -1,6 +1,6 @@
 package me.cube.engine.file;
 
-import me.cube.engine.game.world.Chunk;
+import me.cube.game.world.Chunk;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;

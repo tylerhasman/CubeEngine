@@ -1,7 +1,7 @@
 package me.cube.engine;
 
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.Terrain;
+import me.cube.game.world.Chunk;
+import me.cube.game.world.Terrain;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
