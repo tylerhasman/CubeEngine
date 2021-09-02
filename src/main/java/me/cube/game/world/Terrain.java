@@ -336,17 +336,9 @@ public class Terrain {
         }*/
     }
 
-    public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f cameraPosition) {
-
-        List<Chunk> sorted = chunkStorage.getLoadedChunks();
-        sorted.sort((c1, c2) -> {
-            int pcx = (int) Math.floor(cameraPosition.x / CHUNK_WIDTH);
-            int pcz = (int) Math.floor(cameraPosition.z / CHUNK_WIDTH);
-            return Integer.compare(c2.dst2(pcx, pcz), c1.dst2(pcx, pcz));
-        });
-
-        for(Chunk chunk : sorted){
-            chunk.renderTransparent(ambientLight, diffuseLights, cameraPosition);
+    public void renderTransparent(Renderer renderer) {
+        for(Chunk chunk : chunkStorage.getLoadedChunks()){
+            chunk.renderTransparent(renderer);
         }
     }
 

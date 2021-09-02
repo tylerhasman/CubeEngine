@@ -185,23 +185,9 @@ public class EditorGame extends Game {
     @Override
     public void render(Renderer renderer) {
 
-        glEnable(GL_BLEND);
+        terrain.render(renderer);
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_MULTISAMPLE);
-
-
-        glEnable(GL_CULL_FACE);
-
-        glCullFace(GL_FRONT);
-
-        //terrain.render(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
-
-        glDisable(GL_CULL_FACE);
-
-        terrain.renderTransparent(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
+        terrain.renderTransparent(renderer);
 
 /*        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
             *//*glEnable(GL_CULL_FACE);

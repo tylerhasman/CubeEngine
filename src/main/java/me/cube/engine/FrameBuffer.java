@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.EXTFramebufferObject.*;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDrawBuffers;
+import static org.lwjgl.opengl.GL30C.*;
 
 public class FrameBuffer {
 
@@ -15,6 +16,8 @@ public class FrameBuffer {
 
     private int[] textureObjects;
     private int textureObjectIndex;
+
+    private int[] depthBuffers;
 
     private int[] attachements;
 
@@ -24,6 +27,7 @@ public class FrameBuffer {
     public FrameBuffer(){
         textureObjects = new int[0];
         attachements = new int[0];
+        depthBuffers = new int[0];
         textureObjectIndex = 0;
         handle = glGenFramebuffersEXT();
     }
@@ -34,6 +38,7 @@ public class FrameBuffer {
 
         textureObjects = Arrays.copyOf(textureObjects, textureObjects.length+1);
         attachements = Arrays.copyOf(attachements, attachements.length+1);
+        depthBuffers = Arrays.copyOf(depthBuffers, attachements.length+1);
 
         int index = textureObjectIndex++;
 
@@ -48,6 +53,11 @@ public class FrameBuffer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, GL_TEXTURE_2D, texId, 0);
+
+        depthBuffers[index] = glGenRenderbuffersEXT();
+        glBindRenderbufferEXT(GL_RENDERBUFFER, depthBuffers[index]);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffers[index]);
 
     }
 
@@ -70,6 +80,7 @@ public class FrameBuffer {
     }
 
     public void dispose(){
+        glDeleteRenderbuffersEXT(depthBuffers);
         glDeleteTextures(textureObjects);
         glDeleteFramebuffersEXT(handle);
     }

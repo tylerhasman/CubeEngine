@@ -2,6 +2,7 @@ package me.cube.engine;
 
 import me.cube.engine.file.Assets;
 import me.cube.engine.shader.Material;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
@@ -58,10 +59,10 @@ public class Renderer {
         quadEBO = glGenBuffers();
 
         float[] vertices = new float[] {
-                width / 2f, height / 2f, 0,
-                width / 2f, -height / 2f, 0,
-                -width / 2f, -height / 2f, 0,
-                -width / 2f, height / 2f, 0,
+                0.5f, 0.5f, 0,
+                0.5f, -0.5f, 0,
+                -0.5f, -0.5f, 0,
+                -0.5f, 0.5f, 0,
         };
 
         int[] indices = new int[] {
@@ -97,6 +98,8 @@ public class Renderer {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glEnable(GL_DEPTH_TEST);
+
         glEnable(GL_CULL_FACE);
 
         glCullFace(GL_FRONT);
@@ -106,6 +109,8 @@ public class Renderer {
         }
 
         glDisable(GL_CULL_FACE);
+
+        glDisable(GL_DEPTH_TEST);
 
         gBuffer.unbind();
 
@@ -140,10 +145,14 @@ public class Renderer {
 
         //render(transparentVoxels);
 
+        Matrix4f frame = new Matrix4f().identity().scale(2f);
+
         lightingMaterial.setUniformi("gPosition", 0);
         lightingMaterial.setUniformi("gNormal", 1);
         lightingMaterial.setUniformi("gAlbedoSpec", 2);
         lightingMaterial.setUniform3f("viewPos", Camera.getCameraPosition());
+
+        lightingMaterial.setUniformMat4f("Frame", frame);
 
         gBuffer.bindTexture(0, GL_TEXTURE0);
         gBuffer.bindTexture(1, GL_TEXTURE1);

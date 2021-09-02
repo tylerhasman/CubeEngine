@@ -4,8 +4,10 @@ layout (location = 0) in vec3 a_Position;
 
 out vec2 TexCoords;
 
-void main(){
-    TexCoords = vec2(a_Position);
+uniform mat4 Frame;
 
-    gl_Position = vec4(a_Position, 1.0);
+void main(){
+    TexCoords = vec2(a_Position + 0.5);
+
+    gl_Position = Frame * vec4(a_Position, 1.0);
 }
