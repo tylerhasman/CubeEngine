@@ -33,6 +33,9 @@ public abstract class Game {
 
     public abstract String getTitle();
 
+    protected final void destroyInternal(){
+        renderer.dispose();
+    }
 
     public final void render(){
 

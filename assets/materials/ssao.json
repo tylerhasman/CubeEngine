@@ -1,0 +1,8 @@
+{
+  "name": "SSAO Material",
+  "shader": "assets/shaders/ssaoShader",
+  "uniforms": {
+
+  }
+
+}

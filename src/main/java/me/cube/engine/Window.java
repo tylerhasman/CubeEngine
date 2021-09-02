@@ -90,6 +90,7 @@ public class Window implements Runnable {
         }
 
         game.destroy();
+        game.destroyInternal();
 
 
         glfwFreeCallbacks(handle);

@@ -15,7 +15,7 @@ uniform mat3 NormalMatrix;
 
 void main(){
     v_Normal = normalize(NormalMatrix * a_Normal);
-    v_Position = vec3(ModelMatrix * vec4(a_Position, 1.0));
+    v_Position = vec3(ViewMatrix * ModelMatrix * vec4(a_Position, 1.0));
     v_Color = a_Color;
 
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(a_Position, 1.0);
