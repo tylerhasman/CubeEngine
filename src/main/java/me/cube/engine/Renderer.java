@@ -30,7 +30,7 @@ public class Renderer {
     //G-Buffer
     private final FrameBuffer gBuffer;
 
-    private final Material gBufferMaterial, lightingMaterial, ssaoMaterial;
+    private final Material gBufferMaterial, lightingMaterial, ssaoMaterial, blurMaterial;
 
     private final Vector3f ambientLight;
 
@@ -42,7 +42,7 @@ public class Renderer {
     //SSAO
     private Vector3f[] ssaoKernel;
     private int ssaoNoiseTex;
-    private FrameBuffer ssaoBuffer;
+    private FrameBuffer ssaoBuffer, ssaoBlurBuffer;
 
     public Renderer(int width, int height){
         opaqueVoxels = new ArrayList<>();
@@ -56,9 +56,13 @@ public class Renderer {
         ssaoBuffer = new FrameBuffer();
         ssaoBuffer.createTexture(width, height, GL_RED, GL_RED, GL_COLOR_ATTACHMENT0);
 
+        ssaoBlurBuffer = new FrameBuffer();
+        ssaoBlurBuffer.createTexture(width, height, GL_RED, GL_RED, GL_COLOR_ATTACHMENT0);
+
         gBufferMaterial = Assets.loadMaterial("gbuffer.json");
         lightingMaterial = Assets.loadMaterial("lightingPass.json");
         ssaoMaterial = Assets.loadMaterial("ssao.json");
+        blurMaterial = Assets.loadMaterial("blur.json");
 
         ambientLight = new Vector3f(1, 1, 1);
 
@@ -171,7 +175,6 @@ public class Renderer {
 
     private void renderGBuffer(){
         glEnable(GL11C.GL_DEPTH_TEST);
-        glEnable(GL_MULTISAMPLE);
 
         glEnable(GL_CULL_FACE);
 
@@ -179,7 +182,7 @@ public class Renderer {
 
         gBuffer.bind();
 
-        glClearColor(135f / 255f, 206f / 255f, 235f / 255f, 0.0f);
+        glClearColor(0, 0, 0, 1f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -189,7 +192,6 @@ public class Renderer {
 
         glDisable(GL_CULL_FACE);
 
-        glDisable(GL_MULTISAMPLE);
         glDisable(GL11.GL_DEPTH_TEST);
     }
 
@@ -199,6 +201,8 @@ public class Renderer {
         ssaoMaterial.setUniformi("gPosition", 0);
         ssaoMaterial.setUniformi("gNormal", 1);
         ssaoMaterial.setUniformi("texNoise", 2);
+        ssaoMaterial.setUniformf("ScreenWidth", width);
+        ssaoMaterial.setUniformf("ScreenHeight", height);
         ssaoMaterial.setUniformMat4f("projection", Camera.projectionMatrix);
 
         ssaoMaterial.setUniformMat4f("Frame", frame);
@@ -224,6 +228,25 @@ public class Renderer {
         ssaoBuffer.unbind();
     }
 
+    private void renderBlurredSSAO(){
+        Matrix4f frame = new Matrix4f().identity().scale(2f);
+
+        blurMaterial.setUniformMat4f("Frame", frame);
+        blurMaterial.setUniformi("ssaoInput", 0);
+
+        ssaoBlurBuffer.bind();
+
+        blurMaterial.bind();
+
+        ssaoBuffer.bindTexture(0, GL_TEXTURE0);
+
+        renderQuad();
+
+        blurMaterial.unbind();
+
+        ssaoBuffer.unbind();
+    }
+
     protected void renderScene(){
 
         Vector3f cameraPosition = Camera.getCameraPosition();
@@ -233,6 +256,8 @@ public class Renderer {
         renderGBuffer();
 
         renderSSAO();
+
+        renderBlurredSSAO();
 
         Matrix4f frame = new Matrix4f().identity().scale(2f);
 
@@ -248,7 +273,7 @@ public class Renderer {
         gBuffer.bindTexture(0, GL_TEXTURE0);
         gBuffer.bindTexture(1, GL_TEXTURE1);
         gBuffer.bindTexture(2, GL_TEXTURE2);
-        ssaoBuffer.bindTexture(0, GL_TEXTURE3);
+        ssaoBlurBuffer.bindTexture(0, GL_TEXTURE3);
 
         lightingMaterial.bind();
 

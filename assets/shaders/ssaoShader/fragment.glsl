@@ -10,18 +10,21 @@ uniform sampler2D texNoise;
 uniform vec3 samples[64];
 uniform mat4 projection;
 
-// tile noise texture over screen, based on screen dimensions divided by noise size
-const vec2 noiseScale = vec2(800.0/4.0, 640.0/4.0);
+uniform float ScreenWidth, ScreenHeight;
 
 const int kernelSize = 64;
 const float radius = 0.5;
 const float bias = 0.025;
 
+vec2 noiseScale(){
+    return vec2(ScreenWidth / 4.0, ScreenHeight / 4.0);
+}
+
 void main()
 {
     vec3 fragPos   = texture(gPosition, TexCoords).xyz;
     vec3 normal    = texture(gNormal, TexCoords).rgb;
-    vec3 randomVec = texture(texNoise, TexCoords * noiseScale).xyz;
+    vec3 randomVec = texture(texNoise, TexCoords * noiseScale()).xyz;
 
     vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);

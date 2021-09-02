@@ -204,11 +204,6 @@ public class EditorGame extends Game {
             voxel.render();
             //glDisable(GL_CULL_FACE);
         }*/
-
-        glDisable(GL_MULTISAMPLE);
-        glDisable(GL_DEPTH_TEST);
-
-        glDisable(GL_BLEND);
     }
 
     @Override
@@ -248,6 +243,11 @@ public class EditorGame extends Game {
 
         if(key == GLFW_KEY_G){
             terrain.unloadAll();
+        }
+
+        if(key == GLFW_KEY_F){
+            Assets.disposeAll();
+            resize(1920, 1080);
         }
 
     }

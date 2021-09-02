@@ -46,6 +46,10 @@ public class Assets {
             System.out.println("[ASSET] Unloaded font "+key);
         }
 
+        models.clear();
+        materials.clear();
+        fonts.clear();
+
     }
 
     public static Material defaultMaterial() {

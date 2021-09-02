@@ -21,8 +21,10 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     float AmbientOcclusion = texture(gSSAO, TexCoords).r;
 
+    vec3 ambient = vec3(1.0 * Albedo * AmbientOcclusion);
+
     // then calculate lighting as usual
-    vec3 lighting = Albedo * u_AmbientLight * AmbientOcclusion; // hard-coded ambient component
+    vec3 lighting = ambient;
 
     FragColor = vec4(lighting, 1.0);
 }

@@ -168,15 +168,7 @@ public class World {
 
         }
 
-        glDisable(GL_BLEND);
-
-        glEnable(GL_CULL_FACE);
-
-        glCullFace(GL_FRONT);
-
         //terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
-
-        glDisable(GL_CULL_FACE);
 
         particleEngine.render(ambientColor, diffuseLights);
 

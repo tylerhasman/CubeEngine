@@ -6,7 +6,7 @@ import me.cube.engine.Window;
 public class StartEditor {
 
     public static void main(String[] args) {
-        Window window = new Window(new EditorGame(), 1280, 720);
+        Window window = new Window(new EditorGame(), 1920, 1080);
 
         window.run();
     }

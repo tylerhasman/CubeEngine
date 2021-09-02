@@ -14,7 +14,7 @@ uniform mat4 ProjectionMatrix;
 uniform mat3 NormalMatrix;
 
 void main(){
-    v_Normal = normalize(NormalMatrix * a_Normal);
+    v_Normal = normalize(NormalMatrix * mat3(ViewMatrix) * a_Normal);
     v_Position = vec3(ViewMatrix * ModelMatrix * vec4(a_Position, 1.0));
     v_Color = a_Color;
 
