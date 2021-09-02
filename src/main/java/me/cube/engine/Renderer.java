@@ -93,26 +93,9 @@ public class Renderer {
 
     private void render(List<Voxel> voxels){
 
-        gBuffer.bind();
-
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glEnable(GL_DEPTH_TEST);
-
-        glEnable(GL_CULL_FACE);
-
-        glCullFace(GL_FRONT);
-
         for(Voxel voxel : voxels){
             voxel.render(gBufferMaterial, true);
         }
-
-        glDisable(GL_CULL_FACE);
-
-        glDisable(GL_DEPTH_TEST);
-
-        gBuffer.unbind();
 
     }
 
@@ -132,18 +115,38 @@ public class Renderer {
         glBindVertexArray(0);
     }
 
+
+    private void renderGBuffer(){
+        glEnable(GL11C.GL_DEPTH_TEST);
+        glEnable(GL_MULTISAMPLE);
+
+        glEnable(GL_CULL_FACE);
+
+        glCullFace(GL_FRONT);
+
+        gBuffer.bind();
+
+        glClearColor(0, 0, 0, 0);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        render(opaqueVoxels);
+
+        gBuffer.unbind();
+
+        glDisable(GL_CULL_FACE);
+
+        glDisable(GL_MULTISAMPLE);
+        glDisable(GL11.GL_DEPTH_TEST);
+    }
+
     protected void renderScene(){
 
         Vector3f cameraPosition = Camera.getCameraPosition();
 
         transparentVoxels.sort((c1, c2) -> Float.compare(c2.position.distanceSquared(cameraPosition), c1.position.distanceSquared(cameraPosition)));
 
-        glEnable(GL11C.GL_DEPTH_TEST);
-        glEnable(GL_MULTISAMPLE);
-
-        render(opaqueVoxels);
-
-        //render(transparentVoxels);
+        renderGBuffer();
 
         Matrix4f frame = new Matrix4f().identity().scale(2f);
 
@@ -163,9 +166,6 @@ public class Renderer {
         renderQuad();
 
         lightingMaterial.unbind();
-
-        glDisable(GL_MULTISAMPLE);
-        glDisable(GL11.GL_DEPTH_TEST);
 
         transparentVoxels.clear();
         opaqueVoxels.clear();
