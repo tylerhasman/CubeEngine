@@ -1,5 +1,6 @@
 package me.cube.game.world;
 
+import me.cube.engine.Renderer;
 import me.cube.engine.Voxel;
 import me.cube.game.world.generator.*;
 import org.joml.AABBf;
@@ -214,7 +215,7 @@ public class Terrain {
             }
         }
 
-        if(unloaded){
+/*        if(unloaded){
             fluffs.removeIf(fluff -> {
                 Vector3f position = fluff.getTransform().getPosition();
                 int chunkX = (int) Math.floor(position.x / CHUNK_WIDTH);
@@ -222,7 +223,7 @@ public class Terrain {
 
                 return !chunkStorage.isLoaded(chunkX, chunkZ);
             });
-        }
+        }*/
 
     }
 
@@ -321,18 +322,18 @@ public class Terrain {
 
     }
 
-    public void render(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f playerPosition) {
+    public void render(Renderer renderer) {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
-            chunk.render(ambientLight, diffuseLights);
+            chunk.render(renderer);
         }
-
+/*
         for(Voxel fluff : fluffs){
             if(fluff.getTransform().getPosition().distanceSquared(playerPosition) < FLUFF_RENDER_DISTANCE * FLUFF_RENDER_DISTANCE){
                 fluff.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
 
                 fluff.render();
             }
-        }
+        }*/
     }
 
     public void renderTransparent(Vector3f ambientLight, List<DiffuseLight> diffuseLights, Vector3f cameraPosition) {

@@ -146,7 +146,7 @@ public class World {
 
         for(Entity entity : entities){
 
-            entity.root.getTransform().set(entity.position, entity.rotation, entity.scale);
+/*
             if(!entity.root.getTransform().hasParent()){
 
                 entity.root.getMaterial().setUniform3f("u_AmbientLight", ambientColor);
@@ -162,6 +162,7 @@ public class World {
 
                 entity.root.render();
             }
+*/
 
             //renderBoundingBox(entity);
 
@@ -173,7 +174,7 @@ public class World {
 
         glCullFace(GL_FRONT);
 
-        terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
+        //terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
 
         glDisable(GL_CULL_FACE);
 

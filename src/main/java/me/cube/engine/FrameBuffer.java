@@ -1,66 +1,77 @@
 package me.cube.engine;
 
-import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
-import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.opengl.GL13C.glActiveTexture;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL20.glDrawBuffers;
 
 public class FrameBuffer {
 
-    private final int fbHandle, texHandle;
+    private final int handle;
+
+    private int[] textureObjects;
+    private int textureObjectIndex;
+
+    private int[] attachements;
 
     /**
      * This will unbind the current framebuffer!!!
      */
-    public FrameBuffer(int width, int height){
-        this(width, height, GL_RGBA8, GL_RGBA);
+    public FrameBuffer(){
+        textureObjects = new int[0];
+        attachements = new int[0];
+        textureObjectIndex = 0;
+        handle = glGenFramebuffersEXT();
     }
 
-    public FrameBuffer(int width, int height, int internalFormat, int colorMode){
-        if(Window.capabilities.GL_EXT_framebuffer_object){
-            fbHandle = glGenFramebuffersEXT();
-            texHandle = glGenTextures();
+    public void createTexture(int width, int height, int internalFormat, int format, int attachment){
 
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbHandle);
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, handle);
 
-            glBindTexture(GL_TEXTURE_2D, texHandle);
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, colorMode, GL_INT, (ByteBuffer) null);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        textureObjects = Arrays.copyOf(textureObjects, textureObjects.length+1);
+        attachements = Arrays.copyOf(attachements, attachements.length+1);
 
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texHandle, 0);
+        int index = textureObjectIndex++;
 
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        }else{
-            fbHandle = 0;
-            texHandle = 0;
-        }
+        int texId = glGenTextures();
+
+        textureObjects[index] = texId;
+        attachements[index] = attachment;
+
+        glBindTexture(GL_TEXTURE_2D, texId);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, attachment, GL_TEXTURE_2D, texId, 0);
+
     }
 
     public int getHandle(){
-        return fbHandle;
+        return handle;
+    }
+
+    public void bindTexture(int index, int unit){
+        glActiveTexture(unit);
+        glBindTexture(GL11.GL_TEXTURE_2D, textureObjects[index]);
     }
 
     public void bind(){
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbHandle);
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, handle);
+        glDrawBuffers(attachements);
     }
 
-    public void bindTexture(int unit){
-        glActiveTexture(unit);
-        glBindTexture(GL_TEXTURE_2D, texHandle);
-    }
-
-   public void unbind(){
+    public void unbind(){
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     }
 
-
     public void dispose(){
-        glDeleteTextures(texHandle);
-        glDeleteFramebuffersEXT(fbHandle);
+        glDeleteTextures(textureObjects);
+        glDeleteFramebuffersEXT(handle);
     }
 
 }

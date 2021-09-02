@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL13C.GL_MULTISAMPLE;
 
-public class EditorGame implements Game {
+public class EditorGame extends Game {
 
     private static final int MAX_ACTION_MEMORY = 20;
 
@@ -183,7 +183,7 @@ public class EditorGame implements Game {
     }
 
     @Override
-    public void render() {
+    public void render(Renderer renderer) {
 
         glEnable(GL_BLEND);
 
@@ -197,7 +197,7 @@ public class EditorGame implements Game {
 
         glCullFace(GL_FRONT);
 
-        terrain.render(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
+        //terrain.render(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
 
         glDisable(GL_CULL_FACE);
 

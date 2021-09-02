@@ -26,7 +26,7 @@ public class Creature extends Entity {
     public void changeAppearance(CreatureAppearance creatureAppearance){
         avatar = creatureAppearance.compile();
 
-        root.getTransform().addChild(avatar.getTorso().getTransform());
+        root.addChild(avatar.getTorso());
 
     }
 
@@ -40,14 +40,14 @@ public class Creature extends Entity {
 
             float rotation = Math.sin(animationTime * direction * 5) * MathUtil.PI / 4;
 
-            leftLegs.get(i).getTransform().setRotation(new Quaternionf().rotateAxis(rotation, 1, 0, 0));
+            leftLegs.get(i).rotation.set(new Quaternionf().rotateAxis(rotation, 1, 0, 0));
         }
 
         for(int i = 0; i < rightLegs.size();i++){
             int direction = ((i & 1) == 1) ? -1 : 1;
             float rotation = Math.cos(animationTime * direction * 5) * MathUtil.PI / 4;
 
-            rightLegs.get(i).getTransform().setRotation(new Quaternionf().rotateAxis(rotation, 1, 0, 0));
+            rightLegs.get(i).rotation.set(new Quaternionf().rotateAxis(rotation, 1, 0, 0));
         }
 
         animationTime += delta;

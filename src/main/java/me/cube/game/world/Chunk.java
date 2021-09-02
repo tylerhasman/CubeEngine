@@ -1,5 +1,6 @@
 package me.cube.game.world;
 
+import me.cube.engine.Renderer;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.game.world.generator.Biome;
@@ -104,7 +105,7 @@ public class Chunk {
         }
     }
 
-    public void render(Vector3f ambientLight, List<DiffuseLight> diffuseLights){
+    public void render(Renderer renderer){
         if(disposed){
             return;
         }
@@ -131,13 +132,13 @@ public class Chunk {
                     chunkMesh.initialize();
 
                     mesh = new Voxel("Chunk "+chunkX+" "+chunkZ, chunkMesh);
-                    mesh.getTransform().scale(World.WORLD_SCALE);
-                    mesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
+                    mesh.scale.set(World.WORLD_SCALE);
+                    mesh.position.add(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
 
                     if(chunkMesh.hasTransparency()){
                         transparentMesh = new Voxel("ChunkTrasparent"+chunkX+" "+chunkZ, chunkMesh.createTransparentMesh(), Assets.loadMaterial("transparent.json"));
-                        transparentMesh.getTransform().scale(World.WORLD_SCALE);
-                        transparentMesh.getTransform().translate(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
+                        transparentMesh.scale.set(World.WORLD_SCALE);
+                        transparentMesh.position.add(chunkX * CHUNK_WIDTH, 0, chunkZ * CHUNK_WIDTH);
                     }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -148,14 +149,15 @@ public class Chunk {
         }
 
         if(mesh != null){
-            for(int i = 0; i < diffuseLights.size();i++){
+/*            for(int i = 0; i < diffuseLights.size();i++){
                 DiffuseLight light = diffuseLights.get(i);
                 mesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
                 mesh.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
                 mesh.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", light.intensity);
             }
             mesh.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
-            mesh.render();
+            mesh.render();*/
+            renderer.render(mesh);
         }
     }
 

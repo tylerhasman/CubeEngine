@@ -40,7 +40,7 @@ public class CreatureAppearance {
 
         Voxel voxel = new Voxel("Torso", torsoMesh);
 
-        voxel.getTransform().scale(0.1f);
+        voxel.scale.mul(0.1f);
 
         parts.put(PartType.Torso, Arrays.asList(voxel));
 
@@ -61,8 +61,8 @@ public class CreatureAppearance {
                 BodyPart part = remaining.remove(partIndex);
                 System.out.println(part.model);
                 Voxel vox = new Voxel(partType.name()+partIndex, Assets.loadModel(part.model));
-                voxel.getTransform().addChild(vox.getTransform());
-                vox.getTransform().setLocalPosition(connector.x - torsoMesh.pivot.x, connector.y, connector.z - torsoMesh.pivot.z);
+                voxel.addChild(vox);
+                vox.position.set(connector.x - torsoMesh.pivot.x, connector.y, connector.z - torsoMesh.pivot.z);
 
 
                 parts.get(partType).add(vox);

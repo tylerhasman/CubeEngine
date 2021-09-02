@@ -1,0 +1,8 @@
+{
+  "name": "Lighting Pass Material",
+  "shader": "assets/shaders/lightingPassShader",
+  "uniforms": {
+
+  }
+
+}

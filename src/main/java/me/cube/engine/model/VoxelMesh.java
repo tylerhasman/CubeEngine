@@ -12,18 +12,4 @@ public class VoxelMesh extends Mesh {
         super(GL11.GL_QUADS);
     }
 
-/*    protected VoxelMesh(FloatArray vertices, FloatArray colors, FloatArray normals, int width, int height, int length) {
-        super(GL11.GL_QUADS, vertices, colors, normals);
-        this.width = width;
-        this.height = height;
-        this.length = length;
-    }
-
-    protected VoxelMesh(float[] vertexBufferData, float[] colorBufferData, float[] normalBufferData, int width, int height, int length) {
-        super(GL11.GL_QUADS, vertexBufferData, colorBufferData, normalBufferData);
-        this.width = width;
-        this.height = height;
-        this.length = length;
-    }*/
-
 }

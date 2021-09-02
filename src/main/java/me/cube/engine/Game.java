@@ -1,23 +1,46 @@
 package me.cube.engine;
 
-public interface Game {
+public abstract class Game {
 
-    void init();
+    private Renderer renderer;
 
-    void update(float delta);
+    public Game(){
 
-    void render();
+    }
 
-    void onKeyPress(int key, int action);
+    public void resize(int width, int height){
+        if(renderer != null)
+            renderer.dispose();
 
-    void onCursorMove(double dx, double dy);
+        renderer = new Renderer(width, height);
+    }
 
-    void onMouseScroll(double delta);
+    public abstract void init();
 
-    void onMousePress(int button, int action);
+    public abstract void update(float delta);
 
-    void destroy();
+    public abstract void render(Renderer renderer);
 
-    String getTitle();
+    public abstract void onKeyPress(int key, int action);
+
+    public abstract void onCursorMove(double dx, double dy);
+
+    public abstract void onMouseScroll(double delta);
+
+    public abstract void onMousePress(int button, int action);
+
+    public abstract void destroy();
+
+    public abstract String getTitle();
+
+
+    public final void render(){
+
+        render(renderer);
+
+
+        renderer.renderScene();
+
+    }
 
 }

@@ -1,6 +1,5 @@
 package me.cube.game.particle;
 
-import me.cube.engine.Transform;
 import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.engine.model.SimpleVoxelMesh;
@@ -22,12 +21,10 @@ public class CubeParticle extends Particle {
         }
         material.setUniform3f("u_Hue", color);
         voxel = new Voxel("Particle", cube, material);
-        voxel.getTransform().set(position, rotation, scale);
+        voxel.position.set(position);
+        voxel.rotation.set(rotation);
+        voxel.scale.set(scale);
         velocity = new Vector3f(0, 0, 0);
-    }
-
-    public Transform getTransform(){
-        return voxel.getTransform();
     }
 
     @Override
@@ -51,12 +48,8 @@ public class CubeParticle extends Particle {
         super.update(delta);
         velocity.add(0, -20 * delta, 0);
 
-        Vector3f position = voxel.getTransform().getLocalPosition();
+        voxel.position.add(velocity.mul(delta, new Vector3f()));
 
-        position.add(velocity.mul(delta, new Vector3f()));
-
-        voxel.getTransform().setLocalPosition(position.x, position.y, position.z);
-
-        voxel.getTransform().rotateAxis(delta, 1, 1, 1);
+        voxel.rotation.rotateAxis(delta, 1, 1, 1);
     }
 }

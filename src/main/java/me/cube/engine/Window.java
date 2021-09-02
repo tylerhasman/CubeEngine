@@ -46,6 +46,7 @@ public class Window implements Runnable {
         long fpsResetTimer = 0;
 
         game.init();
+        game.resize(width, height);
 
         while(!glfwWindowShouldClose(handle)){
 
@@ -74,7 +75,6 @@ public class Window implements Runnable {
             glfwSwapBuffers(handle);
 
             glfwPollEvents();
-
 
             fpsCounter++;
             if(fpsResetTimer >= 1000){

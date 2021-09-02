@@ -27,8 +27,6 @@ public class Assets {
     private static Map<String, CubeFont> fonts = new HashMap<>();
     private static Map<String, CreatureAppearance.BodyPart> bodyParts = new HashMap<>();
 
-    private static SSAmbientOcclusion ambientOcclusion = new SSAmbientOcclusion();
-
     public static void disposeAll(){
         for(String key : models.keySet()){
             Mesh model = models.get(key);
@@ -48,11 +46,6 @@ public class Assets {
             System.out.println("[ASSET] Unloaded font "+key);
         }
 
-        ambientOcclusion.dispose();
-    }
-
-    public static SSAmbientOcclusion getAmbientOcclusion() {
-        return ambientOcclusion;
     }
 
     public static Material defaultMaterial() {

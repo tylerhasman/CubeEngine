@@ -3,6 +3,7 @@ package me.cube.game;
 import me.cube.engine.Camera;
 import me.cube.engine.Game;
 import me.cube.engine.Input;
+import me.cube.engine.Renderer;
 import me.cube.engine.file.Assets;
 import me.cube.game.entity.Player;
 import me.cube.game.world.Chunk;
@@ -16,7 +17,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
-public class CubeGame implements Game {
+public class CubeGame extends Game {
 
     public static CubeGame game;
 
@@ -111,7 +112,7 @@ public class CubeGame implements Game {
     }
 
     @Override
-    public void render() {
+    public void render(Renderer renderer) {
 
         {
             if(wireFrame){

@@ -8,8 +8,11 @@ import org.joml.Vector4f;
 public class Camera {
 
     public static Matrix4f projectionMatrix = new Matrix4f();
-    public static  Matrix4f cameraMatrix = new Matrix4f();
+    public static Matrix4f cameraMatrix = new Matrix4f();
 
+    public static Vector3f getCameraPosition(){
+        return cameraMatrix.getTranslation(new Vector3f());
+    }
 
     /**
      * @param screen must be normalized between -1.0 to 1.0
