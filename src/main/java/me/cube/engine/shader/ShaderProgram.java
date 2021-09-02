@@ -123,6 +123,15 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniformi(String name, int val) {
+        int location = getUniformLocation(name);
+        if(location != -1){
+            glUniform1i(location, val);
+        }else{
+            //System.err.println("Shader has no uniform named "+name);
+        }
+    }
+
 /*    public int getAttributeLocation(String name){
         return glGetAttribLocation(programId, name);
     }*/

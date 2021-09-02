@@ -57,6 +57,10 @@ public class Chunk {
         biome = Biome.PLAINS;
     }
 
+    public Voxel getMesh() {
+        return mesh;
+    }
+
     public int getChunkX() {
         return chunkX;
     }

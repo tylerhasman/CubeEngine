@@ -206,7 +206,6 @@ public class EditorGame implements Game {
 
         terrain.renderTransparent(new Vector3f(1, 1, 1), Collections.emptyList(), new Vector3f(cameraPosition));
 
-
 /*        if(Input.getCursorMode() == GLFW_CURSOR_NORMAL){
             *//*glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);*//*

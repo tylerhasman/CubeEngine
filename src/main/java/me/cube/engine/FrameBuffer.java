@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
 import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 
 public class FrameBuffer {
 
@@ -14,8 +15,11 @@ public class FrameBuffer {
     /**
      * This will unbind the current framebuffer!!!
      */
-    private FrameBuffer(int width, int height){
+    public FrameBuffer(int width, int height){
+        this(width, height, GL_RGBA8, GL_RGBA);
+    }
 
+    public FrameBuffer(int width, int height, int internalFormat, int colorMode){
         if(Window.capabilities.GL_EXT_framebuffer_object){
             fbHandle = glGenFramebuffersEXT();
             texHandle = glGenTextures();
@@ -23,18 +27,17 @@ public class FrameBuffer {
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbHandle);
 
             glBindTexture(GL_TEXTURE_2D, texHandle);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_INT, (ByteBuffer) null);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, colorMode, GL_INT, (ByteBuffer) null);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texHandle, 0);
-
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         }else{
             fbHandle = 0;
             texHandle = 0;
         }
-
     }
 
     public int getHandle(){
@@ -45,9 +48,15 @@ public class FrameBuffer {
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbHandle);
     }
 
-    public void unbind(){
+    public void bindTexture(int unit){
+        glActiveTexture(unit);
+        glBindTexture(GL_TEXTURE_2D, texHandle);
+    }
+
+   public void unbind(){
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     }
+
 
     public void dispose(){
         glDeleteTextures(texHandle);

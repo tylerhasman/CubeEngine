@@ -1,5 +1,6 @@
 package me.cube.engine.game.world;
 
+import me.cube.engine.SSAmbientOcclusion;
 import me.cube.engine.Voxel;
 import me.cube.engine.game.world.generator.*;
 import org.joml.AABBf;
@@ -11,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
 import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
@@ -325,6 +327,7 @@ public class Terrain {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
             chunk.render(ambientLight, diffuseLights);
         }
+
         for(Voxel fluff : fluffs){
             if(fluff.getTransform().getPosition().distanceSquared(playerPosition) < FLUFF_RENDER_DISTANCE * FLUFF_RENDER_DISTANCE){
                 fluff.getMaterial().setUniform3f("u_AmbientLight", ambientLight);

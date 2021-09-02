@@ -1,0 +1,8 @@
+{
+  "name": "Normal Material",
+  "shader": "assets/shaders/normalShader",
+  "uniforms": {
+
+  }
+
+}

@@ -21,6 +21,7 @@ public class Material {
     private ShaderProgram shader;
 
     private Map<String, Float> fUniforms = new HashMap<>();
+    private Map<String, Integer> iUniforms = new HashMap<>();
     private Map<String, Vector3f> f3Uniforms = new HashMap<>();
     private Map<String, Matrix4f> fMUniforms = new HashMap<>();
     private Map<String, Matrix3f> fM3Uniforms = new HashMap<>();
@@ -30,6 +31,7 @@ public class Material {
     public Material(Material m){
         shader = m.shader;
         fUniforms.putAll(m.fUniforms);
+        iUniforms.putAll(m.iUniforms);
         f3Uniforms.putAll(m.f3Uniforms);
         fMUniforms.putAll(m.fMUniforms);
         fM3Uniforms.putAll(m.fM3Uniforms);
@@ -109,6 +111,11 @@ public class Material {
         //shader.setUniformf(name, val);
     }
 
+    public void setUniformi(String name, int val){
+        iUniforms.put(name, val);
+        //shader.setUniformf(name, val);
+    }
+
     public void setUniform3f(String name, Vector3f vector3f){
         f3Uniforms.put(name, new Vector3f(vector3f));
         //shader.setUniformf(name, vector3f);
@@ -147,6 +154,10 @@ public class Material {
 
         for(String name : fM3Uniforms.keySet()){
             shader.setUniformMatrix3(name, fM3Uniforms.get(name));
+        }
+
+        for(String name : iUniforms.keySet()){
+            shader.setUniformi(name, iUniforms.get(name));
         }
 
     }

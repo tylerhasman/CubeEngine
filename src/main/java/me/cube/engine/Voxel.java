@@ -5,17 +5,17 @@ import me.cube.engine.model.VoxelMesh;
 import me.cube.engine.shader.Material;
 import org.joml.Matrix3f;
 
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+
 public class Voxel {
 
     public final String name;
 
     public VoxelMesh model;
 
-    private Transform transform;
+    private final Transform transform;
 
     private Material material;
-
-    private VoxelMesh coordinateModel;
 
     public Voxel(){
         this("unnamed");
@@ -35,7 +35,6 @@ public class Voxel {
 
         this.material = material;
         this.transform = new Transform(this);
-        this.coordinateModel = Assets.loadModel("coordinates.vxm");
     }
 
     public Transform getTransform() {
@@ -63,30 +62,48 @@ public class Voxel {
     }
 
     /**
-     * Updates this voxels transformations and renders it.
+     * Renders this voxel
+     * @param material the material to render it with
+     * @param overrideChildrenMaterial if true children will be forced to use the provided material as well
      */
-    public void render(){
+    public void render(Material material, boolean overrideChildrenMaterial){
         if(model != null){
 
-            getMaterial().setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
-            getMaterial().setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
+            material.setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
+            material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
 
-            getMaterial().setUniformMat4f("ModelMatrix", transform.getTransformation());
+            material.setUniformMat4f("ModelMatrix", transform.getTransformation());
 
             Matrix3f normalMatrix = new Matrix3f(transform.getTransformation().transpose().invert());
 
-            getMaterial().setUniformMat3f("NormalMatrix", normalMatrix);
+            material.setUniformMat3f("NormalMatrix", normalMatrix);
 
-            getMaterial().bind();
+            Assets.getAmbientOcclusion().sendKernalToShader(material);
+
+            material.setUniformi("u_NoiseTex", 0);
+            Assets.getAmbientOcclusion().bindNoiseTexture(GL_TEXTURE0);
+
+            material.bind();
 
             model.render();
 
-            getMaterial().unbind();
+            material.unbind();
         }
 
         for(Transform child : transform.getChildren()){
-            child.voxel.render();
+            if(overrideChildrenMaterial){
+                child.voxel.render(material, true);
+            }else{
+                child.voxel.render();
+            }
         }
+    }
+
+    /**
+     * Updates this voxels transformations and renders it.
+     */
+    public void render(){
+        render(getMaterial(), false);
     }
 
     public Material getMaterial() {

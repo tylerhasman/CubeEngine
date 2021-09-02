@@ -1,10 +1,12 @@
 package me.cube.engine.file;
 
+import me.cube.engine.SSAmbientOcclusion;
 import me.cube.engine.game.entity.CreatureAppearance;
+import me.cube.engine.game.entity.CreatureAppearance.BodyPart;
+import me.cube.engine.game.entity.CreatureAppearance.PartType;
 import me.cube.engine.model.Mesh;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.shader.Material;
-import me.cube.engine.shader.ShaderProgram;
 import me.cube.engine.util.FileUtil;
 import org.joml.Vector3f;
 import org.json.JSONArray;
@@ -12,13 +14,9 @@ import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
-
-import me.cube.engine.game.entity.CreatureAppearance.BodyPart;
-import me.cube.engine.game.entity.CreatureAppearance.PartType;
+import java.util.*;
 
 public class Assets {
 
@@ -28,6 +26,8 @@ public class Assets {
     private static Map<String, Material> materials = new HashMap<>();
     private static Map<String, CubeFont> fonts = new HashMap<>();
     private static Map<String, CreatureAppearance.BodyPart> bodyParts = new HashMap<>();
+
+    private static SSAmbientOcclusion ambientOcclusion = new SSAmbientOcclusion();
 
     public static void disposeAll(){
         for(String key : models.keySet()){
@@ -47,6 +47,12 @@ public class Assets {
             font.dispose();
             System.out.println("[ASSET] Unloaded font "+key);
         }
+
+        ambientOcclusion.dispose();
+    }
+
+    public static SSAmbientOcclusion getAmbientOcclusion() {
+        return ambientOcclusion;
     }
 
     public static Material defaultMaterial() {

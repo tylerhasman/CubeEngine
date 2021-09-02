@@ -20,12 +20,23 @@ uniform vec3 u_Hue;
 uniform float u_FogStart;
 uniform vec3 u_FogColor;
 
+uniform sampler2D u_NoiseTex;
+
+uniform vec3 samples[64];
+
+const vec2 noiseScale = vec2(1280.0 / 4.0, 720.0 / 4.0);//Screen width/height divied by noise width/height
+const int kernalSize = 64;
+const float radius = 0.5;
+
+const float bias = 0.025;
+
 vec3 diffuse(vec3 position, vec3 color, float intensity){
     vec3 lightDir = normalize(position - v_Position);
     float diff = max(dot(normalize(v_Normal), lightDir), 0.0);
 
     return diff * vec3(v_Color) * color * intensity;
 }
+
 
 void main(){
 

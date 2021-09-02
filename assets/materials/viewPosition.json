@@ -1,0 +1,8 @@
+{
+  "name": "View Position Material",
+  "shader": "assets/shaders/positionShader",
+  "uniforms": {
+
+  }
+
+}
