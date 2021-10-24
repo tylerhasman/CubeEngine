@@ -21,7 +21,7 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     float AmbientOcclusion = texture(gSSAO, TexCoords).r;
 
-    vec3 ambient = vec3(1.0 * Albedo * AmbientOcclusion);
+    vec3 ambient = vec3(0.8 * Albedo * AmbientOcclusion);
 
     // then calculate lighting as usual
     vec3 lighting = ambient;
