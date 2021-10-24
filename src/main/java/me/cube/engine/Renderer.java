@@ -50,7 +50,7 @@ public class Renderer {
         transparentVoxels = new ArrayList<>();
 
         gBuffer = new FrameBuffer();
-        gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT0_EXT);//Position
+        gBuffer.createTexture(width, height, GL_RGBA32F, GL_RGBA, GL_COLOR_ATTACHMENT0_EXT);//Position
         gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT1_EXT);//Normal
         gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT2_EXT);//Albedo
         gBuffer.createTexture(width, height, GL_RGBA32F, GL_RED, GL_COLOR_ATTACHMENT3_EXT);//Depth
