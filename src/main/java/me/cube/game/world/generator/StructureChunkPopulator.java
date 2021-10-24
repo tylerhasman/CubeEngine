@@ -270,7 +270,6 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
                             chunk.blocks[i][y][k] = 0;
                         }else if(color != 0){
                             chunk.blocks[i][y][k] = color;
-                            chunk.flags[i][y][k] |= Chunk.FLAG_NO_COLOR_BLEED;
                         }
 
                     }

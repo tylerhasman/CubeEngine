@@ -21,8 +21,6 @@ public class Chunk {
         return thread;
     });
 
-    public static final byte FLAG_NO_COLOR_BLEED = 1;
-
     public static final int CHUNK_WIDTH = 32;
     public static final int CHUNK_HEIGHT = 256;
     private static final int INNER_CHUNKS = 8;
@@ -31,7 +29,6 @@ public class Chunk {
 
     private final int[][][][] innerChunks;
 
-    private final byte[][][] blockFlags;
     protected final int chunkX, chunkZ;
 
     protected boolean requireMeshRefresh = false;
@@ -55,7 +52,6 @@ public class Chunk {
             innerChunks[i] = null;
         }
 
-        blockFlags = new byte[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         this.chunkX = x;
         this.chunkZ = z;
         mesh = null;
