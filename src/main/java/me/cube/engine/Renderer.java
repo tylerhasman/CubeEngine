@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL11C.glDisable;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.GL_RGBA32F;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
@@ -28,9 +29,9 @@ public class Renderer {
     private final List<Voxel> opaqueVoxels, transparentVoxels;
 
     //G-Buffer
-    private final FrameBuffer gBuffer;
+    private final FrameBuffer gBuffer, gBufferTransparent;
 
-    private final Material gBufferMaterial, lightingMaterial, ssaoMaterial, blurMaterial;
+    private final Material gBufferMaterial, gBufferTransparentMaterial, lightingMaterial, ssaoMaterial, blurMaterial;
 
     private final Vector3f ambientLight;
 
@@ -52,6 +53,11 @@ public class Renderer {
         gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT0_EXT);//Position
         gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT1_EXT);//Normal
         gBuffer.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT2_EXT);//Albedo
+        gBuffer.createTexture(width, height, GL_RGBA32F, GL_RED, GL_COLOR_ATTACHMENT3_EXT);//Depth
+
+        gBufferTransparent = new FrameBuffer();
+        gBufferTransparent.createTexture(width, height, GL_RGBA16F, GL_RGBA, GL_COLOR_ATTACHMENT0_EXT);
+        gBufferTransparent.createTexture(width, height, GL_RGBA32F, GL_RED, GL_COLOR_ATTACHMENT1_EXT);
 
         ssaoBuffer = new FrameBuffer();
         ssaoBuffer.createTexture(width, height, GL_RED, GL_RED, GL_COLOR_ATTACHMENT0);
@@ -60,6 +66,7 @@ public class Renderer {
         ssaoBlurBuffer.createTexture(width, height, GL_RED, GL_RED, GL_COLOR_ATTACHMENT0);
 
         gBufferMaterial = Assets.loadMaterial("gbuffer.json");
+        gBufferTransparentMaterial = Assets.loadMaterial("gbuffer_transparent.json");
         lightingMaterial = Assets.loadMaterial("lightingPass.json");
         ssaoMaterial = Assets.loadMaterial("ssao.json");
         blurMaterial = Assets.loadMaterial("blur.json");
@@ -91,7 +98,9 @@ public class Renderer {
 
         }
 
-        float[] noise = new float[4 * 4 * 3];
+        int noiseSize = 4;
+
+        float[] noise = new float[noiseSize * noiseSize * 3];
 
         for(int i = 0; i < noise.length;i += 3){
             noise[i] = random.nextFloat() * 2 - 1;
@@ -102,9 +111,9 @@ public class Renderer {
         ssaoNoiseTex = glGenTextures();
         glBindTexture(GL11C.GL_TEXTURE_2D, ssaoNoiseTex);
 
-        glTexImage2D(GL11C.GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, noise);
-        glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL11C.GL_TEXTURE_2D, 0, GL_RGBA16F, noiseSize, noiseSize, 0, GL_RGB, GL_FLOAT, noise);
+        glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL11C.GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -148,10 +157,14 @@ public class Renderer {
         }
     }
 
-    private void render(List<Voxel> voxels){
+    private void render(List<Voxel> voxels, Material material){
 
         for(Voxel voxel : voxels){
-            voxel.render(gBufferMaterial, true);
+            if(material == null){
+                voxel.render();
+            }else{
+                voxel.render(material, true);
+            }
         }
 
     }
@@ -174,6 +187,10 @@ public class Renderer {
 
 
     private void renderGBuffer(){
+
+        gBufferMaterial.setUniformf("u_Far", Camera.getFarPlane());
+        gBufferMaterial.setUniformf("u_Near", Camera.getNearPlane());
+
         glEnable(GL11C.GL_DEPTH_TEST);
 
         glEnable(GL_CULL_FACE);
@@ -186,7 +203,7 @@ public class Renderer {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        render(opaqueVoxels);
+        render(opaqueVoxels, gBufferMaterial);
 
         gBuffer.unbind();
 
@@ -194,6 +211,32 @@ public class Renderer {
 
         glDisable(GL11.GL_DEPTH_TEST);
     }
+
+    private void renderGBufferTransparent(){
+        gBufferTransparentMaterial.setUniformf("u_Far", Camera.getFarPlane());
+        gBufferTransparentMaterial.setUniformf("u_Near", Camera.getNearPlane());
+
+        glEnable(GL11C.GL_DEPTH_TEST);
+
+        glEnable(GL_CULL_FACE);
+
+        glCullFace(GL_FRONT);
+
+        gBufferTransparent.bind();
+
+        glClearColor(0, 0, 0, 0);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        render(transparentVoxels, gBufferTransparentMaterial);
+
+        gBufferTransparent.unbind();
+
+        glDisable(GL_CULL_FACE);
+
+        glDisable(GL11.GL_DEPTH_TEST);
+    }
+
 
     private void renderSSAO(){
         Matrix4f frame = new Matrix4f().identity().scale(2f);
@@ -247,6 +290,25 @@ public class Renderer {
         ssaoBuffer.unbind();
     }
 
+    //Uses Forward Rendering to render the scene as per usual
+    private void renderWithFR(){
+        glEnable(GL11C.GL_DEPTH_TEST);
+
+        glEnable(GL_CULL_FACE);
+
+        glCullFace(GL_FRONT);
+
+        glClearColor(0, 0, 0, 1f);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        render(opaqueVoxels, null);
+
+        glDisable(GL_CULL_FACE);
+
+        glDisable(GL11.GL_DEPTH_TEST);
+    }
+
     protected void renderScene(){
 
         Vector3f cameraPosition = Camera.getCameraPosition();
@@ -254,6 +316,8 @@ public class Renderer {
         transparentVoxels.sort((c1, c2) -> Float.compare(c2.position.distanceSquared(cameraPosition), c1.position.distanceSquared(cameraPosition)));
 
         renderGBuffer();
+
+        renderGBufferTransparent();
 
         renderSSAO();
 
@@ -265,6 +329,11 @@ public class Renderer {
         lightingMaterial.setUniformi("gNormal", 1);
         lightingMaterial.setUniformi("gAlbedoSpec", 2);
         lightingMaterial.setUniformi("gSSAO", 3);
+        lightingMaterial.setUniformi("gDepth", 4);
+
+        lightingMaterial.setUniformi("gTransparentAlbedo", 5);
+        lightingMaterial.setUniformi("gTransparentDepth", 6);
+
         lightingMaterial.setUniform3f("viewPos", Camera.getCameraPosition());
         lightingMaterial.setUniform3f("u_AmbientLight", ambientLight);
 
@@ -274,6 +343,9 @@ public class Renderer {
         gBuffer.bindTexture(1, GL_TEXTURE1);
         gBuffer.bindTexture(2, GL_TEXTURE2);
         ssaoBlurBuffer.bindTexture(0, GL_TEXTURE3);
+        gBuffer.bindTexture(3, GL_TEXTURE4);
+        gBufferTransparent.bindTexture(0, GL_TEXTURE5);
+        gBufferTransparent.bindTexture(1, GL_TEXTURE6);
 
         lightingMaterial.bind();
 
@@ -283,10 +355,11 @@ public class Renderer {
 
         transparentVoxels.clear();
         opaqueVoxels.clear();
-    }
+    }/**/
 
     public void dispose(){
         gBuffer.dispose();
+        gBufferTransparent.dispose();
         ssaoBuffer.dispose();
         glDeleteTextures(ssaoNoiseTex);
         glDeleteBuffers(new int[] {quadVBO, quadVAO, quadEBO});

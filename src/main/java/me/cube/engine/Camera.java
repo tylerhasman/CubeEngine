@@ -10,6 +10,14 @@ public class Camera {
     public static Matrix4f projectionMatrix = new Matrix4f();
     public static Matrix4f cameraMatrix = new Matrix4f();
 
+    public static float getNearPlane(){
+        return Math.abs(projectionMatrix.perspectiveNear());
+    }
+
+    public static float getFarPlane(){
+        return Math.abs(cameraMatrix.perspectiveFar());
+    }
+    
     public static Vector3f getCameraPosition(){
         return cameraMatrix.getTranslation(new Vector3f());
     }

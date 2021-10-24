@@ -1,0 +1,8 @@
+{
+  "name": "G-Buffer Transparent Material",
+  "shader": "assets/shaders/gBufferTransparencyShader",
+  "uniforms": {
+
+  }
+
+}

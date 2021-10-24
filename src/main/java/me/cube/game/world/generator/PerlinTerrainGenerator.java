@@ -122,7 +122,7 @@ public class PerlinTerrainGenerator implements TerrainGenerator{
     }
 
     private int waterColorAt(Map<Biome, Float> weights, int i, int y, int i1){
-        return 0x0A0000FF;
+        return 0x3C0000FF;
     }
 
     private int colorAt(Map<Biome, Float> biomeWeights, float x, float y, float z) {

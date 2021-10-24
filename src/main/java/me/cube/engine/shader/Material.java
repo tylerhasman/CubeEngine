@@ -46,6 +46,10 @@ public class Material {
         copy = false;
     }
 
+    public ShaderProgram getShader(){
+        return shader;
+    }
+
     //TODO: Move this to Assets.java
     public static Material loadMaterialFromFile(String pathToFile) throws IOException {
         File file = new File(pathToFile);
