@@ -126,11 +126,12 @@ public class Voxel {
 
             material.setUniformMat3f("NormalMatrix", normalMatrix);
 
+            material.setUniform3f("u_AmbientLight", new Vector3f(1));
+
             material.bind();
 
             model.render();
 
-            material.unbind();
         }
 
         for(Voxel child : children){
