@@ -68,6 +68,10 @@ public class Terrain {
         populators.add(new RockPopulator(0x34, 500, 4));
     }
 
+    public int countLoadedChunks(){
+        return chunkStorage.getLoadedChunks().size();
+    }
+
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
 
         Vector3f out = new Vector3f(origin);
@@ -98,8 +102,8 @@ public class Terrain {
                         for(int i = 0; i < CHUNK_WIDTH;i++){
                             for(int j = 0; j < CHUNK_HEIGHT;j++){
                                 for(int k = 0; k < CHUNK_WIDTH;k++){
-                                    chunk.blocks[i][j][k] = chunkSnapshot.blocks[i][j][k];
-                                    chunk.blockFlags[i][j][k] = chunkSnapshot.flags[i][j][k];
+                                    chunk.setBlock(i, j, k, chunkSnapshot.blocks[i][j][k]);
+                                    //chunk.blockFlags[i][j][k] = chunkSnapshot.flags[i][j][k];
                                 }
                             }
                         }

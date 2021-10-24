@@ -180,7 +180,7 @@ public class OLD_VoxelModel {
                 boolean usedGradient = false;
                 for(int j = 0; j < height;j++){
 
-                    int color = chunk.blocks[i][j][k];
+                    int color = chunk.getBlock(i, j, k);
 
                     if(color != 0){
 
@@ -309,7 +309,7 @@ public class OLD_VoxelModel {
             return terrain.isSolid(worldX, worldY, worldZ);
         }
 
-        return chunk.blocks[i][worldY][k] != 0;
+        return chunk.getBlock(i, worldY, k) != 0;
     }
 
     private static int getOrZero(int[][][] cube, int w, int h, int l, int x, int y, int z){

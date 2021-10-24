@@ -6,8 +6,8 @@ import me.cube.engine.Voxel;
 import me.cube.engine.file.Assets;
 import me.cube.game.world.generator.Biome;
 import me.cube.engine.model.AsyncChunkMesh;
-import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -25,9 +25,13 @@ public class Chunk {
 
     public static final int CHUNK_WIDTH = 32;
     public static final int CHUNK_HEIGHT = 256;
+    private static final int INNER_CHUNKS = 8;
 
-    public final int[][][] blocks;
-    public final byte[][][] blockFlags;
+    //private final int[][][] blocks;
+
+    private final int[][][][] innerChunks;
+
+    private final byte[][][] blockFlags;
     protected final int chunkX, chunkZ;
 
     protected boolean requireMeshRefresh = false;
@@ -44,7 +48,13 @@ public class Chunk {
 
     protected Chunk(Terrain terrain, int x, int z){
         this.terrain = terrain;
-        blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
+        //blocks = new int[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
+        innerChunks = new int[INNER_CHUNKS][0][0][0];
+
+        for(int i = 0; i < INNER_CHUNKS;i++){
+            innerChunks[i] = null;
+        }
+
         blockFlags = new byte[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH];
         this.chunkX = x;
         this.chunkZ = z;
@@ -177,20 +187,37 @@ public class Chunk {
     }
 
     protected void setBlock(int x, int y, int z, int color){
-        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+        if(x < 0 || y < 0 || z < 0 || x >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || z >= CHUNK_WIDTH){
             return;
         }
 
-        blocks[x][y][z] = color;
-        requireMeshRefresh = true;
+        int innerChunkIndex = y / (CHUNK_HEIGHT / INNER_CHUNKS);
+
+        if(innerChunks[innerChunkIndex] == null){
+            if(color != 0){
+                innerChunks[innerChunkIndex] = new int[CHUNK_WIDTH][(CHUNK_HEIGHT / INNER_CHUNKS)][CHUNK_WIDTH];
+            }
+        }
+
+        if(innerChunks[innerChunkIndex] != null){
+            innerChunks[innerChunkIndex][x][y % (CHUNK_HEIGHT / INNER_CHUNKS)][z] = color;
+            requireMeshRefresh = true;
+        }
+
     }
 
     public int getBlock(int x, int y, int z){
-        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
+        if(x < 0 || y < 0 || z < 0 || x >= CHUNK_WIDTH|| y >= CHUNK_HEIGHT || z >= CHUNK_WIDTH){
             return 0;
         }
 
-        return blocks[x][y][z];
+        int innerChunkIndex = y / (CHUNK_HEIGHT / INNER_CHUNKS);
+
+        if(innerChunks[innerChunkIndex] != null){
+            return innerChunks[innerChunkIndex][x][y % (CHUNK_HEIGHT / INNER_CHUNKS)][z];
+        }
+
+        return 0;
     }
 
     public int firstEmptyBlock(int x, int z){
@@ -210,25 +237,4 @@ public class Chunk {
     }
 
 
-/*    protected void setBlockWorldCoords(int x, int y, int z, int color){
-        x -= chunkX * Chunk.CHUNK_WIDTH;
-        z -= chunkZ * Chunk.CHUNK_WIDTH;
-
-        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
-            return;
-        }
-
-        setBlock(x, y, z, color);
-    }
-
-    public int getBlockWorldCoords(int x, int y, int z) {
-        x -= chunkX * Chunk.CHUNK_WIDTH;
-        z -= chunkZ * Chunk.CHUNK_WIDTH;
-
-        if(x < 0 || y < 0 || z < 0 || x >= blocks.length || y >= blocks[0].length || z >= blocks[0][0].length){
-            return 0;
-        }
-
-        return blocks[x][y][z];
-    }*/
 }
