@@ -24,7 +24,7 @@ public class Chunk {
     public static final byte FLAG_NO_COLOR_BLEED = 1;
 
     public static final int CHUNK_WIDTH = 32;
-    public static final int CHUNK_HEIGHT = 128;
+    public static final int CHUNK_HEIGHT = 256;
 
     public final int[][][] blocks;
     public final byte[][][] blockFlags;

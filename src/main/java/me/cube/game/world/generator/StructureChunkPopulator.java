@@ -49,6 +49,10 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
         return new Vector2f(x, y);
     }
 
+    protected int getSpawnHeight(Terrain terrain, int spawnX, int spawnZ, Random random){
+        return terrain.groundHeightAt(spawnX, spawnZ);
+    }
+
     public abstract void generateStructure(GeneratedStructure structure, Random random, Biome biome);
 
     /**
@@ -85,7 +89,7 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
                     int spawnX = (int) Math.floor(position.x);
                     int spawnZ = (int) Math.floor(position.y);
-                    int spawnY = terrain.groundHeightAt(spawnX, spawnZ);//chunk.firstEmptyBlock(spawnX, spawnZ);
+                    int spawnY = getSpawnHeight(terrain, spawnX, spawnZ, getRandom(cellX, cellZ));//chunk.firstEmptyBlock(spawnX, spawnZ);
 
                     GeneratedStructure structure = loadStructure(cellX, cellZ, terrain.biomeAt(spawnX, spawnZ));
 

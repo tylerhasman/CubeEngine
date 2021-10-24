@@ -62,6 +62,7 @@ public class Terrain {
 
         //populators.add(new StickStructurePopulator());
         populators.add(new ForestTreePopulator(0x342179FAFAL));
+        populators.add(new CloudPopulator(0x472391834L));
         populators.add(new RockPopulator(0x34, 120, 2));
         populators.add(new RockPopulator(0x34, 350, 3));
         populators.add(new RockPopulator(0x34, 500, 4));
