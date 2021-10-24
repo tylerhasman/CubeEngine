@@ -16,11 +16,6 @@ void main(){
     v_Color = a_Color;
 
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(a_Position, 1.0);
-/*
-    vec3 worldPos = vec3(ViewMatrix * ModelMatrix * vec4(a_Position, 1.0));
-    vec3 cameraPosition = ViewMatrix[3].xyz;
 
-    v_Depth = length(cameraPosition - worldPos);
-*/
     v_Depth = -(ViewMatrix * ModelMatrix * vec4(a_Position, 1.0)).z;
 }

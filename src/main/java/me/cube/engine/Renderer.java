@@ -32,13 +32,13 @@ public class Renderer {
     private final FrameBuffer gBuffer, gBufferTransparent;
 
     private final Material gBufferMaterial, gBufferTransparentMaterial, lightingMaterial, ssaoMaterial, blurMaterial;
+    private final Material skyMaterial;
 
     private final Vector3f ambientLight;
 
     private final int width, height;
 
     private int quadVAO, quadVBO, quadEBO;
-
 
     //SSAO
     private Vector3f[] ssaoKernel;
@@ -70,6 +70,7 @@ public class Renderer {
         lightingMaterial = Assets.loadMaterial("lightingPass.json");
         ssaoMaterial = Assets.loadMaterial("ssao.json");
         blurMaterial = Assets.loadMaterial("blur.json");
+        skyMaterial = Assets.loadMaterial("sky.json");
 
         ambientLight = new Vector3f(1, 1, 1);
 
@@ -199,7 +200,7 @@ public class Renderer {
 
         gBuffer.bind();
 
-        glClearColor(0, 0, 0, 1f);
+        glClearColor(0f, 0, 0, 0f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -271,7 +272,7 @@ public class Renderer {
         ssaoBuffer.unbind();
     }
 
-    private void renderBlurredSSAO(){
+    private void renderBlurredSSAO() {
         Matrix4f frame = new Matrix4f().identity().scale(2f);
 
         blurMaterial.setUniformMat4f("Frame", frame);
@@ -290,26 +291,20 @@ public class Renderer {
         ssaoBuffer.unbind();
     }
 
-    //Uses Forward Rendering to render the scene as per usual
-    private void renderWithFR(){
-        glEnable(GL11C.GL_DEPTH_TEST);
+    private void renderSky(){
+        Matrix4f frame = new Matrix4f().identity().scale(2f);
 
-        glEnable(GL_CULL_FACE);
+        skyMaterial.setUniformMat4f("Frame", frame);
+        skyMaterial.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
+        skyMaterial.bind();
 
-        glCullFace(GL_FRONT);
+        renderQuad();
 
-        glClearColor(0, 0, 0, 1f);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        render(opaqueVoxels, null);
-
-        glDisable(GL_CULL_FACE);
-
-        glDisable(GL11.GL_DEPTH_TEST);
+        skyMaterial.unbind();
     }
 
     protected void renderScene(){
+
 
         Vector3f cameraPosition = Camera.getCameraPosition();
 
@@ -347,15 +342,23 @@ public class Renderer {
         gBufferTransparent.bindTexture(0, GL_TEXTURE5);
         gBufferTransparent.bindTexture(1, GL_TEXTURE6);
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        renderSky();
+
         lightingMaterial.bind();
 
         renderQuad();
 
         lightingMaterial.unbind();
 
+        glDisable(GL_BLEND);
+
+
         transparentVoxels.clear();
         opaqueVoxels.clear();
-    }/**/
+    }
 
     public void dispose(){
         gBuffer.dispose();

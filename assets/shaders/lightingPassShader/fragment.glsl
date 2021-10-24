@@ -22,6 +22,7 @@ void main()
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Albedo = texture(gAlbedoSpec, TexCoords).rgb;
+    float AlbedoAlpha = texture(gAlbedoSpec, TexCoords).a;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     float AmbientOcclusion = texture(gSSAO, TexCoords).r;
     float Depth = texture(gDepth, TexCoords).r;
@@ -39,5 +40,5 @@ void main()
     // then calculate lighting as usual
     vec3 lighting = ambient;
 
-    FragColor = vec4(lighting, 1.0);
+    FragColor = vec4(lighting, AlbedoAlpha);
 }
