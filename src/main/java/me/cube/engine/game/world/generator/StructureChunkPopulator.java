@@ -6,6 +6,7 @@ import me.cube.engine.game.world.Terrain;
 import me.cube.engine.util.MathUtil;
 import org.joml.Vector2f;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -29,7 +30,7 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
     public StructureChunkPopulator(int cellSize, long seed){
         this.cellSize = cellSize;
         this.seed = seed;
-        this.generated = new HashMap<>();
+        this.generated = Collections.synchronizedMap(new HashMap<>());
     }
 
     private Random getRandom(int cellX, int cellZ){
@@ -73,48 +74,22 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
         //It will miss the last intersecting chunks
         //TODO Fix ^^^^
 
-        if(CHUNK_WIDTH < cellSize){
+        for(int i= -1; i <= 1;i += 1){
+            for(int j = -1; j <= 1;j += 1){
 
-            for(int i= -CHUNK_WIDTH; i < cellSize + CHUNK_WIDTH;i += CHUNK_WIDTH){
-                for(int j = -CHUNK_WIDTH; j < cellSize + CHUNK_WIDTH;j += CHUNK_WIDTH){
+                int cellX = startCellX + i;
+                int cellZ = startCellZ + j;
 
-                    int cellX = startCellX + i / CHUNK_WIDTH;
-                    int cellZ = startCellZ + j / CHUNK_WIDTH;
+                Vector2f position = findStructurePosition(cellX, cellZ);
 
-                    Vector2f position = findStructurePosition(cellX, cellZ);
+                int spawnX = (int) Math.floor(position.x);
+                int spawnZ = (int) Math.floor(position.y);
+                int spawnY = getSpawnHeight(terrain, spawnX, spawnZ, getRandom(cellX, cellZ));//chunk.firstEmptyBlock(spawnX, spawnZ);
 
-                    int spawnX = (int) Math.floor(position.x);
-                    int spawnZ = (int) Math.floor(position.y);
-                    int spawnY = terrain.groundHeightAt(spawnX, spawnZ);//chunk.firstEmptyBlock(spawnX, spawnZ);
+                GeneratedStructure structure = loadStructure(cellX, cellZ, terrain.biomeAt(spawnX, spawnZ));
 
-                    GeneratedStructure structure = loadStructure(cellX, cellZ, terrain.biomeAt(spawnX, spawnZ));
-
-                    structure.pasteInto(chunk, spawnX, spawnY, spawnZ);
-
-                }
+                structure.pasteInto(chunk, spawnX, spawnY, spawnZ);
             }
-
-        }else if(CHUNK_WIDTH > cellSize){
-            for(int i= -cellSize; i < CHUNK_WIDTH + cellSize;i += cellSize){
-                for(int j = -cellSize; j < CHUNK_WIDTH + cellSize;j += cellSize){
-
-                    int cellX = startCellX + i / cellSize;
-                    int cellZ = startCellZ + j / cellSize;
-
-                    Vector2f position = findStructurePosition(cellX, cellZ);
-
-                    int spawnX = (int) Math.floor(position.x);
-                    int spawnZ = (int) Math.floor(position.y);
-                    int spawnY = terrain.groundHeightAt(spawnX, spawnZ);//chunk.firstEmptyBlock(spawnX, spawnZ);
-
-                    GeneratedStructure structure = loadStructure(cellX, cellZ, terrain.biomeAt(spawnX, spawnZ));
-
-                    structure.pasteInto(chunk, spawnX, spawnY, spawnZ);
-
-                }
-            }
-        }else{
-            throw new RuntimeException("Not implemented");
         }
 
 
@@ -144,7 +119,8 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
         generateStructure(structure, getRandom(cellX, cellZ), biome);
 
-        setStructure(cellX, cellZ, structure);
+/*        if(structure.blocks.size() > 0)
+            setStructure(cellX, cellZ, structure);*/
 
         return structure;
     }
@@ -233,7 +209,7 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
             return blocks.get(key)[xInChunk][y][zInChunk];
         }
 
-        public void pasteInto(ChunkSnapshot chunk, int worldX, int worldY, int worldZ){
+        public int pasteInto(ChunkSnapshot chunk, int worldX, int worldY, int worldZ){
 
             int centerChunkX = Math.floorDiv(worldX, CHUNK_WIDTH);
             int centerChunkZ = Math.floorDiv(worldZ, CHUNK_WIDTH);
@@ -244,8 +220,10 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
             long key = MathUtil.hash(offsetX, offsetZ);
 
             if(!blocks.containsKey(key)){
-                return;
+                return 0;
             }
+
+            int changed = 0;
 
             int[][][] selected = blocks.get(key);
 
@@ -264,14 +242,16 @@ public abstract class StructureChunkPopulator implements ChunkPopulator {
 
                         if(color == AIR_BLOCK){
                             chunk.blocks[i][y][k] = 0;
+                            changed++;
                         }else if(color != 0){
                             chunk.blocks[i][y][k] = color;
-                            chunk.flags[i][y][k] |= Chunk.FLAG_NO_COLOR_BLEED;
+                            changed++;
                         }
 
                     }
                 }
             }
+            return changed;
         }
 
     }

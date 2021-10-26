@@ -62,10 +62,12 @@ public class Terrain {
         chunkLoadFutures = new ArrayList<>();
 
         //populators.add(new StickStructurePopulator());
+        populators.add(new CloudPopulator(0x472391834L));
+        populators.add(new RockPopulator(0x34, 48, 2, 10));
+        populators.add(new RockPopulator(0x34, 48, 3, 20));
+        populators.add(new RockPopulator(0x34, 48, 4, 40));
         populators.add(new ForestTreePopulator(0x342179FAFAL));
-        populators.add(new RockPopulator(0x34, 120, 2));
-        populators.add(new RockPopulator(0x34, 350, 3));
-        populators.add(new RockPopulator(0x34, 500, 4));
+
     }
 
     public Vector3f rayTrace(Vector3f origin, Vector3f direction, float maxDistance){
@@ -107,8 +109,8 @@ public class Terrain {
                         chunk.setBiome(chunkSnapshot.biome);
 
                         initializeChunk(chunk);
-                    }
 
+                    }
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -296,8 +298,6 @@ public class Terrain {
 
         Future<ChunkSnapshot> future = terrainGeneratorExec.submit(() -> {
 
-            long time = System.currentTimeMillis();
-
             ChunkSnapshot snapshot = new ChunkSnapshot(x, z);
 
             //TODO: Just have this be thread safe so we can use terrainGenerator
@@ -305,13 +305,9 @@ public class Terrain {
 
             perlinTerrainGenerator.generateChunk(x, z, snapshot);
 
-            time = System.currentTimeMillis() - time;
-
             for(ChunkPopulator populator : populators){
                 populator.populateChunk(this, snapshot);
             }
-
-            //System.out.println("Took "+time+"ms to generate chunk "+x+" "+z);
 
             return snapshot;
 

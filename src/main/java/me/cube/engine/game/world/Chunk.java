@@ -54,7 +54,7 @@ public class Chunk {
         this.chunkZ = z;
         mesh = null;
         disposed = false;
-        biome = Biome.PLAINS;
+        biome = Biome.NONE;
     }
 
     public Voxel getMesh() {

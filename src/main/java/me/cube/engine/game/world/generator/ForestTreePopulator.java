@@ -1,5 +1,7 @@
 package me.cube.engine.game.world.generator;
 
+import me.cube.game.world.Chunk;
+import me.cube.game.world.Terrain;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -11,8 +13,15 @@ public class ForestTreePopulator extends StructureChunkPopulator {
     private static final int BARK_COLOR = 0xFF_817b69;
 
     public ForestTreePopulator(long seed) {
-        super(40, seed);
+        super(128, seed);
     }
+
+
+    @Override
+    protected int getSpawnHeight(Terrain terrain, int spawnX, int spawnZ, Random random) {
+        return random.nextInt(10) + 160;
+    }
+
 
     @Override
     public void generateStructure(GeneratedStructure structure, Random random, Biome biome) {

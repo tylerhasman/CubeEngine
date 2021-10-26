@@ -38,13 +38,6 @@ public class EditorGame implements Game {
 
     private Vector3f mouseWorldProjection = new Vector3f();
 
-    private int selectedModel;
-    private VoxelMesh selectedModelMesh;
-
-    private List<EditAction> editActions;
-
-    private List<VoxelFile> placeableModels;
-
     public EditorGame(){
         cameraPosition = new Vector3f(3 * Chunk.CHUNK_WIDTH, 50, 1 * Chunk.CHUNK_WIDTH);
     }
@@ -52,14 +45,9 @@ public class EditorGame implements Game {
     @Override
     public void init() {
 
-        placeableModels = Assets.loadVoxelDataFolder("editor/models/");
-
-        editActions = new ArrayList<>(MAX_ACTION_MEMORY);
-
         cameraPosition.x = 1822;
         cameraPosition.y = 59;
         cameraPosition.z = 1457;
-
 
         terrain = new Terrain(10, "test");
 
@@ -71,37 +59,6 @@ public class EditorGame implements Game {
         yaw = 0f;
         pitch = 45f;
 
-        selectModel(0);
-
-
-    }
-
-    private void selectModel(int index){
-        if(index < 0 || index >= placeableModels.size()){
-            return;
-        }
-
-        VoxelFile model = placeableModels.get(index);
-        selectedModel = index;
-
-        selectedModelMesh = new SimpleVoxelMesh(model.toVoxelColorArray(), model.width(), model.height(), model.length());
-    }
-
-    private void executeAction(EditAction editAction){
-        editActions.add(0, editAction);
-        editAction.execute(terrain);
-
-        if(editActions.size() > MAX_ACTION_MEMORY){
-            editActions.remove(editActions.size()-1);
-        }
-    }
-
-    private void undo(){
-        if(editActions.size() > 0){
-            EditAction editAction = editActions.remove(0);
-
-            editAction.undo(terrain);
-        }
     }
 
     public Vector3f getCameraForward(){
@@ -259,10 +216,6 @@ public class EditorGame implements Game {
             Input.setModifier(MODIFIER_CONTROL, action == GLFW_PRESS || action == GLFW_REPEAT);
         }
 
-        if(key == GLFW_KEY_Z && action == GLFW_PRESS && Input.isModifierActive(MODIFIER_CONTROL)){
-            undo();
-        }
-
         if(key == GLFW_KEY_G){
             terrain.unloadAll();
         }
@@ -282,11 +235,7 @@ public class EditorGame implements Game {
 
     @Override
     public void onMouseScroll(double delta) {
-        if(delta > 0){
-            selectModel(selectedModel + 1);
-        }else if(delta < 0){
-            selectModel(selectedModel - 1);
-        }
+
     }
 
     @Override

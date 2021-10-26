@@ -1,5 +1,6 @@
 package me.cube.engine.game.entity;
 
+import me.cube.engine.Renderer;
 import me.cube.engine.Voxel;
 import me.cube.engine.game.world.World;
 import org.joml.AABBf;
@@ -10,12 +11,9 @@ public abstract class Entity {
 
     private final World world;
 
-    public final Vector3f position, scale;
-    public final Quaternionf rotation;
+    public final Vector3f position;
 
     public final Vector3f velocity;
-
-    public final Voxel root;
 
     public float life;
 
@@ -30,10 +28,7 @@ public abstract class Entity {
 
     public Entity(World world){
         this.world = world;
-        root = new Voxel("root", null);
         position = new Vector3f();
-        scale = new Vector3f(1, 1, 1);
-        rotation = new Quaternionf().identity();
         velocity = new Vector3f();
         gravity = -18.9f;
         boundingBox = new AABBf();
@@ -132,9 +127,9 @@ public abstract class Entity {
 
     public void update(float delta){
         life += delta;
-
-
-
     }
 
+    public void render(Renderer renderer){
+
+    }
 }

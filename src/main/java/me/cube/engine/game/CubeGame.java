@@ -52,12 +52,14 @@ public class CubeGame implements Game {
 
         player = new Player(world);
 
-        player.position.set(0, 150, 0);
+        player.position.set(10000, 35, 10000);
 
         world.addEntity(player);
 
-        Input.setCursorMode(GLFW_CURSOR_HIDDEN);
+    }
 
+    public float getYaw() {
+        return yaw;
     }
 
     public Vector3f getCameraForward(){
@@ -114,44 +116,34 @@ public class CubeGame implements Game {
     @Override
     public void render() {
 
-        {
-            if(wireFrame){
-                glPolygonMode(GL_FRONT, GL_LINE);
-                glPolygonMode(GL_BACK, GL_LINE);
-            }else{
-                glPolygonMode(GL_FRONT, GL_FILL);
-                glPolygonMode(GL_BACK, GL_FILL);
-            }
+        world.render(renderer, player.position);
 
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_MULTISAMPLE);
-
-            {
-                world.render(player.position);
-            }
-
-            glDisable(GL_MULTISAMPLE);
-            glDisable(GL_DEPTH_TEST);
-
-        }
 
     }
 
     @Override
     public void onMousePress(int button, int action) {
+
         if(button == GLFW_MOUSE_BUTTON_LEFT){
-            Input.setActionState(ACTION_ATTACK_PRIMARY, action == GLFW_PRESS);
-        }else if(button == GLFW_MOUSE_BUTTON_MIDDLE){
-            Input.setActionState(ACTION_ROLL, action == GLFW_PRESS);
-        }else if(button == GLFW_MOUSE_BUTTON_RIGHT){
-            Input.setActionState(ACTION_ATTACK_SECONDAY, action == GLFW_PRESS || action == GLFW_REPEAT);
+            if(action == GLFW_PRESS){
+                Input.setActionState(ACTION_CAMERA_LOCK_TURN, true);
+                Input.setCursorMode(GLFW_CURSOR_HIDDEN);
+            }else{
+                Input.setActionState(ACTION_CAMERA_LOCK_TURN, false);
+                Input.setCursorMode(GLFW_CURSOR_NORMAL);
+            }
         }
 
-
-
-        if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
-            Input.setCursorMode(GLFW_CURSOR_HIDDEN);
+        if(button == GLFW_MOUSE_BUTTON_RIGHT){
+            if(action == GLFW_PRESS){
+                Input.setActionState(ACTION_STRAFE, true);
+                Input.setCursorMode(GLFW_CURSOR_HIDDEN);
+            }else{
+                Input.setActionState(ACTION_STRAFE, false);
+                Input.setCursorMode(GLFW_CURSOR_NORMAL);
+            }
         }
+
     }
 
     @Override

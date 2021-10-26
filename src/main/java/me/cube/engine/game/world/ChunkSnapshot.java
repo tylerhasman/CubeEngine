@@ -5,7 +5,6 @@ import me.cube.engine.game.world.generator.Biome;
 public class ChunkSnapshot {
 
     public int[][][] blocks = new int[Chunk.CHUNK_WIDTH][Chunk.CHUNK_HEIGHT][Chunk.CHUNK_WIDTH];
-    public byte[][][] flags = new byte[Chunk.CHUNK_WIDTH][Chunk.CHUNK_HEIGHT][Chunk.CHUNK_WIDTH];
 
     public final int x, z;
 

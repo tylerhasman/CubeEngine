@@ -122,7 +122,6 @@ public class VxmFile implements VoxelFile {
 
             for(int j = 0; j < texAmount;j++){
 
-
                 while(wrap.get() != 0);
 
                 int size = wrap.getInt();

@@ -15,7 +15,9 @@ public class Input {
             ACTION_JUMP = 4,
             ACTION_ATTACK_PRIMARY = 5,
             ACTION_ROLL = 6,
-            ACTION_ATTACK_SECONDAY = 7;
+            ACTION_ATTACK_SECONDAY = 7,
+            ACTION_STRAFE = 8,
+            ACTION_CAMERA_LOCK_TURN = 9;
 
 
     public static final int ACTION_EDITOR_SPEED = 19;

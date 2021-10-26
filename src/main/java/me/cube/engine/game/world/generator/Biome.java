@@ -6,6 +6,7 @@ import me.cube.engine.util.PerlinNoise;
 public enum Biome {
 
     //seeds chosen randomly through button mashing
+    NONE(0, 0, 0, 0, 0),
     ULTRA_PLAINS(0x423789, 5, 0.4f, 48, 1f),
     PLAINS(0x37429, 15, 1, 48, 1f),
     MOUNTAINS(0x921034, 40, 0.8f, 128, 1f),

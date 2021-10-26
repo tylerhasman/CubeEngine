@@ -1,5 +1,7 @@
 package me.cube.engine.game.world.generator;
 
+import me.cube.game.world.Terrain;
+
 import java.util.Random;
 import java.util.Stack;
 
@@ -10,13 +12,20 @@ public class RockPopulator extends StructureChunkPopulator {
     private static final int LIGHT_COLOR = 0xFF_C4C0D3;
 
     private final int rockSize;
+    private final int spawnProbability;
 
-    public RockPopulator(long seed, int cellSize, int rockSize) {
+    public RockPopulator(long seed, int cellSize, int rockSize, int spawnProbability) {
         super(cellSize, seed);
         if(rockSize < 1){
             throw new IllegalArgumentException("rockSize must be >= 1");
         }
         this.rockSize = rockSize;
+        this.spawnProbability = spawnProbability;
+    }
+
+    @Override
+    protected int getSpawnHeight(Terrain terrain, int spawnX, int spawnZ, Random random) {
+        return super.getSpawnHeight(terrain, spawnX, spawnZ, random) - 5;
     }
 
     @Override
@@ -24,6 +33,10 @@ public class RockPopulator extends StructureChunkPopulator {
 
         if(biome != Biome.MOUNTAINS)
             return;
+
+        if(random.nextInt(spawnProbability) > 0){
+            return;
+        }
 
         Stack<RockData> data = new Stack<>();
 

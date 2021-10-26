@@ -1,7 +1,8 @@
 package me.cube.engine.game.world;
 
-import me.cube.engine.game.entity.*;
-import me.cube.engine.game.particle.ParticleEngine;
+import me.cube.engine.Renderer;
+import me.cube.game.entity.*;
+import me.cube.game.particle.ParticleEngine;
 import me.cube.engine.util.MathUtil;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -132,52 +133,44 @@ public class World {
         return new Vector3f(sunX, sunY, 0);
     }
 
-    public void render(Vector3f fromPosition){
-
-        Vector3f ambientColor = applyAmbientLighting(new Vector3f(1f, 1f, 1f));
-
-        Vector3f skyColor = new Vector3f(0 / 255f,191 / 255f,255 / 255f);//applyAmbientLighting(new Vector3f(135 / 255f,206 / 255f,235 / 255f));
-        Vector3f sunPosition = getSunMoonPosition();
-
-        Vector3f sunDirection = sunPosition.normalize(new Vector3f());
-
-        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    public void render(Renderer renderer, Vector3f fromPosition){
 
         for(Entity entity : entities){
 
-            entity.root.getTransform().set(entity.position, entity.rotation, entity.scale);
+/*
+
             if(!entity.root.getTransform().hasParent()){
 
-                entity.root.getMaterial().setUniform3f("u_AmbientLight", ambientColor);
-                entity.root.getMaterial().setUniform3f("u_LightDirection", sunDirection);
-                entity.root.getMaterial().setUniform3f("u_LightColor", ambientColor);
 
-                for(int i = 0; i < diffuseLights.size();i++){
-                    DiffuseLight light = diffuseLights.get(i);
-                    entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
-                    entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
-                    entity.root.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", 0);
-                }
-
-                entity.root.render();
             }
+
+/*            entity.root.getMaterial().setUniform3f("u_AmbientLight", ambientColor);
+            entity.root.getMaterial().setUniform3f("u_LightDirection", sunDirection);
+            entity.root.getMaterial().setUniform3f("u_LightColor", ambientColor);*/
+
+/*            for(int i = 0; i < diffuseLights.size();i++){
+                DiffuseLight light = diffuseLights.get(i);
+                entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
+                entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
+                entity.root.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", 0);
+            }
+
+            entity.root.render();
+            */
+            entity.render(renderer);
 
             //renderBoundingBox(entity);
 
         }
 
-        glDisable(GL_BLEND);
 
-        glEnable(GL_CULL_FACE);
+        terrain.render(renderer);
 
-        glCullFace(GL_FRONT);
+        terrain.renderTransparent(renderer);
 
-        terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
+        //terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
 
-        glDisable(GL_CULL_FACE);
-
-        particleEngine.render(ambientColor, diffuseLights);
+        //particleEngine.render(ambientColor, diffuseLights);
 
     }
 /*
