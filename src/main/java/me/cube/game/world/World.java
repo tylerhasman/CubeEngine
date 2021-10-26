@@ -155,8 +155,6 @@ public class World {
             }
 */
 
-            entity.root.render();
-            */
             entity.render(renderer);
 
             //renderBoundingBox(entity);
