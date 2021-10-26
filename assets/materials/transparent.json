@@ -1,5 +1,5 @@
 {
-  "name": "Default Material",
+  "name": "Transparent Material",
   "shader": "assets/shaders/transparentShader",
   "uniforms": {
     "u_AmbientLight": "v3: 0.1, 0.1, 0.1",

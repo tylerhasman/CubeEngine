@@ -1,6 +1,6 @@
 package me.cube.engine.file;
 
-import me.cube.engine.game.world.Chunk;
+import me.cube.game.world.Chunk;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
@@ -84,19 +84,19 @@ public class ChunkSave {
     }
 
     public void applyTo(Chunk chunk){
-        for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
+        /*for(int i = 0; i < Chunk.CHUNK_WIDTH;i++){
             for(int j = 0; j < Chunk.CHUNK_HEIGHT;j++){
                 for(int k = 0; k < Chunk.CHUNK_WIDTH;k++){
 
                     int cube = modified[i][j][k];
 
                     if(cube >= 0){
-                        chunk.blocks[i][j][k] = cube;
+                        chunk.setBlock([i][j][k] = cube;
                     }
 
                 }
             }
-        }
+        }*/
     }
 
     private static boolean hasChange(int[][][] colors, int y){

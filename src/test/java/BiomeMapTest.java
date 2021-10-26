@@ -1,6 +1,6 @@
-import me.cube.engine.game.world.BiomeMap;
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.generator.Biome;
+import me.cube.game.world.BiomeMap;
+import me.cube.game.world.Chunk;
+import me.cube.game.world.generator.Biome;
 import org.joml.Vector2f;
 import org.junit.Test;
 
@@ -8,10 +8,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 
 import java.awt.image.BufferedImage;
 

@@ -41,7 +41,8 @@ public class Cube {
     //It is supposed to calculate the color each vertex of the cube should be but it gets fucked when there are underground blocks
     //And for horizontal sides of the cubes it can get really fucky
     private Vector3f calculateColor(int minX, int maxX, int minY, int maxY, int minZ, int maxZ){
-
+        return new Vector3f(red, green, blue);
+/*
         if(alpha < 1 || (flags & FLAG_NO_COLOR_BLEED) != 0){
             return new Vector3f(red, green, blue);
         }
@@ -78,7 +79,7 @@ public class Cube {
             }
         }
 
-        return outputColor.mul(1f / legit);
+        return outputColor.mul(1f / legit);*/
     }
 
     private static Vector3f rgbToVector(int rgb){

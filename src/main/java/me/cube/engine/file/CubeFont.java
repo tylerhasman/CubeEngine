@@ -43,19 +43,19 @@ public class CubeFont {
             }
             Voxel glyph = new Voxel("glyph-"+i, glyphMap.get(text.charAt(i)));
 
-            glyph.getTransform().translate(width, 0, 0);
+            glyph.position.add(width, 0, 0);
 
             if(i < text.length()-1)
                 width += glyphData.get(text.charAt(i)).width;
 
-            parent.getTransform().addChild(glyph.getTransform());
+            parent.addChild(glyph);
 
             glyphs[i] = glyph;
         }
 
         for(int i = 0; i < glyphs.length;i++){
             if(glyphs[i] != null){
-                glyphs[i].getTransform().translate(- width / 2f, 0, 0);
+                glyphs[i].position.add(- width / 2f, 0, 0);
             }
         }
 

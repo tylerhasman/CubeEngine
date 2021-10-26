@@ -1,0 +1,8 @@
+{
+  "name": "Blur Material",
+  "shader": "assets/shaders/blurShader",
+  "uniforms": {
+
+  }
+
+}

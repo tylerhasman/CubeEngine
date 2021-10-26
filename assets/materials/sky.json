@@ -1,0 +1,9 @@
+{
+  "name": "Sky Material",
+  "shader": "assets/shaders/skyShader",
+  "uniforms": {
+    "zenithColor" : "v3: 0.53, 0.8, 1.0",
+    "horizonColor" : "v3: 0.86, 0.94, 0.976"
+  }
+
+}

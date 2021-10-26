@@ -4,6 +4,12 @@ import me.cube.engine.file.Assets;
 import me.cube.engine.model.VoxelMesh;
 import me.cube.engine.shader.Material;
 import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 
@@ -13,9 +19,15 @@ public class Voxel {
 
     public VoxelMesh model;
 
-    private final Transform transform;
-
     private Material material;
+
+    public final Vector3f position, scale;
+    public final Quaternionf rotation;
+
+    private Voxel parent;
+    private List<Voxel> children;
+
+    public boolean transparent;
 
     public Voxel(){
         this("unnamed");
@@ -34,11 +46,46 @@ public class Voxel {
         this.model = model;
 
         this.material = material;
-        this.transform = new Transform(this);
+
+        transparent = false;
+
+        position = new Vector3f();
+        scale = new Vector3f(1, 1, 1);
+        rotation = new Quaternionf().identity();
+
+        children = new ArrayList<>();
     }
 
-    public Transform getTransform() {
-        return transform;
+    public void setParent(Voxel parent) {
+        if(this.parent != null){
+            this.parent.children.remove(this);
+        }
+        this.parent = parent;
+        parent.children.add(this);
+    }
+
+    public void addChild(Voxel child){
+        if(child.parent != null){
+            child.parent.children.remove(child);
+        }
+        children.add(child);
+        child.parent = this;
+    }
+
+    private Matrix4f getLocalFrame(){
+        return new Matrix4f().translate(position).scale(scale).rotate(rotation);
+    }
+
+    private Matrix4f getWorldFrame(){
+        Matrix4f frame = new Matrix4f();
+
+        if(parent != null){
+            frame.mul(parent.getWorldFrame());
+        }
+
+        frame.mul(getLocalFrame());
+
+        return frame;
     }
 
     /**
@@ -46,14 +93,14 @@ public class Voxel {
      */
     public Voxel getChild(String name){
 
-        for(Transform child : transform.getChildren()){
-            if(child.voxel.name.equals(name)){
-                return child.voxel;
+        for(Voxel child : children){
+            if(child.name.equals(name)){
+                return child;
             }
         }
 
-        for(Transform child : transform.getChildren()){
-            Voxel found = child.voxel.getChild(name);
+        for(Voxel child : children){
+            Voxel found = child.getChild(name);
             if(found != null){
                 return found;
             }
@@ -69,32 +116,29 @@ public class Voxel {
     public void render(Material material, boolean overrideChildrenMaterial){
         if(model != null){
 
+            Matrix4f frame = getWorldFrame();
+            Matrix3f normalMatrix = new Matrix3f(frame.transpose(new Matrix4f()).invert());
+
             material.setUniformMat4f("ProjectionMatrix", Camera.projectionMatrix);
             material.setUniformMat4f("ViewMatrix", Camera.cameraMatrix);
 
-            material.setUniformMat4f("ModelMatrix", transform.getTransformation());
-
-            Matrix3f normalMatrix = new Matrix3f(transform.getTransformation().transpose().invert());
+            material.setUniformMat4f("ModelMatrix", frame);
 
             material.setUniformMat3f("NormalMatrix", normalMatrix);
 
-            Assets.getAmbientOcclusion().sendKernalToShader(material);
-
-            material.setUniformi("u_NoiseTex", 0);
-            Assets.getAmbientOcclusion().bindNoiseTexture(GL_TEXTURE0);
+            material.setUniform3f("u_AmbientLight", new Vector3f(1));
 
             material.bind();
 
             model.render();
 
-            material.unbind();
         }
 
-        for(Transform child : transform.getChildren()){
+        for(Voxel child : children){
             if(overrideChildrenMaterial){
-                child.voxel.render(material, true);
+                child.render(material, true);
             }else{
-                child.voxel.render();
+                child.render();
             }
         }
     }
@@ -108,8 +152,8 @@ public class Voxel {
 
     public Material getMaterial() {
         if(material == null){
-            if(transform.hasParent()){
-                return transform.getParent().voxel.getMaterial();
+            if(parent != null){
+                return parent.getMaterial();
             }else{
                 material = Assets.defaultMaterial();
             }

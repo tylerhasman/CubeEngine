@@ -13,10 +13,6 @@ import static org.lwjgl.opengl.GL20C.glVertexAttribPointer;
 
 public class Mesh {
 
-    private int indices;
-    private int vertexHandle, colorHandle, normalHandle, texCoordHandle;
-    private boolean initialized = false, disposed = false;
-
     /**
      *         GL_POINTS         = 0x0
      *         GL_LINES          = 0x1
@@ -31,7 +27,9 @@ public class Mesh {
      */
     private final int mode;
 
-    private int quads, colors, normals;
+    private int indices;
+    private int vertexHandle, colorHandle, normalHandle, texCoordHandle;
+    private boolean initialized = false, disposed = false;
 
     protected Mesh(int mode){
         if(mode != GL11.GL_QUADS){
@@ -63,9 +61,9 @@ public class Mesh {
         if(initialized)
             throw new IllegalStateException("Mesh already initialized.");
 
-        quads = vertexBufferData.length / 3;
-        colors = colorBufferData.length / 4;
-        normals = normalBufferData.length / 3;
+        int quads = vertexBufferData.length / 3;
+        int colors = colorBufferData.length / 4;
+        int normals = normalBufferData.length / 3;
 
         if(quads != colors || quads != normals){
             throw new IllegalStateException(quads+" "+colors+" "+normals);

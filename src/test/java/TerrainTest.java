@@ -1,5 +1,4 @@
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.Terrain;
+import me.cube.game.world.Chunk;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

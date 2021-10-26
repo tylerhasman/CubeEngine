@@ -1,11 +1,11 @@
 package me.cube.engine.model;
 
-import me.cube.engine.game.world.Chunk;
-import me.cube.engine.game.world.Terrain;
+import me.cube.game.world.Chunk;
+import me.cube.game.world.Terrain;
 import me.cube.engine.util.FloatArray;
 
-import static me.cube.engine.game.world.Chunk.CHUNK_HEIGHT;
-import static me.cube.engine.game.world.Chunk.CHUNK_WIDTH;
+import static me.cube.game.world.Chunk.CHUNK_HEIGHT;
+import static me.cube.game.world.Chunk.CHUNK_WIDTH;
 
 public class AsyncChunkMesh extends VoxelMesh {
 
@@ -70,8 +70,8 @@ public class AsyncChunkMesh extends VoxelMesh {
             for(int j = 0; j < CHUNK_HEIGHT;j++){
                 for(int k = 0;k < CHUNK_WIDTH;k++){
 
-                    int color = chunk.blocks[i][j][k];
-                    byte flags = chunk.blockFlags[i][j][k];
+                    int color = chunk.getBlock(i, j, k);
+                    byte flags = 0;//chunk.blockFlags[i][j][k];
 
                     if(color != 0){
 
@@ -89,9 +89,9 @@ public class AsyncChunkMesh extends VoxelMesh {
                         cube.y = j;
                         cube.z = k;
 
-                        if((flags & Chunk.FLAG_NO_COLOR_BLEED) != 0){
+                        /*if((flags & Chunk.FLAG_NO_COLOR_BLEED) != 0){
                             cube.flags |= Cube.FLAG_NO_COLOR_BLEED;
-                        }
+                        }*/
 
                         cube.top = !isOpaque(terrain, chunk, i, j + 1, k);
                         cube.bottom = !isOpaque(terrain, chunk, i, j - 1, k);
@@ -249,7 +249,7 @@ public class AsyncChunkMesh extends VoxelMesh {
             return terrain.getCube(worldX, worldY, worldZ);
         }
 
-        return chunk.blocks[chunkX][worldY][chunkZ];
+        return chunk.getBlock(chunkX, worldY, chunkZ);
     }
 
     private static boolean isOpaque(Terrain terrain, Chunk chunk, int i, int worldY, int k){
@@ -267,7 +267,7 @@ public class AsyncChunkMesh extends VoxelMesh {
         if(i < 0 || k < 0 || i >= CHUNK_WIDTH || k >= CHUNK_WIDTH){//Outside this chunk
             color = terrain.getCube(worldX, worldY, worldZ);
         }else{
-            color = chunk.blocks[i][worldY][k];
+            color = chunk.getBlock(i, worldY, k);
         }
 
         int alpha = (color >> 24) & 0xFF;
@@ -292,7 +292,7 @@ public class AsyncChunkMesh extends VoxelMesh {
             return terrain.isSolid(worldX, worldY, worldZ);
         }
 
-        return chunk.blocks[i][worldY][k] != 0;
+        return chunk.getBlock(i, worldY, k) != 0;
     }
 
 }

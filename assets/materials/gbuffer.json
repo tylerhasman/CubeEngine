@@ -1,0 +1,8 @@
+{
+  "name": "G-Buffer Material",
+  "shader": "assets/shaders/gBufferShader",
+  "uniforms": {
+
+  }
+
+}

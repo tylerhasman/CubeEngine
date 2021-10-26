@@ -1,9 +1,9 @@
 package me.cube.engine.file;
 
 import me.cube.engine.SSAmbientOcclusion;
-import me.cube.engine.game.entity.CreatureAppearance;
-import me.cube.engine.game.entity.CreatureAppearance.BodyPart;
-import me.cube.engine.game.entity.CreatureAppearance.PartType;
+import me.cube.game.entity.CreatureAppearance;
+import me.cube.game.entity.CreatureAppearance.BodyPart;
+import me.cube.game.entity.CreatureAppearance.PartType;
 import me.cube.engine.model.Mesh;
 import me.cube.engine.model.SimpleVoxelMesh;
 import me.cube.engine.shader.Material;
@@ -27,8 +27,6 @@ public class Assets {
     private static Map<String, CubeFont> fonts = new HashMap<>();
     private static Map<String, CreatureAppearance.BodyPart> bodyParts = new HashMap<>();
 
-    private static SSAmbientOcclusion ambientOcclusion = new SSAmbientOcclusion();
-
     public static void disposeAll(){
         for(String key : models.keySet()){
             Mesh model = models.get(key);
@@ -48,11 +46,10 @@ public class Assets {
             System.out.println("[ASSET] Unloaded font "+key);
         }
 
-        ambientOcclusion.dispose();
-    }
+        models.clear();
+        materials.clear();
+        fonts.clear();
 
-    public static SSAmbientOcclusion getAmbientOcclusion() {
-        return ambientOcclusion;
     }
 
     public static Material defaultMaterial() {
