@@ -52,7 +52,7 @@ public class CubeGame extends Game {
 
         player = new Player(world);
 
-        player.position.set(10000, 35, 10000);
+        player.position.set(150, 35, 150);
 
         world.addEntity(player);
 
@@ -116,7 +116,7 @@ public class CubeGame extends Game {
     @Override
     public void render(Renderer renderer) {
 
-        world.render(renderer, player.position);
+        world.render(renderer);
 
 
     }

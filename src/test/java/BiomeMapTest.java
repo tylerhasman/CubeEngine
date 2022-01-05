@@ -1,4 +1,3 @@
-import me.cube.game.world.BiomeMap;
 import me.cube.game.world.Chunk;
 import me.cube.game.world.generator.Biome;
 import org.joml.Vector2f;

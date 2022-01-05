@@ -42,11 +42,11 @@ public class EditorGame extends Game {
     @Override
     public void init() {
 
-        cameraPosition.x = 1822;
+        cameraPosition.x = 0;
         cameraPosition.y = 59;
-        cameraPosition.z = 1457;
+        cameraPosition.z = 0;
 
-        terrain = new Terrain(10, "test");
+        terrain = new Terrain(15, "test");
 
         Camera.projectionMatrix = new Matrix4f()
                 .perspective(Math.toRadians(90f), 1280f / 720f, 0.5f, 5000);

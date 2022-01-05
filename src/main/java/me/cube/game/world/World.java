@@ -70,14 +70,7 @@ public class World {
             entity.update(delta);
         }
 
-        /*worldTime += delta;
-        if(worldTime >= ONE_DAY){
-            worldTime -= ONE_DAY;
-        }
-*/
         diffuseLights.removeIf(DiffuseLight::isRemoved);
-
-        //worldTime = 60 * 12;
 
         terrain.updateTerrain(new Vector3f(fromPosition));
         particleEngine.update(delta);
@@ -99,66 +92,10 @@ public class World {
         return String.format("%02d", hour)+":"+String.format("%02d", minute)+" "+ampm;
     }
 
-    private Vector3f applyAmbientLighting(Vector3f ambientLight){
-
-        final Vector3f moonLight = new Vector3f(46f,68f,130f).mul(1f / 255f);
-
-        float normalizedWorldTime = worldTime / (24f * 60f);
-        float sunElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
-        float moonElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 + MathUtil.PI / 2.4f);
-
-        if(sunElevation < 0.1f) {
-            sunElevation = 0.1f;
-        }
-
-        if(moonElevation < 0){
-            moonElevation = 0f;
-        }
-
-        ambientLight.mul(sunElevation);
-
-        ambientLight.lerp(moonLight, moonElevation);
-
-        return ambientLight;
-    }
-
-    private Vector3f getSunMoonPosition(){
-        float normalizedWorldTime = worldTime / (24f * 60f);
-
-        float sunX = Math.cos(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
-        float sunY = Math.sin(normalizedWorldTime * MathUtil.PI2 - MathUtil.PI / 2f);
-
-        //float moonElevation = Math.sin(normalizedWorldTime * MathUtil.PI2 + MathUtil.PI / 2.4f);
-
-        return new Vector3f(sunX, sunY, 0);
-    }
-
-    public void render(Renderer renderer, Vector3f fromPosition){
+    public void render(Renderer renderer){
 
         for(Entity entity : entities){
-
-/*
-            if(!entity.root.getTransform().hasParent()){
-
-
-            }
-
-/*            entity.root.getMaterial().setUniform3f("u_AmbientLight", ambientColor);
-            entity.root.getMaterial().setUniform3f("u_LightDirection", sunDirection);
-            entity.root.getMaterial().setUniform3f("u_LightColor", ambientColor);*/
-
-/*            for(int i = 0; i < diffuseLights.size();i++){
-                DiffuseLight light = diffuseLights.get(i);
-                entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Position", light.position);
-                entity.root.getMaterial().setUniform3f("DiffuseLight"+i+"_Color", light.color);
-                entity.root.getMaterial().setUniformf("DiffuseLight"+i+"_Intensity", 0);
-            }
-*/
-
             entity.render(renderer);
-
-            //renderBoundingBox(entity);
-
         }
 
 
@@ -166,52 +103,6 @@ public class World {
 
         terrain.renderTransparent(renderer);
 
-        //terrain.render(ambientColor, diffuseLights, new Vector3f(fromPosition));
-
-        //particleEngine.render(ambientColor, diffuseLights);
-
     }
-/*
-
-    private void renderBoundingBox(Entity entity){
-        AABBf bb = entity.boundingBox;
-
-        Voxel point = new Voxel("BB", Assets.loadModel("red_fruit.vxm"));
-
-        point.scale.set(0.5f);
-
-        float width = bb.maxX - bb.minX;
-        float height = bb.maxY - bb.minY;
-        float length = bb.maxZ - bb.minZ;
-
-        point.position.set(bb.minX, bb.minY, bb.minZ);
-        point.render();
-
-        point.position.set(bb.minX, bb.minY + height, bb.minZ);
-        point.render();
-
-        point.position.set(bb.minX + width, bb.minY, bb.minZ);
-        point.render();
-
-        point.position.set(bb.minX + width, bb.minY + height, bb.minZ);
-        point.render();
-
-        point.position.set(bb.minX + width, bb.minY, bb.minZ + length);
-        point.render();
-
-        point.position.set(bb.minX + width, bb.minY + height, bb.minZ + length);
-        point.render();
-
-        point.position.set(bb.maxX, bb.maxY, bb.maxZ);
-        point.render();
-
-        point.position.set(bb.minX, bb.minY + height, bb.minZ + length);
-        point.render();
-
-        point.position.set(bb.minX, bb.minY, bb.minZ + length);
-        point.render();
-
-    }
-*/
 
 }

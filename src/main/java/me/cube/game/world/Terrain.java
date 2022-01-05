@@ -1,12 +1,13 @@
 package me.cube.game.world;
 
 import me.cube.engine.Renderer;
-import me.cube.engine.Voxel;
-import me.cube.game.world.generator.*;
 import org.joml.AABBf;
 import org.joml.Vector3f;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -31,16 +32,14 @@ public class Terrain {
     private static final float FLUFF_RENDER_DISTANCE = 150;
 
     private ChunkStorage chunkStorage;
-    private TerrainGenerator terrainGenerator;
     private int viewDistance;
 
     private File levelDataFolder;
 
-    private List<ChunkPopulator> populators;
-
-    private List<Voxel> fluffs;
-
     private List<Future<ChunkSnapshot>> chunkLoadFutures;
+
+    private BufferedImage albedoMap, heightMap;
+    private long albedoLastEdit, heightLastEdit;
 
     public Terrain(int viewDistance){
         this(viewDistance, "none");
@@ -48,24 +47,41 @@ public class Terrain {
 
     public Terrain(int viewDistance, String levelName){
         chunkStorage = new ChunkStorage();
-        terrainGenerator = new PerlinTerrainGenerator();
-        populators = new ArrayList<>();
 
         this.viewDistance = viewDistance;
 
         levelDataFolder = new File("assets/terrain/"+levelName);
         levelDataFolder.mkdir();
 
-        fluffs = new ArrayList<>();
-
         chunkLoadFutures = new ArrayList<>();
 
-        //populators.add(new StickStructurePopulator());
-        populators.add(new CloudPopulator(0x472391834L));
-        populators.add(new RockPopulator(0x34, 48, 2, 10));
-        populators.add(new RockPopulator(0x34, 48, 3, 20));
-        populators.add(new RockPopulator(0x34, 48, 4, 40));
-        populators.add(new ForestTreePopulator(0x342179FAFAL));
+        reloadTerrain();
+
+    }
+
+    private void reloadTerrain(){
+        unloadAll();
+
+        try {
+
+            File albedoFile = new File(levelDataFolder, "albedo.png");
+            File heightFile = new File(levelDataFolder, "heightmap.png");
+
+            albedoLastEdit = albedoFile.lastModified();
+            heightLastEdit = heightFile.lastModified();
+
+            albedoMap = ImageIO.read(albedoFile);
+            heightMap = ImageIO.read(heightFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean reloadNeeded(){
+        File albedoFile = new File(levelDataFolder, "albedo.png");
+        File heightFile = new File(levelDataFolder, "heightmap.png");
+
+        return albedoFile.lastModified() > albedoLastEdit || heightFile.lastModified() > heightLastEdit;
     }
 
     public int countLoadedChunks(){
@@ -108,8 +124,6 @@ public class Terrain {
                             }
                         }
 
-                        chunk.setBiome(chunkSnapshot.biome);
-
                         initializeChunk(chunk);
 
                     }
@@ -138,35 +152,13 @@ public class Terrain {
 
             }
         }
-/*
-        Random random = new Random();
-        int fluffCount = random.nextInt(10);
-
-        for(int i = 0; i < fluffCount;i++){
-            float spawnX = chunk.getChunkX() * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
-            float spawnZ = chunk.getChunkZ() * CHUNK_WIDTH + random.nextFloat() * CHUNK_WIDTH;
-            float spawnY = heightAt((int) Math.floor(spawnX), (int) Math.floor(spawnZ));
-
-            Voxel voxel = new Voxel();
-
-            if(random.nextInt(20) == 0){
-                voxel.model = Assets.loadModel("flower.vxm");
-            }else{
-                voxel.model = Assets.loadModel("grass.vxm");
-            }
-
-            voxel.getTransform().identity()
-                    .translate(spawnX, spawnY + 1.5f, spawnZ)
-                    .rotateAxis(random.nextFloat() * MathUtil.PI2, 0, 1, 0)
-                    .scale(random.nextFloat() * 1.5f + 0.5f)
-                    .scale(0.1f);
-
-            fluffs.add(voxel);
-
-        }*/
     }
 
     public void updateTerrain(Vector3f playerPosition){
+
+        if(reloadNeeded()){
+            reloadTerrain();
+        }
 
         checkChunkLoads();
 
@@ -220,20 +212,6 @@ public class Terrain {
             }
         }
 
-/*        if(unloaded){
-            fluffs.removeIf(fluff -> {
-                Vector3f position = fluff.getTransform().getPosition();
-                int chunkX = (int) Math.floor(position.x / CHUNK_WIDTH);
-                int chunkZ = (int) Math.floor(position.z / CHUNK_WIDTH);
-
-                return !chunkStorage.isLoaded(chunkX, chunkZ);
-            });
-        }*/
-
-    }
-
-    public TerrainGenerator getTerrainGenerator() {
-        return terrainGenerator;
     }
 
     public void dispose(){
@@ -251,47 +229,6 @@ public class Terrain {
         return -1;
     }
 
-/*
-    public Biome biomeAt(int x, int z){
-        return terrainGenerator.biomeAt(x, z);
-    }
-
-    public int heightAt(int x, int z){
-        return terrainGenerator.heightAt(x, z);
-    }
-*/
-
-    public Biome biomeAt(int x, int z){
-        int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
-        int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
-
-        if(chunkStorage.isLoaded(chunkX, chunkZ)){
-            Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
-
-            return chunk.getBiome();
-        }
-
-        return terrainGenerator.chunkBiome(chunkX, chunkZ);
-    }
-
-    public int groundHeightAt(int x, int z){
-        /*int chunkX = Math.floorDiv(x, CHUNK_WIDTH);
-        int chunkZ = Math.floorDiv(z, CHUNK_WIDTH);
-
-        int xInChunk = x - chunkX * CHUNK_WIDTH;
-        int zInChunk = z - chunkZ * CHUNK_WIDTH;
-
-        if(chunkStorage.isLoaded(chunkX, chunkZ)){
-            Chunk chunk = chunkStorage.getChunk(chunkX, chunkZ);
-
-            return chunk.firstEmptyBlock(xInChunk, zInChunk) - 1;
-        }
-
-        */
-
-        return terrainGenerator.heightAt(x, z);
-    }
-
     private void generateChunk(final int x, final int z){
 
         Chunk chunk = new Chunk(this, x, z);
@@ -302,13 +239,19 @@ public class Terrain {
 
             ChunkSnapshot snapshot = new ChunkSnapshot(x, z);
 
-            //TODO: Just have this be thread safe so we can use terrainGenerator
-            PerlinTerrainGenerator perlinTerrainGenerator = new PerlinTerrainGenerator();
+            if(x >= 0 && z >= 0 && x < heightMap.getWidth() / CHUNK_WIDTH && z < heightMap.getHeight() / CHUNK_WIDTH){
+                for(int i = 0; i < CHUNK_WIDTH;i++){
+                    for(int k = 0; k < CHUNK_WIDTH;k++){
 
-            perlinTerrainGenerator.generateChunk(x, z, snapshot);
+                        int height = 0xFF - heightMap.getRGB(x * CHUNK_WIDTH + i, z * CHUNK_WIDTH + k) & 0xFF;
+                        int albedo = albedoMap.getRGB(x * CHUNK_WIDTH + i, z * CHUNK_WIDTH + k);
 
-            for(ChunkPopulator populator : populators){
-                populator.populateChunk(this, snapshot);
+                        for(int j = 0; j < height;j++){
+                            snapshot.blocks[i][j][k] = 0xFF000000 | albedo;
+                        }
+
+                    }
+                }
             }
 
             return snapshot;
@@ -325,14 +268,6 @@ public class Terrain {
         for(Chunk chunk : chunkStorage.getLoadedChunks()){
             chunk.render(renderer);
         }
-/*
-        for(Voxel fluff : fluffs){
-            if(fluff.getTransform().getPosition().distanceSquared(playerPosition) < FLUFF_RENDER_DISTANCE * FLUFF_RENDER_DISTANCE){
-                fluff.getMaterial().setUniform3f("u_AmbientLight", ambientLight);
-
-                fluff.render();
-            }
-        }*/
     }
 
     public void renderTransparent(Renderer renderer) {
