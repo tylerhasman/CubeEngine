@@ -4,7 +4,7 @@ Voxel Engine written in Java with OpenGL.
 
 ## Features
 
-- Procederally generated terrain using Voronoi diagrams and Perlin Noise
+- Procedurally generated terrain using Voronoi diagrams and Perlin Noise
   - Voronoi diagrams are used to separate biomes
   - Perlin Noise is used to generate random noise for biome hills
 - SSAO using Deferred Rendering
