@@ -20,7 +20,7 @@ Run Start.java to start a very basic game where you can run around.
 
 or
 
-Run StartEditor.java to start a very basic edit where you can fly around.
+Run StartEditor.java to start a very basic editor where you can fly around.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
