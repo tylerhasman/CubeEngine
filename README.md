@@ -1,6 +1,6 @@
 # Cube Engine
 
-Voxel Engine written in Java with OpenGL.
+Voxel Engine written in Java with OpenGL. Partially rewritten in C++ [here](https://github.com/tylerhasman/Voxel-Game-CPP)
 
 ## Features
 
